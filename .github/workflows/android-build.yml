@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -82,3 +85,12 @@ jobs:
             app-title.png
             app-after-new-life.png
           if-no-files-found: error
+
+      - name: Publish verified beta APK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk The-Long-Way-Home-Beta-1.0.apk
+          gh release view beta-1.0 >/dev/null 2>&1 ||             gh release create beta-1.0               --title "The Long Way Home — Beta 1.0"               --notes "Android Beta 1.0. Built by GitHub Actions and smoke-tested on an Android emulator before publication."
+          gh release upload beta-1.0 The-Long-Way-Home-Beta-1.0.apk --clobber
