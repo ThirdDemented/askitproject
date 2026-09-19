@@ -43,21 +43,30 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Install and launch on Android emulator
+      - name: Install, launch, and tap New Life on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
-          target: google_apis
+          target: default
           arch: x86_64
           profile: pixel_6
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
           script: |
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -W -n com.thelongwayhome.game/.MainActivity
             sleep 6
             test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
-            adb exec-out screencap -p > app-launch.png
+            adb shell dumpsys activity activities | grep -q "com.thelongwayhome.game"
+            adb exec-out screencap -p > app-title.png
+
+            SIZE=$(adb shell wm size | sed -n 's/.*Physical size: //p' | tail -1 | tr -d '\r')
+            W=${SIZE%x*}
+            H=${SIZE#*x}
+            adb shell input tap $((W/2)) $((H*74/100))
+            sleep 3
+            test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
+            adb exec-out screencap -p > app-after-new-life.png
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -66,9 +75,11 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-      - name: Upload launch screenshot
+      - name: Upload launch screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: The-Long-Way-Home-launch-smoke-test
-          path: app-launch.png
+          name: The-Long-Way-Home-emulator-test
+          path: |
+            app-title.png
+            app-after-new-life.png
           if-no-files-found: error
