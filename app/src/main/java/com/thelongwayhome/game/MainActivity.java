@@ -3,6 +3,7 @@ package com.thelongwayhome.game;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -14,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private WebView webView;
+    private boolean smokeTriggered = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,22 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
 
         webView.setWebChromeClient(new WebChromeClient());
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                if (!smokeTriggered && getIntent().getBooleanExtra("smokeTest", false)) {
+                    smokeTriggered = true;
+                    view.postDelayed(() -> view.evaluateJavascript(
+                        "(()=>{const b=document.getElementById('newGameBtn');" +
+                        "if(!b)return 'missing-button';b.click();" +
+                        "const s=document.getElementById('setupScreen');" +
+                        "return s&&s.classList.contains('active')?'true':'false';})()",
+                        value -> Log.i("LWH_SMOKE", value == null ? "null" : value.replace("\"", ""))
+                    ), 700);
+                }
+            }
+        });
         setContentView(webView);
 
         try {
@@ -66,6 +83,7 @@ public class MainActivity extends Activity {
                 null
             );
         } catch (Exception e) {
+            Log.e("LWH", "Unable to load embedded game", e);
             webView.loadData(
                 "<html><body style='background:#000;color:#fff;font-family:monospace;padding:20px'>Unable to load game.</body></html>",
                 "text/html",
