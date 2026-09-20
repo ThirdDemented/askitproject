@@ -46,7 +46,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Install, launch, and verify New Life inside Android WebView
+      - name: Install and verify portrait + landscape gameplay
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -59,22 +59,20 @@ jobs:
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb logcat -c
             adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true
-            sleep 8
+            sleep 10
             test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
             adb shell dumpsys activity activities | grep -q "com.thelongwayhome.game"
-            adb logcat -d -s LWH_SMOKE:I '*:S' | tee smoke.log
+            adb logcat -d -s LWH_SMOKE:I LWH_ROAD_SMOKE:I LWH_LANDSCAPE:I '*:S' | tee smoke.log
             grep -q "LWH_SMOKE: true" smoke.log
-            adb exec-out screencap -p > app-after-new-life-portrait.png
-            adb shell settings put system accelerometer_rotation 0
-            adb shell settings put system user_rotation 1
+            grep -q "LWH_ROAD_SMOKE: true" smoke.log
+            grep -q "LWH_LANDSCAPE: true" smoke.log
+            adb exec-out screencap -p > app-road-landscape.png
+
+            adb shell am force-stop com.thelongwayhome.game
+            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez forcePortrait true
             sleep 5
             test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
-            adb exec-out screencap -p > app-after-new-life-landscape.png
-            adb shell settings put system user_rotation 0
-            adb shell am force-stop com.thelongwayhome.game
-            adb shell am start -W -n com.thelongwayhome.game/.MainActivity
-            sleep 5
-            adb exec-out screencap -p > app-title.png
+            adb exec-out screencap -p > app-title-portrait.png
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -88,9 +86,8 @@ jobs:
         with:
           name: The-Long-Way-Home-emulator-test
           path: |
-            app-title.png
-            app-after-new-life-portrait.png
-            app-after-new-life-landscape.png
+            app-title-portrait.png
+            app-road-landscape.png
           if-no-files-found: error
 
       - name: Publish verified beta APK release
@@ -98,6 +95,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk The-Long-Way-Home-Beta-1.1.apk
-          gh release view beta-1.1 >/dev/null 2>&1 ||             gh release create beta-1.1               --title "The Long Way Home — Beta 1.1"               --notes "Android Beta 1.1. Built by GitHub Actions and smoke-tested on an Android emulator before publication."
-          gh release upload beta-1.1 The-Long-Way-Home-Beta-1.1.apk --clobber
+          cp app/build/outputs/apk/debug/app-debug.apk The-Long-Way-Home-Beta-1.2.apk
+          gh release view beta-1.2 >/dev/null 2>&1 ||             gh release create beta-1.2               --title "The Long Way Home — Beta 1.2"               --notes "Android Beta 1.2. Built by GitHub Actions and smoke-tested on an Android emulator before publication."
+          gh release upload beta-1.2 The-Long-Way-Home-Beta-1.2.apk --clobber
