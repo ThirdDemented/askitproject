@@ -142,10 +142,10 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   }
   #setupScreen .topbar{grid-column:1/-1;margin:0}
   #setupScreen>.panel{margin:0;overflow:auto}
-  #setupScreen>.panel:nth-of-type(1){grid-column:1;grid-row:2;align-self:start}
-  #setupScreen>.panel:nth-of-type(2){grid-column:2;grid-row:2}
-  #setupScreen>.panel:nth-of-type(3){grid-column:3;grid-row:2}
-  #setupScreen>.panel:nth-of-type(4){grid-column:1;grid-row:2;align-self:end}
+  #setupScreen .setup-age{grid-column:1;grid-row:2;align-self:start}
+  #setupScreen .setup-route{grid-column:1;grid-row:2;align-self:end;max-height:58%}
+  #setupScreen .setup-career{grid-column:2;grid-row:2}
+  #setupScreen .setup-reason{grid-column:3;grid-row:2}
   #setupScreen #beginLifeBtn{grid-column:1/-1;grid-row:3;margin:0;min-height:44px}
   #setupScreen #careerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
   #setupScreen #reasonGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -158,10 +158,10 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   #prepScreen .topbar{grid-column:1/-1;margin:0}
   #prepScreen #prepStats{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}
   #prepScreen>.panel{margin:0;overflow:auto}
-  #prepScreen>.panel:nth-of-type(1){grid-column:1;grid-row:3}
-  #prepScreen>.panel:nth-of-type(2){grid-column:2;grid-row:3}
-  #prepScreen>.panel:nth-of-type(3){grid-column:3;grid-row:3}
-  #prepScreen>.panel:nth-of-type(4){grid-column:1;grid-row:3;align-self:end;max-height:40%}
+  #prepScreen .prep-situation{grid-column:1;grid-row:3;align-self:start;max-height:48%}
+  #prepScreen .prep-log{grid-column:1;grid-row:3;align-self:end;max-height:48%}
+  #prepScreen .prep-assets{grid-column:2;grid-row:3}
+  #prepScreen .prep-actions{grid-column:3;grid-row:3}
   #prepScreen #openMarketBtn{grid-column:1/-1;grid-row:4;margin:0;min-height:44px}
 
   #carMarketScreen.active{
@@ -199,9 +199,9 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   }
   #supplyScreen .topbar{grid-column:1/-1;margin:0}
   #supplyScreen>.panel{margin:0;overflow:auto}
-  #supplyScreen>.panel:nth-of-type(1){grid-column:1;grid-row:2}
-  #supplyScreen>.panel:nth-of-type(2){grid-column:2;grid-row:2}
-  #supplyScreen>.panel:nth-of-type(3){grid-column:1;grid-row:2;align-self:end;max-height:42%}
+  #supplyScreen .supply-car{grid-column:1;grid-row:2;align-self:start;max-height:48%}
+  #supplyScreen .supply-inventory{grid-column:1;grid-row:2;align-self:end;max-height:48%}
+  #supplyScreen .supply-shop{grid-column:2;grid-row:2}
   #supplyScreen #departBtn{grid-column:2;grid-row:3;margin:0}
   #supplyScreen #prepAgainBtn{grid-column:1;grid-row:3;margin:0}
 
@@ -251,7 +251,7 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   #tradeScreen .topbar{grid-column:1/-1;margin:0}
   #tradeScreen>.stats{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}
   #tradeScreen>.panel{margin:0;overflow:auto}
-  #tradeScreen>.panel:nth-of-type(1){grid-column:1;grid-row:3}
+  #tradeScreen .trade-legal{grid-column:1;grid-row:3}
   #tradeScreen #undergroundPanel{grid-column:2;grid-row:3}
   #tradeScreen #contactPanel{grid-column:2;grid-row:3;align-self:end}
   #tradeScreen #leaveMarketBtn{grid-column:1/-1;grid-row:4;margin:0;min-height:44px}
@@ -287,21 +287,21 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
 
 <section id="setupScreen" class="screen">
   <div class="topbar"><b>NEW LIFE</b><span>BUILD YOUR START</span></div>
-  <div class="panel"><div class="kicker">AGE</div><div class="age-row"><input id="ageRange" type="range" min="18" max="60" value="31"><div id="ageOut" class="age-number">31</div></div></div>
-  <div class="panel"><div class="kicker">CAREER</div><div id="careerGrid" class="grid2"></div></div>
-  <div class="panel"><div class="kicker">WHY ARE YOU MOVING?</div><div id="reasonGrid" class="grid2"></div></div>
-  <div class="panel"><div class="kicker">ROUTE</div><div class="field"><label>STARTING CITY</label><select id="originSelect"></select></div><div class="field"><label>DESTINATION</label><select id="destSelect"></select></div><button id="randomRouteBtn" class="btn2" type="button">RANDOMIZE CITIES</button></div>
+  <div class="panel setup-age"><div class="kicker">AGE</div><div class="age-row"><input id="ageRange" type="range" min="18" max="60" value="31"><div id="ageOut" class="age-number">31</div></div></div>
+  <div class="panel setup-career"><div class="kicker">CAREER</div><div id="careerGrid" class="grid2"></div></div>
+  <div class="panel setup-reason"><div class="kicker">WHY ARE YOU MOVING?</div><div id="reasonGrid" class="grid2"></div></div>
+  <div class="panel setup-route"><div class="kicker">ROUTE</div><div class="field"><label>STARTING CITY</label><select id="originSelect"></select></div><div class="field"><label>DESTINATION</label><select id="destSelect"></select></div><button id="randomRouteBtn" class="btn2" type="button">RANDOMIZE CITIES</button></div>
   <button id="beginLifeBtn" class="btn primary" type="button">BEGIN THIS LIFE</button>
 </section>
 
 <section id="prepScreen" class="screen">
   <div class="topbar"><b>BEFORE YOU LEAVE</b><span id="prepRoute"></span></div>
   <div id="prepStats" class="stats"></div>
-  <div class="panel"><div class="kicker">YOUR SITUATION</div><h2 id="situationTitle"></h2><p id="situationCopy"></p><div id="stipendNote" class="notice" hidden></div></div>
-  <div class="panel"><div class="kicker">YOUR ACTUAL POSSESSIONS</div><p>Finite inventory. Once something is sold, it is gone.</p><div id="assetList"></div></div>
-  <div class="panel"><div class="kicker">WAYS TO RAISE MONEY</div><div id="prepActions" class="grid2"></div></div>
+  <div class="panel prep-situation"><div class="kicker">YOUR SITUATION</div><h2 id="situationTitle"></h2><p id="situationCopy"></p><div id="stipendNote" class="notice" hidden></div></div>
+  <div class="panel prep-assets"><div class="kicker">YOUR ACTUAL POSSESSIONS</div><p>Finite inventory. Once something is sold, it is gone.</p><div id="assetList"></div></div>
+  <div class="panel prep-actions"><div class="kicker">WAYS TO RAISE MONEY</div><div id="prepActions" class="grid2"></div></div>
   <button id="openMarketBtn" class="btn primary" type="button">BUY AUTOTRADER — $2</button>
-  <div class="panel"><div class="kicker">LIFE LOG</div><div id="lifeLog" class="log"></div></div>
+  <div class="panel prep-log"><div class="kicker">LIFE LOG</div><div id="lifeLog" class="log"></div></div>
 </section>
 
 <section id="carMarketScreen" class="screen">
@@ -328,9 +328,9 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
 
 <section id="supplyScreen" class="screen">
   <div class="topbar"><b>LAST CHANCE TO PREP</b><span id="supplyCash"></span></div>
-  <div class="panel"><div class="kicker">YOUR CAR</div><h2 id="ownedCar"></h2><p id="knownIssues"></p></div>
-  <div class="panel"><div class="kicker">SUPPLIES</div><div id="supplyGrid" class="grid2"></div></div>
-  <div class="panel"><div class="kicker">INVENTORY</div><div id="inventoryView" class="chips"></div></div>
+  <div class="panel supply-car"><div class="kicker">YOUR CAR</div><h2 id="ownedCar"></h2><p id="knownIssues"></p></div>
+  <div class="panel supply-shop"><div class="kicker">SUPPLIES</div><div id="supplyGrid" class="grid2"></div></div>
+  <div class="panel supply-inventory"><div class="kicker">INVENTORY</div><div id="inventoryView" class="chips"></div></div>
   <button id="departBtn" class="btn primary" type="button">LEAVE TOWN</button>
   <button id="prepAgainBtn" class="btn" type="button">WAIT — KEEP PREPARING</button>
 </section>
@@ -366,7 +366,7 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
 <section id="tradeScreen" class="screen">
   <div class="topbar"><b>LOCAL MARKET</b><span id="tradeLocation"></span></div>
   <div class="stats"><div class="stat"><b id="tradeCash"></b><span>CASH</span></div><div class="stat"><b id="cargoUsed"></b><span>CARGO</span></div></div>
-  <div class="panel"><div class="kicker">LEGAL / GRAY MARKET</div><div id="tradeList"></div></div>
+  <div class="panel trade-legal"><div class="kicker">LEGAL / GRAY MARKET</div><div id="tradeList"></div></div>
   <div id="undergroundPanel" class="panel" hidden><div class="kicker">UNDERGROUND MARKET</div><div class="heat"><span>HEAT</span><div class="heatbar"><i id="heatBar"></i></div><b id="heatOut"></b></div><p style="margin-top:7px">Fictional contraband only. High margins, high consequences.</p><div id="undergroundList"></div></div>
   <div id="contactPanel" class="notice" hidden></div>
   <button id="leaveMarketBtn" class="btn primary" type="button">BACK TO THE ROAD</button>
