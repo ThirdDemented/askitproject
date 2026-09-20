@@ -64,7 +64,13 @@ jobs:
             adb shell dumpsys activity activities | grep -q "com.thelongwayhome.game"
             adb logcat -d -s LWH_SMOKE:I '*:S' | tee smoke.log
             grep -q "LWH_SMOKE: true" smoke.log
-            adb exec-out screencap -p > app-after-new-life.png
+            adb exec-out screencap -p > app-after-new-life-portrait.png
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation 1
+            sleep 5
+            test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
+            adb exec-out screencap -p > app-after-new-life-landscape.png
+            adb shell settings put system user_rotation 0
             adb shell am force-stop com.thelongwayhome.game
             adb shell am start -W -n com.thelongwayhome.game/.MainActivity
             sleep 5
@@ -83,7 +89,8 @@ jobs:
           name: The-Long-Way-Home-emulator-test
           path: |
             app-title.png
-            app-after-new-life.png
+            app-after-new-life-portrait.png
+            app-after-new-life-landscape.png
           if-no-files-found: error
 
       - name: Publish verified beta APK release
@@ -91,6 +98,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk The-Long-Way-Home-Beta-1.0.apk
-          gh release view beta-1.0 >/dev/null 2>&1 ||             gh release create beta-1.0               --title "The Long Way Home — Beta 1.0"               --notes "Android Beta 1.0. Built by GitHub Actions and smoke-tested on an Android emulator before publication."
-          gh release upload beta-1.0 The-Long-Way-Home-Beta-1.0.apk --clobber
+          cp app/build/outputs/apk/debug/app-debug.apk The-Long-Way-Home-Beta-1.1.apk
+          gh release view beta-1.1 >/dev/null 2>&1 ||             gh release create beta-1.1               --title "The Long Way Home — Beta 1.1"               --notes "Android Beta 1.1. Built by GitHub Actions and smoke-tested on an Android emulator before publication."
+          gh release upload beta-1.1 The-Long-Way-Home-Beta-1.1.apk --clobber

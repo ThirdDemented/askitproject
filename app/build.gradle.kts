@@ -10,8 +10,8 @@ android {
         applicationId = "com.thelongwayhome.game"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0-beta1"
+        versionCode = 2
+        versionName = "1.1.0-beta1"
     }
 
     buildTypes {

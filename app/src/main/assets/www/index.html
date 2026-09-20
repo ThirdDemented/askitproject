@@ -65,14 +65,60 @@ button small{display:block;color:var(--muted);font-size:.56rem;font-weight:400;l
 @media(max-width:400px){.grid2{grid-template-columns:1fr}.hero-copy h1{font-size:12vw}.stats{grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 
+
+/* === VISUAL PASS 1.1: responsive portrait + landscape === */
+.responsive-art{display:block;width:100%;height:100%}
+.responsive-art img{display:block;width:100%;height:100%;object-fit:cover}
+.visual-hero{width:100%;aspect-ratio:4/5;background:#000}
+.visual-hero .hero-copy{background:linear-gradient(transparent,rgba(0,0,0,.88));padding-top:56px}
+.road-layout{display:block}
+.road-art-scene{width:100%;aspect-ratio:360/312;background:#000}
+.road-caption{text-align:center;color:var(--muted);font-size:.54rem;letter-spacing:.12em;margin:5px 0 8px}
+.road-control-column{min-width:0}
+.road-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.road-actions .btn{margin-top:7px}
+.road-choice-stack .choice{margin-top:7px}
+@media (orientation: landscape) and (min-width:700px){
+  #app{max-width:none;width:100%;min-height:100vh}
+  .screen{max-width:1600px;margin:0 auto;padding:8px 12px 12px}
+  .center{max-width:1600px;margin:0 auto}
+  #titleScreen.center.active{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(330px,.7fr);grid-template-rows:auto auto auto;gap:10px;align-items:center;padding:10px 18px}
+  #titleScreen .visual-hero{grid-row:1/4;grid-column:1;aspect-ratio:720/239;min-height:0}
+  #titleScreen .hero-copy{padding:28px 24px 22px}
+  #titleScreen .hero-copy h1{font-size:clamp(2.2rem,4.5vw,4.8rem)}
+  #titleScreen #newGameBtn,#titleScreen #resumeBtn,#titleScreen .sound-row{grid-column:2}
+  #roadScreen .road-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(360px,.85fr);gap:10px;align-items:start}
+  #roadScreen .road-art-scene{aspect-ratio:720/239;min-height:0}
+  #roadScreen .road-visual-column{position:sticky;top:8px}
+  #roadScreen .road-control-column{display:flex;flex-direction:column;gap:6px}
+  #roadScreen .road-control-column>.notice,
+  #roadScreen .road-control-column>.drive-stats,
+  #roadScreen .road-control-column>.progress,
+  #roadScreen .road-control-column>.panel,
+  #roadScreen .road-control-column>.event{margin-top:0}
+  #roadScreen .compact-road-panel{padding:8px}
+  #roadScreen .road-event h2{font-size:1rem}
+  #roadScreen .road-event p{font-size:.71rem}
+  #roadScreen .road-actions{grid-template-columns:1fr 1fr}
+  #roadScreen .btn{min-height:46px}
+}
+@media (orientation: portrait){
+  .visual-hero{aspect-ratio:360/430}
+  .visual-hero .responsive-art img{object-position:center top}
+}
+
 </style>
 </head>
 <body>
 <div id="app">
 
 <section id="titleScreen" class="center active">
-  <div class="hero">
-    <canvas id="titleCanvas" width="320" height="420" aria-label="Pixel art highway title scene"></canvas>
+  <div class="hero visual-hero">
+    <picture class="responsive-art">
+      <source media="(orientation: landscape)" srcset="art/drive-landscape.webp">
+      <img src="art/drive-portrait.webp" alt="First-person pixel-art road trip from inside a classic sedan">
+    </picture>
+    <canvas id="titleCanvas" width="320" height="420" aria-hidden="true" hidden></canvas>
     <div class="hero-copy"><small>LIFE SIMULATOR • ROAD SURVIVAL</small><h1>THE LONG<br>WAY HOME</h1></div>
   </div>
   <button id="newGameBtn" class="btn primary" type="button">▶ NEW LIFE</button>
@@ -131,16 +177,31 @@ button small{display:block;color:var(--muted);font-size:.56rem;font-weight:400;l
 </section>
 
 <section id="roadScreen" class="screen">
-  <div class="topbar"><b id="roadDay">DAY 1</b><span id="roadRoute"></span></div>
-  <div class="scene"><canvas id="roadCanvas" width="320" height="400"></canvas></div>
-  <div id="routeInstruction" class="notice good">ROUTE: Continue toward destination.</div>
-  <div class="drive-stats"><div><span>FUEL</span><b id="fuelOut">100%</b></div><div><span>CONDITION</span><b id="conditionOut">100%</b></div><div><span>CASH</span><b id="cashOut">$0</b></div></div>
-  <div class="progress"><i id="tripProgress"></i></div>
-  <div class="panel"><div class="meterrow"><span>FATIGUE</span><div class="meter"><i id="fatigueBar"></i></div><b id="fatigueOut"></b></div><div class="meterrow"><span>HUNGER</span><div class="meter"><i id="hungerBar"></i></div><b id="hungerOut"></b></div><div class="meterrow"><span>MORALE</span><div class="meter"><i id="moraleBar"></i></div><b id="moraleOut"></b></div><div id="roadInventory" class="chips"></div></div>
-  <div class="event"><span id="eventTag" class="tag">ROAD</span><h2 id="eventTitle">YOU PULL ONTO THE HIGHWAY.</h2><p id="eventBody"></p></div>
-  <div id="eventChoices"></div>
-  <button id="driveLegBtn" class="btn primary" type="button">DRIVE 50 MILES</button>
-  <button id="marketStopBtn" class="btn" type="button">CHECK LOCAL MARKET</button>
+  <div class="topbar road-top"><b id="roadDay">DAY 1</b><span id="roadRoute"></span></div>
+  <div class="road-layout">
+    <div class="road-visual-column">
+      <div class="scene road-art-scene">
+        <picture class="responsive-art">
+          <source media="(orientation: landscape)" srcset="art/drive-landscape.webp">
+          <img src="art/drive-portrait.webp" alt="Pixel-art highway seen through the windshield of your car">
+        </picture>
+        <canvas id="roadCanvas" width="320" height="400" aria-hidden="true" hidden></canvas>
+      </div>
+      <div class="road-caption">YOUR CAR • YOUR ROAD • YOUR CONSEQUENCES</div>
+    </div>
+    <div class="road-control-column">
+      <div id="routeInstruction" class="notice good">ROUTE: Continue toward destination.</div>
+      <div class="drive-stats"><div><span>FUEL</span><b id="fuelOut">100%</b></div><div><span>CONDITION</span><b id="conditionOut">100%</b></div><div><span>CASH</span><b id="cashOut">$0</b></div></div>
+      <div class="progress"><i id="tripProgress"></i></div>
+      <div class="panel compact-road-panel"><div class="meterrow"><span>FATIGUE</span><div class="meter"><i id="fatigueBar"></i></div><b id="fatigueOut"></b></div><div class="meterrow"><span>HUNGER</span><div class="meter"><i id="hungerBar"></i></div><b id="hungerOut"></b></div><div class="meterrow"><span>MORALE</span><div class="meter"><i id="moraleBar"></i></div><b id="moraleOut"></b></div><div id="roadInventory" class="chips"></div></div>
+      <div class="event road-event"><span id="eventTag" class="tag">ROAD</span><h2 id="eventTitle">YOU PULL ONTO THE HIGHWAY.</h2><p id="eventBody"></p></div>
+      <div id="eventChoices" class="road-choice-stack"></div>
+      <div class="road-actions">
+        <button id="driveLegBtn" class="btn primary" type="button">DRIVE 50 MILES</button>
+        <button id="marketStopBtn" class="btn" type="button">CHECK LOCAL MARKET</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="tradeScreen" class="screen">
