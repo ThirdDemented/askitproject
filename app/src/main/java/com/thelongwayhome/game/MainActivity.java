@@ -106,7 +106,11 @@ public class MainActivity extends Activity {
         });
 
         setContentView(webView);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        if (getIntent().getBooleanExtra("forcePortrait", false)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        }
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
