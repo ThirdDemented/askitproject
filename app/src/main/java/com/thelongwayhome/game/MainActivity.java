@@ -1,21 +1,40 @@
 package com.thelongwayhome.game;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends Activity {
     private WebView webView;
     private boolean smokeTriggered = false;
+
+    public class OrientationBridge {
+        @JavascriptInterface
+        public void toggle() {
+            runOnUiThread(() -> {
+                int orientation = getResources().getConfiguration().orientation;
+                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                } else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void autoRotate() {
+            runOnUiThread(() -> setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +65,7 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
 
+        webView.addJavascriptInterface(new OrientationBridge(), "AndroidOrientation");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -53,18 +73,40 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 if (!smokeTriggered && getIntent().getBooleanExtra("smokeTest", false)) {
                     smokeTriggered = true;
+
                     view.postDelayed(() -> view.evaluateJavascript(
-                        "(()=>{const b=document.getElementById('newGameBtn');" +
-                        "if(!b)return 'missing-button';b.click();" +
-                        "const s=document.getElementById('setupScreen');" +
-                        "return s&&s.classList.contains('active')?'true':'false';})()",
+                        "(()=>{const b=document.getElementById('newGameBtn');if(!b)return 'missing-button';b.click();" +
+                        "const s=document.getElementById('setupScreen');return s&&s.classList.contains('active')?'true':'false';})()",
                         value -> Log.i("LWH_SMOKE", value == null ? "null" : value.replace("\"", ""))
                     ), 700);
+
+                    view.postDelayed(() -> view.evaluateJavascript(
+                        "(()=>{try{" +
+                        "document.querySelector('#careerGrid button')?.click();" +
+                        "document.querySelector('#reasonGrid button')?.click();" +
+                        "document.getElementById('beginLifeBtn')?.click();" +
+                        "document.getElementById('openMarketBtn')?.click();" +
+                        "document.getElementById('visitSellerBtn')?.click();" +
+                        "document.getElementById('buyCarBtn')?.click();" +
+                        "document.getElementById('departBtn')?.click();" +
+                        "return document.getElementById('roadScreen')?.classList.contains('active')?'true':'false';" +
+                        "}catch(e){return 'error:'+e.message}})()",
+                        value -> Log.i("LWH_ROAD_SMOKE", value == null ? "null" : value.replace("\"", ""))
+                    ), 1800);
+
+                    view.postDelayed(() -> {
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        view.postDelayed(() -> view.evaluateJavascript(
+                            "(()=>window.innerWidth>window.innerHeight?'true':'false')()",
+                            value -> Log.i("LWH_LANDSCAPE", value == null ? "null" : value.replace("\"", ""))
+                        ), 1800);
+                    }, 3200);
                 }
             }
         });
-        setContentView(webView);
 
+        setContentView(webView);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
