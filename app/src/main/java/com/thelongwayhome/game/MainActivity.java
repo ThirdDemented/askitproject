@@ -65,31 +65,7 @@ public class MainActivity extends Activity {
         });
         setContentView(webView);
 
-        try {
-            InputStream input = getAssets().open("www/index.html");
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            byte[] buffer = new byte[8192];
-            int count;
-            while ((count = input.read(buffer)) != -1) {
-                output.write(buffer, 0, count);
-            }
-            input.close();
-            String html = output.toString(StandardCharsets.UTF_8.name());
-            webView.loadDataWithBaseURL(
-                "https://app.local/",
-                html,
-                "text/html",
-                "UTF-8",
-                null
-            );
-        } catch (Exception e) {
-            Log.e("LWH", "Unable to load embedded game", e);
-            webView.loadData(
-                "<html><body style='background:#000;color:#fff;font-family:monospace;padding:20px'>Unable to load game.</body></html>",
-                "text/html",
-                "UTF-8"
-            );
-        }
+        webView.loadUrl("file:///android_asset/www/index.html");
     }
 
     @Override
