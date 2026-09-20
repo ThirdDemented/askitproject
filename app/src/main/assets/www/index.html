@@ -266,6 +266,13 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   #endingScreen #againBtn{grid-column:2;grid-row:2;margin:0}
 }
 
+
+.orientation-btn{min-height:42px}
+.orientation-icon{width:42px;min-width:42px;height:36px;min-height:36px;margin:0;padding:0;text-align:center;border:1px solid #777;background:#0b0b0b;color:var(--fg);font-size:1rem}
+@media (orientation: landscape) and (min-width:700px){
+  #roadScreen .road-top .orientation-icon{display:block}
+}
+
 </style>
 </head>
 <body>
@@ -282,7 +289,7 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   </div>
   <button id="newGameBtn" class="btn primary" type="button">▶ NEW LIFE</button>
   <button id="resumeBtn" class="btn" type="button" hidden>RESUME JOURNEY</button>
-  <div class="sound-row"><button id="soundBtn" class="btn" type="button">♪ SOUND ON</button><button id="installBtn" class="btn" type="button" hidden>INSTALL APP</button></div>
+  <div class="sound-row"><button id="soundBtn" class="btn" type="button">♪ SOUND ON</button><button id="rotateTitleBtn" class="btn orientation-btn" type="button">↻ ROTATE</button><button id="installBtn" class="btn" type="button" hidden>INSTALL APP</button></div>
 </section>
 
 <section id="setupScreen" class="screen">
@@ -336,7 +343,7 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
 </section>
 
 <section id="roadScreen" class="screen">
-  <div class="topbar road-top"><b id="roadDay">DAY 1</b><span id="roadRoute"></span></div>
+  <div class="topbar road-top"><b id="roadDay">DAY 1</b><span id="roadRoute"></span><button id="rotateRoadBtn" class="orientation-btn orientation-icon" type="button" aria-label="Rotate screen">↻</button></div>
   <div class="road-layout">
     <div class="road-visual-column">
       <div class="scene road-art-scene">
@@ -473,6 +480,15 @@ function sfx(k){if(!soundOn)return;if(k==='ui')tone(note.C5,.04);if(k==='cash'){
 function musicTick(){if(!soundOn||!audioCtx)return;const t=themes[currentTheme]||themes.title,beat=60/t.bpm/2,m=t.m[musicStep%t.m.length],b=t.b[Math.floor(musicStep/2)%t.b.length];if(m)tone(note[m],beat*.7,'square',.035,0,'music');if(musicStep%2===0&&b)tone(note[b],beat*1.2,'triangle',.03,0,'music');musicStep++}
 function startMusic(theme=currentTheme){currentTheme=theme;if(!soundOn||!ensureAudio())return;clearInterval(musicTimer);musicStep=0;musicTick();musicTimer=setInterval(musicTick,(60/(themes[currentTheme]?.bpm||110)/2)*1000)}
 function setTheme(screen){const map={titleScreen:'title',setupScreen:'title',prepScreen:'prep',carMarketScreen:'prep',sellerScreen:'prep',supplyScreen:'prep',roadScreen:'road',tradeScreen:'road',endingScreen:'end'};const t=map[screen]||'prep';if(t!==currentTheme){currentTheme=t;if(audioCtx)startMusic(t)}}
+function rotateAppView(){
+  try{
+    if(window.AndroidOrientation&&typeof window.AndroidOrientation.toggle==='function'){
+      window.AndroidOrientation.toggle();
+      return;
+    }
+  }catch(e){}
+  alert('Rotate your phone to switch orientation.');
+}
 function toggleSound(){soundOn=!soundOn;$('soundBtn').textContent=soundOn?'♪ SOUND ON':'♪ SOUND OFF';if(soundOn){if(master)master.gain.value=.55;ensureAudio();startMusic(currentTheme)}else{clearInterval(musicTimer);musicTimer=null;if(master)master.gain.value=0}}
 
 /* setup */
@@ -602,7 +618,7 @@ function resume(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));if(!s)r
 
 /* bindings */
 $('ageRange').oninput=e=>{$('ageOut').textContent=e.target.value;state.age=Number(e.target.value)};
-$('newGameBtn').onclick=()=>{startNewLife();try{ensureAudio();startMusic('title')}catch(e){}};$('resumeBtn').onclick=()=>{resume();try{ensureAudio();startMusic('title')}catch(e){}};$('soundBtn').onclick=toggleSound;
+$('newGameBtn').onclick=()=>{startNewLife();try{ensureAudio();startMusic('title')}catch(e){}};$('resumeBtn').onclick=()=>{resume();try{ensureAudio();startMusic('title')}catch(e){}};$('soundBtn').onclick=toggleSound;$('rotateTitleBtn').onclick=rotateAppView;$('rotateRoadBtn').onclick=rotateAppView;
 $('randomRouteBtn').onclick=()=>{let a=rnd(0,cities.length-1),b=rnd(0,cities.length-1);while(b===a)b=rnd(0,cities.length-1);$('originSelect').value=a;$('destSelect').value=b};$('beginLifeBtn').onclick=beginLife;
 $('openMarketBtn').onclick=openCarMarket;$('prevCarBtn').onclick=()=>{state.carIndex=(state.carIndex+state.listings.length-1)%state.listings.length;renderCarAd()};$('nextCarBtn').onclick=()=>{state.carIndex=(state.carIndex+1)%state.listings.length;renderCarAd()};$('visitSellerBtn').onclick=visitSeller;$('backPrepBtn').onclick=()=>{renderPrep();show('prepScreen')};
 $('inspectBtn').onclick=inspectCar;$('testDriveBtn').onclick=testCar;$('mechanicCheckBtn').onclick=mechanicCheck;$('negotiateBtn').onclick=showOffers;$('buyCarBtn').onclick=buyCar;$('walkAwayBtn').onclick=()=>{renderCarAd();show('carMarketScreen')};
