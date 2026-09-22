@@ -51,6 +51,10 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.BLACK);
+        // Software compositing avoids blank/black WebView frames on some devices
+        // during rapid portrait/landscape changes while keeping this mostly-static
+        // pixel-art game smooth enough for play.
+        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -73,45 +77,66 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 if (!smokeTriggered && getIntent().getBooleanExtra("smokeTest", false)) {
                     smokeTriggered = true;
+                    String mode = getIntent().getStringExtra("smokeMode");
+                    if (mode == null) mode = "road";
 
                     view.postDelayed(() -> view.evaluateJavascript(
                         "(()=>{const b=document.getElementById('newGameBtn');if(!b)return 'missing-button';b.click();" +
+                        "document.querySelector('#careerGrid button')?.click();" +
+                        "document.querySelector('#reasonGrid button')?.click();" +
                         "const s=document.getElementById('setupScreen');return s&&s.classList.contains('active')?'true':'false';})()",
-                        value -> Log.i("LWH_SMOKE", value == null ? "null" : value.replace("\"", ""))
+                        value -> Log.i("LWH_SMOKE", clean(value))
                     ), 700);
 
                     view.postDelayed(() -> view.evaluateJavascript(
+                        "(()=>{try{document.getElementById('beginLifeBtn')?.click();return 'started'}catch(e){return 'error:'+e.message}})()",
+                        value -> Log.i("LWH_BEGIN_SMOKE", clean(value))
+                    ), 1400);
+
+                    final String smokeMode = mode;
+                    view.postDelayed(() -> view.evaluateJavascript(
                         "(()=>{try{" +
-                        "document.querySelector('#careerGrid button')?.click();" +
-                        "document.querySelector('#reasonGrid button')?.click();" +
-                        "document.getElementById('beginLifeBtn')?.click();" +
+                        "const p=document.getElementById('prepScreen');if(!p?.classList.contains('active'))return 'prep-not-active';" +
                         "document.getElementById('openMarketBtn')?.click();" +
                         "document.getElementById('visitSellerBtn')?.click();" +
-                        "document.getElementById('buyCarBtn')?.click();" +
-                        "document.getElementById('departBtn')?.click();" +
-                        "return document.getElementById('roadScreen')?.classList.contains('active')?'true':'false';" +
+                        "const s=document.getElementById('sellerScreen');return s?.classList.contains('active')?'true':'false';" +
                         "}catch(e){return 'error:'+e.message}})()",
-                        value -> Log.i("LWH_ROAD_SMOKE", value == null ? "null" : value.replace("\"", ""))
-                    ), 1800);
+                        value -> {
+                            Log.i("LWH_SELLER_SMOKE", clean(value));
+                            if ("seller".equals(smokeMode)) return;
+                        }
+                    ), 2600);
 
-                    view.postDelayed(() -> {
-                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    if (!"seller".equals(mode)) {
                         view.postDelayed(() -> view.evaluateJavascript(
-                            "(()=>window.innerWidth>window.innerHeight?'true':'false')()",
-                            value -> Log.i("LWH_LANDSCAPE", value == null ? "null" : value.replace("\"", ""))
-                        ), 1800);
-                    }, 3200);
+                            "(()=>{try{" +
+                            "document.getElementById('buyCarBtn')?.click();" +
+                            "document.getElementById('departBtn')?.click();" +
+                            "const r=document.getElementById('roadScreen');" +
+                            "return r?.classList.contains('active')?'true':'false';" +
+                            "}catch(e){return 'error:'+e.message}})()",
+                            value -> Log.i("LWH_ROAD_SMOKE", clean(value))
+                        ), 3800);
+                    }
                 }
             }
         });
 
         setContentView(webView);
-        if (getIntent().getBooleanExtra("forcePortrait", false)) {
+
+        if (getIntent().getBooleanExtra("forceLandscape", false)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else if (getIntent().getBooleanExtra("forcePortrait", false)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         }
+
         webView.loadUrl("file:///android_asset/www/index.html");
+    }
+
+    private String clean(String value) {
+        return value == null ? "null" : value.replace("\"", "");
     }
 
     @Override
