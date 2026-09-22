@@ -66,10 +66,9 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
           script: |
-            APK=app/build/outputs/apk/release/app-release.apk
             adb wait-for-device
             adb shell getprop sys.boot_completed | grep -q 1
-            adb install -r "$APK"
+            adb install -r app/build/outputs/apk/release/app-release.apk
 
             # Seller screen — landscape
             adb logcat -c
