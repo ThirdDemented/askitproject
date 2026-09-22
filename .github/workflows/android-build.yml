@@ -1,4 +1,4 @@
-name: Build The Long Way Home APK
+name: Build The Long Way Home 1.0
 
 on:
   push:
@@ -29,15 +29,21 @@ jobs:
             SDKMANAGER="${ANDROID_HOME}/cmdline-tools/16.0/bin/sdkmanager"
           fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
 
-      - name: Build debug APK
-        run: gradle :app:assembleDebug --stacktrace
+      - name: Build signed release APK and AAB
+        run: gradle :app:assembleRelease :app:bundleRelease --stacktrace
+
+      - name: Verify signatures
+        shell: bash
+        run: |
+          "${ANDROID_HOME}/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/release/app-release.apk
+          jarsigner -verify -strict app/build/outputs/bundle/release/app-release.aab
 
       - name: Enable KVM
         shell: bash
@@ -46,7 +52,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Install and verify portrait + landscape gameplay
+      - name: Install and capture production QA
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -56,45 +62,137 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
           script: |
-            adb install -r app/build/outputs/apk/debug/app-debug.apk
-            adb logcat -c
-            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true
-            sleep 10
-            test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
-            adb shell dumpsys activity activities | grep -q "com.thelongwayhome.game"
-            adb logcat -d -s LWH_SMOKE:I LWH_ROAD_SMOKE:I LWH_LANDSCAPE:I '*:S' | tee smoke.log
-            grep -q "LWH_SMOKE: true" smoke.log
-            grep -q "LWH_ROAD_SMOKE: true" smoke.log
-            grep -q "LWH_LANDSCAPE: true" smoke.log
-            adb exec-out screencap -p > app-road-landscape.png
+            APK=app/build/outputs/apk/release/app-release.apk
+            adb install -r "$APK"
 
+            # Seller screen — landscape
+            adb logcat -c
+            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode seller --ez forceLandscape true
+            sleep 7
+            adb logcat -d -s LWH_SMOKE:I LWH_SELLER_SMOKE:I '*:S' | tee seller-smoke.log
+            grep -q "LWH_SMOKE: true" seller-smoke.log
+            grep -q "LWH_SELLER_SMOKE: true" seller-smoke.log
+            adb exec-out screencap -p > seller-landscape.png
+            test $(stat -c%s seller-landscape.png) -gt 30000
+
+            # Road screen — landscape
+            adb shell am force-stop com.thelongwayhome.game
+            adb logcat -c
+            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode road --ez forceLandscape true
+            sleep 9
+            adb logcat -d -s LWH_SMOKE:I LWH_ROAD_SMOKE:I '*:S' | tee road-land-smoke.log
+            grep -q "LWH_ROAD_SMOKE: true" road-land-smoke.log
+            adb exec-out screencap -p > road-landscape.png
+            test $(stat -c%s road-landscape.png) -gt 30000
+
+            # Road screen — portrait
+            adb shell am force-stop com.thelongwayhome.game
+            adb logcat -c
+            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode road --ez forcePortrait true
+            sleep 9
+            adb logcat -d -s LWH_ROAD_SMOKE:I '*:S' | tee road-port-smoke.log
+            grep -q "LWH_ROAD_SMOKE: true" road-port-smoke.log
+            adb exec-out screencap -p > road-portrait.png
+            test $(stat -c%s road-portrait.png) -gt 30000
+
+            # Clean title — portrait
             adb shell am force-stop com.thelongwayhome.game
             adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez forcePortrait true
             sleep 5
-            test -n "$(adb shell pidof com.thelongwayhome.game | tr -d '\r')"
-            adb exec-out screencap -p > app-title-portrait.png
+            adb exec-out screencap -p > title-portrait.png
+            test $(stat -c%s title-portrait.png) -gt 30000
 
-      - name: Upload APK
+      - name: Generate Play Store asset pack
+        shell: bash
+        run: |
+          python -m pip install --quiet pillow
+          python <<'PY'
+          from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageEnhance
+          from pathlib import Path
+          import shutil, zipfile
+
+          out=Path("store/generated")
+          out.mkdir(parents=True,exist_ok=True)
+
+          def fit(src,size):
+              return ImageOps.fit(Image.open(src).convert("RGB"),size,method=Image.Resampling.LANCZOS)
+
+          # Store screenshots: actual captured game UI
+          fit("road-landscape.png",(1920,1080)).save(out/"01-road-landscape.png")
+          fit("seller-landscape.png",(1920,1080)).save(out/"02-car-buying-landscape.png")
+          fit("road-portrait.png",(1080,1920)).save(out/"03-road-portrait.png")
+          fit("title-portrait.png",(1080,1920)).save(out/"04-title-portrait.png")
+
+          # Feature graphic built from actual in-game landscape capture.
+          fg=fit("road-landscape.png",(1024,500))
+          overlay=Image.new("RGBA",fg.size,(0,0,0,0))
+          od=ImageDraw.Draw(overlay)
+          od.rectangle((0,0,1024,500),fill=(0,0,0,45))
+          od.rectangle((0,330,1024,500),fill=(0,0,0,155))
+          fg=Image.alpha_composite(fg.convert("RGBA"),overlay)
+          d=ImageDraw.Draw(fg)
+          font_paths=["/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
+          font=ImageFont.truetype(next(p for p in font_paths if Path(p).exists()),64)
+          small=ImageFont.truetype(next(p for p in font_paths if Path(p).exists()),22)
+          d.text((38,350),"THE LONG WAY HOME",font=font,fill=(248,244,226,255),stroke_width=2,stroke_fill=(0,0,0,255))
+          d.text((42,430),"SAME ROADS. DIFFERENT YOU.",font=small,fill=(241,181,76,255))
+          fg.convert("RGB").save(out/"feature-graphic-1024x500.png")
+
+          # 512x512 store icon, clean and readable at small size.
+          icon=Image.new("RGBA",(512,512),(4,5,6,255))
+          d=ImageDraw.Draw(icon)
+          # sunset
+          d.rectangle((0,0,512,250),fill=(32,45,73,255))
+          d.ellipse((344,54,434,144),fill=(241,181,76,255))
+          # mountains
+          d.polygon([(0,260),(100,112),(195,260)],fill=(61,70,126,255))
+          d.polygon([(112,260),(257,78),(402,260)],fill=(80,91,157,255))
+          d.polygon([(310,260),(420,145),(512,260)],fill=(50,60,112,255))
+          # forest
+          d.rectangle((0,245,512,300),fill=(17,45,25,255))
+          # road
+          d.polygon([(196,270),(316,270),(480,512),(32,512)],fill=(48,48,50,255))
+          d.polygon([(250,290),(262,290),(286,390),(226,390)],fill=(238,222,168,255))
+          # car silhouette
+          d.rounded_rectangle((100,322,402,414),radius=18,fill=(195,198,198,255),outline=(5,5,5,255),width=10)
+          d.polygon([(155,322),(205,274),(322,274),(372,322)],fill=(195,198,198,255))
+          d.polygon([(184,314),(218,286),(255,286),(255,314)],fill=(53,72,82,255))
+          d.polygon([(264,286),(316,286),(345,314),(264,314)],fill=(53,72,82,255))
+          for x in (160,340):
+              d.ellipse((x-35,388,x+35,458),fill=(5,5,5,255))
+              d.ellipse((x-18,405,x+18,441),fill=(110,110,110,255))
+          icon.save(out/"icon-512.png")
+
+          # Package store kit.
+          kit=Path("The-Long-Way-Home-Play-Store-Kit")
+          if kit.exists(): shutil.rmtree(kit)
+          kit.mkdir()
+          for p in out.iterdir(): shutil.copy2(p,kit/p.name)
+          for name in ["STORE_LISTING.md","DATA_SAFETY.md","CONTENT_RATING.md","APP_ACCESS.md","RELEASE_NOTES_1.0.md","PLAY_CONSOLE_CHECKLIST.md"]:
+              shutil.copy2(Path("store")/name,kit/name)
+          shutil.copy2("PRIVACY.md",kit/"PRIVACY.md")
+          with zipfile.ZipFile("The-Long-Way-Home-Play-Store-Kit.zip","w",zipfile.ZIP_DEFLATED) as z:
+              for p in kit.rglob("*"):
+                  if p.is_file(): z.write(p,p.relative_to(kit.parent))
+          PY
+
+      - name: Upload production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: The-Long-Way-Home-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-
-      - name: Upload launch screenshots
-        uses: actions/upload-artifact@v4
-        with:
-          name: The-Long-Way-Home-emulator-test
+          name: The-Long-Way-Home-1.0-production
           path: |
-            app-title-portrait.png
-            app-road-landscape.png
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
+            The-Long-Way-Home-Play-Store-Kit.zip
+            store/generated/*.png
           if-no-files-found: error
 
-      - name: Publish verified beta APK release
+      - name: Publish v1.0.0 release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk The-Long-Way-Home-Beta-1.2.apk
-          gh release view beta-1.2 >/dev/null 2>&1 ||             gh release create beta-1.2               --title "The Long Way Home — Beta 1.2"               --notes "Android Beta 1.2. Built by GitHub Actions and smoke-tested on an Android emulator before publication."
-          gh release upload beta-1.2 The-Long-Way-Home-Beta-1.2.apk --clobber
+          cp app/build/outputs/apk/release/app-release.apk The-Long-Way-Home-1.0.0.apk
+          cp app/build/outputs/bundle/release/app-release.aab The-Long-Way-Home-1.0.0.aab
+          gh release view v1.0.0 >/dev/null 2>&1 ||             gh release create v1.0.0               --title "The Long Way Home — 1.0.0"               --notes-file store/RELEASE_NOTES_1.0.md
+          gh release upload v1.0.0             The-Long-Way-Home-1.0.0.apk             The-Long-Way-Home-1.0.0.aab             The-Long-Way-Home-Play-Store-Kit.zip             --clobber
