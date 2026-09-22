@@ -65,47 +65,7 @@ jobs:
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
-          script: |
-            adb wait-for-device
-            adb shell getprop sys.boot_completed | grep -q 1
-            adb install -r app/build/outputs/apk/release/app-release.apk
-
-            # Seller screen — landscape
-            adb logcat -c
-            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode seller --ez forceLandscape true
-            sleep 7
-            adb logcat -d -s LWH_SMOKE:I LWH_SELLER_SMOKE:I '*:S' | tee seller-smoke.log
-            grep -q "LWH_SMOKE: true" seller-smoke.log
-            grep -q "LWH_SELLER_SMOKE: true" seller-smoke.log
-            adb exec-out screencap -p > seller-landscape.png
-            test $(stat -c%s seller-landscape.png) -gt 30000
-
-            # Road screen — landscape
-            adb shell am force-stop com.thelongwayhome.game
-            adb logcat -c
-            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode road --ez forceLandscape true
-            sleep 9
-            adb logcat -d -s LWH_SMOKE:I LWH_ROAD_SMOKE:I '*:S' | tee road-land-smoke.log
-            grep -q "LWH_ROAD_SMOKE: true" road-land-smoke.log
-            adb exec-out screencap -p > road-landscape.png
-            test $(stat -c%s road-landscape.png) -gt 30000
-
-            # Road screen — portrait
-            adb shell am force-stop com.thelongwayhome.game
-            adb logcat -c
-            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode road --ez forcePortrait true
-            sleep 9
-            adb logcat -d -s LWH_ROAD_SMOKE:I '*:S' | tee road-port-smoke.log
-            grep -q "LWH_ROAD_SMOKE: true" road-port-smoke.log
-            adb exec-out screencap -p > road-portrait.png
-            test $(stat -c%s road-portrait.png) -gt 30000
-
-            # Clean title — portrait
-            adb shell am force-stop com.thelongwayhome.game
-            adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez forcePortrait true
-            sleep 5
-            adb exec-out screencap -p > title-portrait.png
-            test $(stat -c%s title-portrait.png) -gt 30000
+          script: bash qa/android_qa.sh
 
       - name: Generate Play Store asset pack
         shell: bash
