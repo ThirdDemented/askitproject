@@ -11,7 +11,7 @@ The app does **not** require an account and does not collect, sell, or share per
 Game progress and settings are stored locally on the player's device using the app's embedded browser storage. This data is not transmitted to the developer.
 
 ## Network use
-When an internet connection is available, the game may request road-distance and turn information from the public OSRM routing service using the latitude/longitude of the **cities selected by the player**. The app does not access device GPS, precise location, contacts, photos, microphone, camera, advertising identifiers, or other personal device data.
+When an internet connection is available, the game may use public Photon geocoding and OSRM routing services to resolve a city name entered by the player and to request road-distance/turn information for the **cities selected by the player**. The app does not access device GPS, precise device location, contacts, photos, microphone, camera, advertising identifiers, or other personal device data.
 
 If routing is unavailable, the game uses an offline distance estimate.
 
