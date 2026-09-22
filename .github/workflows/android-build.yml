@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: long-way-home-production
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,6 +67,8 @@ jobs:
           disable-animations: true
           script: |
             APK=app/build/outputs/apk/release/app-release.apk
+            adb wait-for-device
+            adb shell getprop sys.boot_completed | grep -q 1
             adb install -r "$APK"
 
             # Seller screen — landscape
