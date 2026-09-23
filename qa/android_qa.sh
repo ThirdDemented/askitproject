@@ -44,8 +44,9 @@ adb shell am force-stop com.thirdemented.longwayhome.release2026
 adb logcat -c
 adb shell am start -W -n com.thirdemented.longwayhome.release2026/com.thelongwayhome.game.MainActivity --ez smokeTest true --es smokeMode road --ez forceLandscape true
 sleep 9
-adb logcat -d -s LWH_ROAD_SMOKE:I '*:S' | tee road-land-smoke.log
+adb logcat -d -s LWH_ROAD_SMOKE:I LWH_TRIPLOG_SMOKE:I '*:S' | tee road-land-smoke.log
 grep -q "LWH_ROAD_SMOKE: true" road-land-smoke.log
+grep -q "LWH_TRIPLOG_SMOKE: true" road-land-smoke.log
 capture road-landscape.png
 
 # Road screen — portrait
@@ -53,8 +54,9 @@ adb shell am force-stop com.thirdemented.longwayhome.release2026
 adb logcat -c
 adb shell am start -W -n com.thirdemented.longwayhome.release2026/com.thelongwayhome.game.MainActivity --ez smokeTest true --es smokeMode road --ez forcePortrait true
 sleep 9
-adb logcat -d -s LWH_ROAD_SMOKE:I '*:S' | tee road-port-smoke.log
+adb logcat -d -s LWH_ROAD_SMOKE:I LWH_TRIPLOG_SMOKE:I '*:S' | tee road-port-smoke.log
 grep -q "LWH_ROAD_SMOKE: true" road-port-smoke.log
+grep -q "LWH_TRIPLOG_SMOKE: true" road-port-smoke.log
 capture road-portrait.png
 
 # Clean title — portrait
