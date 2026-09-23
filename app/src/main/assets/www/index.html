@@ -273,6 +273,16 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   #roadScreen .road-top .orientation-icon{display:block}
 }
 
+
+.car-photo{position:relative;height:190px;margin:10px 0;border:3px solid #17130d;overflow:hidden;background:linear-gradient(#df9d55 0 54%,#4b643d 54% 68%,#615342 68%)}
+.car-photo:before{content:"";position:absolute;left:-5%;right:-5%;top:54%;height:38px;background:linear-gradient(170deg,#233b24 0 55%,transparent 56%)}
+.car-photo:after{content:"";position:absolute;left:0;right:0;bottom:0;height:62px;background:linear-gradient(#5e5a50,#373532)}
+.car-photo .car-sil{position:absolute;z-index:2;left:50%;bottom:27px;width:230px;height:62px;transform:translateX(-50%);background:var(--car);border:4px solid #1d1d1d;border-radius:28px 42px 12px 12px;box-shadow:0 5px 0 rgba(0,0,0,.45)}
+.car-photo .car-sil:before{content:"";position:absolute;left:42px;top:-35px;width:130px;height:42px;background:var(--car);border:4px solid #1d1d1d;clip-path:polygon(17% 100%,32% 8%,72% 8%,95% 100%)}
+.car-photo .car-sil:after{content:"";position:absolute;left:20px;bottom:-20px;width:34px;height:34px;border-radius:50%;background:#0a0a0a;border:6px solid #555;box-shadow:151px 0 0 #0a0a0a,151px 0 0 6px #555}
+.car-photo .photo-tag{position:absolute;z-index:3;right:8px;top:8px;background:#f3e6b6;color:#1b1710;border:2px solid #332a1e;padding:4px 7px;font-size:.55rem;font-weight:900;transform:rotate(2deg)}
+.car-photo .photo-caption{position:absolute;z-index:3;left:8px;bottom:5px;color:#eee7d3;font-size:.5rem;text-shadow:1px 1px #000}
+
 </style>
 </head>
 <body>
@@ -506,8 +516,8 @@ function renderPrep(){$('prepRoute').textContent=`${cities[state.origin].n} → 
 
 /* cars and negotiation */
 function sellerState(c){if(!state.sellers[c.id])state.sellers[c.id]={ask:c.p,floor:round25(c.p*(.80+Math.random()*.10)),attempts:0,patience:rnd(2,4),accepted:false,dead:false,inspected:false,tested:false,mechanic:false,known:[],urgency:Math.random()};return state.sellers[c.id]}
-function renderCarAd(){const c=state.listings[state.carIndex],s=sellerState(c);$('marketCash').textContent=`YOU HAVE ${money(state.cash)}`;$('carAd').innerHTML=`<div class="ad"><h3>${c.y} ${c.n.toUpperCase()}</h3><div class="price">${money(s.ask)}</div><div class="copy">“${c.ad}”</div><div class="meta">${c.mi.toLocaleString()} MILES • SELLER: ${c.s.toUpperCase()}${c.sold||s.dead?'<br><b>UNAVAILABLE</b>':''}</div></div>`;$('visitSellerBtn').disabled=c.sold||s.dead}
-function openCarMarket(){if(state.cash>=2)state.cash-=2;state.carIndex=0;renderCarAd();show('carMarketScreen')}
+function renderCarAd(){const c=state.listings[state.carIndex],s=sellerState(c),cond=c.rel>=85?'GOOD':c.rel>=70?'FAIR':'QUESTIONABLE';$('marketCash').textContent=`YOU HAVE ${money(state.cash)}`;$('carAd').innerHTML=`<div class="ad"><h3>${c.y} ${c.n.toUpperCase()}</h3><div class="car-photo" style="--car:${c.color}"><div class="car-sil"></div><span class="photo-tag">PHOTO ${state.carIndex+1} OF ${state.listings.length}</span><span class="photo-caption">${c.s.toUpperCase()} • LOCAL PRIVATE SALE</span></div><div class="price">${money(s.ask)}</div><div class="copy">“${c.ad}”</div><div class="meta">${c.mi.toLocaleString()} MILES • ${cond} • ${c.mpg} MPG • SELLER: ${c.s.toUpperCase()}${c.sold||s.dead?'<br><b>UNAVAILABLE</b>':''}</div></div>`;$('visitSellerBtn').disabled=c.sold||s.dead}
+function openCarMarket(){state.carIndex=0;renderCarAd();show('carMarketScreen')}
 function visitSeller(){const c=state.listings[state.carIndex],s=sellerState(c);state.car=c;$('sellerCash').textContent=`YOU HAVE ${money(state.cash)}`;$('sellerTitle').textContent=`${c.s.toUpperCase()} HAS THE CAR IN THE DRIVEWAY.`;$('sellerBody').textContent=`${c.y} ${c.n}\n${c.mi.toLocaleString()} miles\nAsking ${money(s.ask)}.`;$('sellerNotice').hidden=true;$('offerButtons').innerHTML='';renderSellerButtons();drawSeller();show('sellerScreen')}
 function renderSellerButtons(){const s=sellerState(state.car);$('negotiationLeft').textContent=`${Math.max(0,3-s.attempts)} attempts left`;$('negotiateBtn').disabled=s.attempts>=3||s.dead||s.accepted;$('inspectBtn').disabled=s.inspected;$('testDriveBtn').disabled=s.tested;$('mechanicCheckBtn').disabled=s.mechanic||state.cash<85;$('buyCarBtn').disabled=s.dead}
 function sellerNotice(text,kind=''){const n=$('sellerNotice');n.hidden=false;n.className='notice '+kind;n.textContent=text}
