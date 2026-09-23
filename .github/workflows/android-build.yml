@@ -19,6 +19,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate embedded game JavaScript
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html=Path("app/src/main/assets/www/index.html").read_text()
+          m=re.search(r"<script>([\s\S]*)</script>",html)
+          if not m: raise SystemExit("No game script found")
+          Path("/tmp/lwh-game.js").write_text(m.group(1))
+          PY
+          node --check /tmp/lwh-game.js
+
       - name: Reconstruct high-detail cockpit artwork
         shell: bash
         run: bash scripts/rebuild_art.sh
