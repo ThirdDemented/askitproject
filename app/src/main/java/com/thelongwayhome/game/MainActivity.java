@@ -117,6 +117,19 @@ public class MainActivity extends Activity {
                             "}catch(e){return 'error:'+e.message}})()",
                             value -> Log.i("LWH_ROAD_SMOKE", clean(value))
                         ), 3800);
+
+                        view.postDelayed(() -> view.evaluateJavascript(
+                            "(()=>{try{" +
+                            "document.getElementById('driveLegBtn')?.click();" +
+                            "document.getElementById('tripLogRoadBtn')?.click();" +
+                            "const t=document.getElementById('tripLogScreen');" +
+                            "const odo=document.querySelector('.trip-odometer')?.textContent||'';" +
+                            "const ok=t?.classList.contains('active')&&odo.includes('MI');" +
+                            "document.getElementById('tripBackBtn')?.click();" +
+                            "return ok?'true':'false';" +
+                            "}catch(e){return 'error:'+e.message}})()",
+                            value -> Log.i("LWH_TRIPLOG_SMOKE", clean(value))
+                        ), 5200);
                     }
                 }
             }
