@@ -1,9 +1,16 @@
-# Release notes — 1.0.1
+# Release notes — 1.0.4
 
-The first public release of The Long Way Home.
+The Long Way Home reaches its polished production visual baseline.
 
-Build a life, buy a used car, prepare for the trip, and try to survive a cross-country move. Version 1.0 includes portrait and landscape play, used-car negotiation and hidden defects, road survival systems, random events, trading, an optional hidden underground market, local save/resume, and an original chiptune soundtrack.
+- Rebuilt portrait and landscape cockpit artwork at substantially higher resolution
+- Sharper retro pixel presentation and cinematic road lighting
+- Detailed seller and success/failure tableaux
+- Improved portrait/landscape presentation and rotation behavior
+- Expanded road-event variety
+- Arbitrary U.S. city start/destination support with live-route lookup and offline fallback
+- Used-car shopping, hidden defects, inspections, test drives, and three-attempt negotiation
+- Road survival, supplies, legal/gray trading, and the hidden fictional underground market
+- Original chiptune score and sound effects
+- Local save/resume
 
-
-### Installation fix
-This build uses the permanent package ID `com.thirdemented.thelongwayhome` so it installs cleanly even if an earlier prototype/beta with the old package/signature is still on the device.
+Same roads. Different you.
