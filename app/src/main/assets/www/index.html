@@ -258,12 +258,12 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
 
   #endingScreen.center.active{
     display:grid;grid-template-columns:minmax(0,1.25fr) minmax(380px,.75fr);
-    grid-template-rows:1fr auto;gap:10px;padding:10px 16px
+    grid-template-rows:1fr auto auto;gap:10px;padding:10px 16px
   }
   #endingScreen .scene{grid-column:1;grid-row:1/3;height:calc(100vh - 20px);margin:0}
   #endingScreen .scene canvas{height:100%;aspect-ratio:auto}
   #endingScreen .event{grid-column:2;grid-row:1;align-self:end}
-  #endingScreen #againBtn{grid-column:2;grid-row:2;margin:0}
+  #endingScreen #endTripReportBtn{grid-column:2;grid-row:2;margin:0}\n  #endingScreen #againBtn{grid-column:2;grid-row:3;margin:0}
 }
 
 
@@ -662,7 +662,7 @@ function depart(){ensureTripStats();state.distance=0;state.stats.milesDriven=0;s
 /* road events */
 const roadEvents=[
  {id:'heat',family:'mechanical',tag:'MECHANICAL',eligible:s=>s.condition<80||s.car.issues.some(x=>/coolant|water pump|fan|intake/i.test(x)),title:'THE TEMPERATURE NEEDLE STARTS CLIMBING.',body:s=>s.known.some(x=>/coolant|water pump|fan|intake/i.test(x))?'That defect you knew about is becoming less theoretical.':'The gauge creeps past normal.',choices:[['PULL OVER',s=>{advance(.4);s.fatigue=clamp(s.fatigue-1);return'You stop before the gauge reaches red. The engine cools down.'}],['ADD COOLANT',s=>useItem('coolant')?(s.condition=clamp(s.condition+5),'Coolant buys you breathing room.'):(s.condition=clamp(s.condition-8),'You do not have coolant.')],['KEEP DRIVING',s=>{state.stats.warningsIgnored++;s.condition=clamp(s.condition-rnd(8,18));return'The engine stays hot. You keep moving anyway.'}]]},
- {id:'fuel',family:'stop',tag:'FUEL',eligible:s=>s.fuel<42,title:'LOW FUEL.',body:()=> 'A gas station sign appears ahead. Fuel is expensive. Walking is worse.',choices:[['FILL TANK',s=>{if(s.cash<1){endGame('STRANDED','YOU CANNOT AFFORD FUEL.',`The tank is nearly empty and your cash is gone.\nDistance traveled: ${Math.round(s.distance)} miles.`);return'You cannot buy fuel.'}const c=Math.min(s.cash,Math.round((100-s.fuel)/100*72));s.cash-=c;s.fuel=clamp(s.fuel+(c/72)*100);return`You spend ${money(c)} on fuel.`}],['ADD $20',s=>{if(s.cash<1){endGame('STRANDED','YOU CANNOT AFFORD FUEL.',`The tank is nearly empty and your cash is gone.\nDistance traveled: ${Math.round(s.distance)} miles.`);return'You cannot buy fuel.'}const c=Math.min(20,s.cash);s.cash-=c;statSpend(c,'fuelSpent');state.stats.fuelStops++;s.fuel=clamp(s.fuel+(c/72)*100);return`You add ${money(c)} worth of fuel.`}],['KEEP GOING',()=> 'You pass the station. The gauge notices.']]},
+ {id:'fuel',family:'stop',tag:'FUEL',eligible:s=>s.fuel<42,title:'LOW FUEL.',body:()=> 'A gas station sign appears ahead. Fuel is expensive. Walking is worse.',choices:[['FILL TANK',s=>{if(s.cash<1){endGame('STRANDED','YOU CANNOT AFFORD FUEL.',`The tank is nearly empty and your cash is gone.\nDistance traveled: ${Math.round(s.distance)} miles.`);return'You cannot buy fuel.'}const c=Math.min(s.cash,Math.round((100-s.fuel)/100*72));s.cash-=c;statSpend(c,'fuelSpent');state.stats.fuelStops++;s.fuel=clamp(s.fuel+(c/72)*100);return`You spend ${money(c)} on fuel.`}],['ADD $20',s=>{if(s.cash<1){endGame('STRANDED','YOU CANNOT AFFORD FUEL.',`The tank is nearly empty and your cash is gone.\nDistance traveled: ${Math.round(s.distance)} miles.`);return'You cannot buy fuel.'}const c=Math.min(20,s.cash);s.cash-=c;statSpend(c,'fuelSpent');state.stats.fuelStops++;s.fuel=clamp(s.fuel+(c/72)*100);return`You add ${money(c)} worth of fuel.`}],['KEEP GOING',()=> 'You pass the station. The gauge notices.']]},
  {id:'tire',family:'mechanical',tag:'MECHANICAL',eligible:s=>s.distance>80,title:'THUMP. THUMP. THUMP.',body:()=> 'The steering wheel starts vibrating. Something is wrong with a tire.',choices:[['STOP NOW',s=>useItem('fixflat')?'Fix-a-Flat keeps you moving.':(s.cash=Math.max(0,s.cash-85),'The tire costs you $85.')],['KEEP GOING',s=>{state.stats.warningsIgnored++;s.condition=clamp(s.condition-10);return'The vibration becomes part of the soundtrack.'}]]},
  {id:'motel',family:'rest',tag:'REST',eligible:s=>s.fatigue>58||s.hour>19,title:'VACANCY.',body:()=> 'A roadside motel glows beside the highway.',choices:[['GET A ROOM',s=>{const c=Math.min(s.cash,78);s.cash-=c;statSpend(c,'lodgingSpent');state.stats.motelNights++;s.fatigue=10;s.morale=clamp(s.morale+7);advance(8);return`You spend ${money(c)} and sleep eight hours.`}],['SLEEP IN CAR',s=>{state.stats.carNights++;s.fatigue=28;s.morale=clamp(s.morale-(hasItem('blanket')?0:5));advance(6);return'Your spine files a formal complaint.'}],['KEEP DRIVING',s=>{s.fatigue=clamp(s.fatigue+14);return'Rest becomes Future You’s problem.'}]]},
  {id:'food',family:'stop',tag:'FOOD',eligible:s=>s.hunger>48,title:'YOU NEED FOOD.',body:()=> 'A diner and a gas station share the next exit.',choices:[['DINER — $22',s=>{statSpend(Math.min(22,s.cash),'foodSpent');s.cash=Math.max(0,s.cash-22);s.hunger=12;s.morale=clamp(s.morale+5);return'Hot food makes you feel human again.'}],['USE ROAD FOOD',s=>useItem('food')?(s.hunger=18,'You eat from your supplies.'):(statSpend(Math.min(9,s.cash),'foodSpent'),s.cash=Math.max(0,s.cash-9),s.hunger=30,'Gas-station food does the job.')],['SKIP IT',s=>{state.stats.mealsSkipped++;s.hunger=clamp(s.hunger+8);return'Hunger becomes a future problem.'}]]},
@@ -723,6 +723,203 @@ function renderContact(){const p=$('contactPanel');p.hidden=true;p.innerHTML='';
 
 /* trip computer + lifetime records */
 function fmt1(n){return Number(n||0).toLocaleString(undefined,{maximumFractionDigits:1})}
+function signedMoney(n){n=Math.round(Number(n)||0);return (n<0?'−':n>0?'+':'')+'
+function ledgerRow(label,value){return '<div>'+label+'</div><div class="v">'+value+'</div>'}
+function questionableAchievements(){
+ const s=ensureTripStats(),a=[];
+ if(s.scratchSpent>s.scratchWon)a.push(['FINANCIAL GENIUS',`Lost ${money(s.scratchSpent-s.scratchWon)} on scratch-offs.`]);
+ if(s.warningsIgnored>=3)a.push(['CHECK ENGINE MEANS CHECK LATER',`Ignored ${s.warningsIgnored} mechanical warnings.`]);
+ if(s.carNights>=2)a.push(['HOME IS WHERE YOU PARK IT',`Slept in the car ${s.carNights} nights.`]);
+ if(s.negotiationSaved>=300)a.push(['NEGOTIATOR',`Talked ${money(s.negotiationSaved)} off asking prices.`]);
+ if(state.fuel<=5&&state.distance>0)a.push(['GAS LIGHT ENTHUSIAST','Reached the current point of the trip on fumes.']);
+ if((s.tradeEarned-s.tradeSpent)>=750)a.push(['THIS WAS SUPPOSED TO BE A MOVE',`Legal/gray trading profit: ${money(s.tradeEarned-s.tradeSpent)}.`]);
+ if((s.undergroundEarned-s.undergroundSpent)>=750)a.push(['SIDE HUSTLE GOT COMPLICATED',`Underground profit: ${money(s.undergroundEarned-s.undergroundSpent)}. Peak heat: ${Math.round(s.peakHeat)}.`]);
+ if(s.buyersGhosted>=2)a.push(['MARKETPLACE VETERAN',`${s.buyersGhosted} buyers ghosted you before departure.`]);
+ if(s.policeStops>=2)a.push(['FAMILIAR FACE',`Stopped by police ${s.policeStops} times.`]);
+ if(!a.length)a.push(['STILL TECHNICALLY RESPONSIBLE','No especially questionable milestone has been unlocked yet. Keep driving.']);
+ return a;
+}
+function renderTripCurrent(){
+ const s=ensureTripStats(),remain=Math.max(0,state.totalMiles-(state.distance||0)),tradeProfit=s.tradeEarned-s.tradeSpent,ugProfit=s.undergroundEarned-s.undergroundSpent;
+ $('tripLogRoute').textContent=(state.car?cities[state.origin]?.n+' → '+cities[state.dest]?.n:'CURRENT RUN');
+ $('tripSummaryHero').innerHTML=`<div class="trip-odometer"><small>TRIP ODOMETER</small>${Math.round(s.milesDriven||state.distance||0).toLocaleString()} MI</div><div class="trip-route-line">${escapeHtml(cities[state.origin]?.n||'START')} → ${escapeHtml(cities[state.dest]?.n||'DESTINATION')} • ${Math.round(remain).toLocaleString()} MI REMAINING</div><div class="trip-grid"><div class="trip-card"><b>${fmt1(s.gallonsUsed)} gal</b><span>FUEL USED</span></div><div class="trip-card"><b>${money(s.totalSpent)}</b><span>TOTAL SPENT</span></div><div class="trip-card"><b>${money(state.cash)}</b><span>CASH NOW</span></div><div class="trip-card"><b>${fmt1(s.driveHours)} hr</b><span>DRIVING TIME</span></div></div>`;
+ $('tripDetail').innerHTML=`
+ <div class="trip-section"><h3>MONEY</h3><div class="trip-ledger">
+ ${ledgerRow('Starting cash',money(s.startingCash))}
+ ${ledgerRow('Earned / received',money(s.totalEarned))}
+ ${ledgerRow('Total spent',money(s.totalSpent))}
+ ${ledgerRow('Vehicle purchase',money(s.carSpent))}
+ ${ledgerRow('Fuel',money(s.fuelSpent))}
+ ${ledgerRow('Repairs / inspections',money(s.repairsSpent))}
+ ${ledgerRow('Food',money(s.foodSpent))}
+ ${ledgerRow('Motels',money(s.lodgingSpent))}
+ ${ledgerRow('Supplies',money(s.suppliesSpent))}
+ ${ledgerRow('Tickets / legal',money(s.ticketsSpent))}
+ ${ledgerRow('Negotiation savings',money(s.negotiationSaved))}
+ ${ledgerRow('Legal/gray trading P&L',signedMoney(tradeProfit))}
+ ${ledgerRow('Underground P&L',signedMoney(ugProfit))}
+ ${ledgerRow('Scratch-off P&L',signedMoney(s.scratchWon-s.scratchSpent))}
+ ${ledgerRow('Debt waiting',money(state.debt))}
+ </div></div>
+ <div class="trip-section"><h3>VEHICLE & ROAD</h3><div class="trip-ledger">
+ ${ledgerRow('Miles driven',Math.round(s.milesDriven||0).toLocaleString()+' mi')}
+ ${ledgerRow('Fuel burned',fmt1(s.gallonsUsed)+' gal')}
+ ${ledgerRow('Fuel stops',s.fuelStops)}
+ ${ledgerRow('Current condition',Math.round(state.condition)+'%')}
+ ${ledgerRow('Mechanical warnings ignored',s.warningsIgnored)}
+ ${ledgerRow('Police stops',s.policeStops)}
+ ${ledgerRow('Peak heat',Math.round(s.peakHeat))}
+ ${ledgerRow('Market trades',s.marketTrades)}
+ </div></div>
+ <div class="trip-section"><h3>LIFE ON THE ROAD</h3><div class="trip-ledger">
+ ${ledgerRow('Extra / OT shifts',s.shiftsWorked)}
+ ${ledgerRow('Possessions sold',s.possessionsSold)}
+ ${ledgerRow('Family help',money(s.familyHelp))}
+ ${ledgerRow('Motel nights',s.motelNights)}
+ ${ledgerRow('Nights in the car',s.carNights)}
+ ${ledgerRow('Meals skipped',s.mealsSkipped)}
+ ${ledgerRow('Marketplace ghosts',s.buyersGhosted)}
+ </div></div>
+ <div class="trip-section"><h3>QUESTIONABLE ACHIEVEMENTS</h3>${questionableAchievements().map(x=>`<div class="achievement"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>`;
+}
+function renderTripLifetime(){
+ const l=loadLifetime();
+ $('tripLogRoute').textContent='LIFETIME RECORD';
+ $('tripSummaryHero').innerHTML=`<div class="trip-odometer"><small>LIFETIME ODOMETER</small>${Math.round(l.totalMiles).toLocaleString()} MI</div><div class="trip-route-line">${l.runs} RUNS • ${l.successes} ARRIVALS • ${l.failures} FAILED JOURNEYS</div><div class="trip-grid"><div class="trip-card"><b>${fmt1(l.totalGallons)} gal</b><span>FUEL BURNED</span></div><div class="trip-card"><b>${money(l.totalSpent)}</b><span>MONEY SPENT</span></div><div class="trip-card"><b>${l.carsBought}</b><span>CARS BOUGHT</span></div><div class="trip-card"><b>${money(l.negotiationSaved)}</b><span>NEGOTIATED OFF</span></div></div>`;
+ $('tripDetail').innerHTML=`<div class="trip-section"><h3>CAREER TOTALS</h3><div class="trip-ledger">
+ ${ledgerRow('Successful moves',l.successes)}
+ ${ledgerRow('Failed moves',l.failures)}
+ ${ledgerRow('Total miles',Math.round(l.totalMiles).toLocaleString()+' mi')}
+ ${ledgerRow('Fuel burned',fmt1(l.totalGallons)+' gal')}
+ ${ledgerRow('Fuel spending',money(l.fuelSpent))}
+ ${ledgerRow('Repair spending',money(l.repairsSpent))}
+ ${ledgerRow('Motel nights',l.motelNights)}
+ ${ledgerRow('Nights in car',l.carNights)}
+ ${ledgerRow('Police stops',l.policeStops)}
+ ${ledgerRow('Arrests',l.arrests)}
+ ${ledgerRow('Scratch-off net',signedMoney(l.scratchNet))}
+ ${ledgerRow('Trading profit',signedMoney(l.tradingProfit))}
+ ${ledgerRow('Underground profit',signedMoney(l.undergroundProfit))}
+ ${ledgerRow('Highest heat',Math.round(l.peakHeat))}
+ ${ledgerRow('Furthest failed run',Math.round(l.furthestFailure).toLocaleString()+' mi')}
+ ${ledgerRow('Best arrival cash',money(l.bestCashFinish))}
+ ${ledgerRow('Debt accumulated',money(l.totalDebt))}
+ </div></div>`;
+}
+function renderTripLog(){ensureTripStats();$('currentTripTab').classList.toggle('active',tripView==='current');$('lifetimeTab').classList.toggle('active',tripView==='lifetime');if(tripView==='lifetime')renderTripLifetime();else renderTripCurrent()}
+function openTripLog(view='current',returnTo=currentScreen){tripReturnScreen=returnTo;tripView=view;renderTripLog();show('tripLogScreen')}
+function closeTripLog(){if(tripReturnScreen==='endingScreen'){show('endingScreen');return}if(tripReturnScreen==='titleScreen'){show('titleScreen');return}if(tripReturnScreen==='roadScreen'){renderRoadHud();show('roadScreen');return}show(tripReturnScreen||'roadScreen')}
+
+/* endings */
+function endGame(kicker,title,body){state.ended=true;ensureTripStats();state.stats.milesDriven=Math.max(state.stats.milesDriven,state.distance||0);finalizeLifetime(kicker==='YOU MADE IT',kicker);$('endKicker').textContent=kicker;$('endTitle').textContent=title;$('endBody').textContent=body;drawEnding();clearSave();show('endingScreen');sfx(kicker==='YOU MADE IT'?'win':'bad')}
+
+/* placeholder art */
+function px(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h)}
+function drawCar(c,x,y,s,col){px(c,x,y+12*s,48*s,12*s,col);px(c,x+10*s,y+4*s,29*s,11*s,col);px(c,x+14*s,y+6*s,9*s,6*s,'#496274');px(c,x+25*s,y+6*s,10*s,6*s,'#526b7b');px(c,x+6*s,y+23*s,10*s,9*s,'#080808');px(c,x+34*s,y+23*s,10*s,9*s,'#080808')}
+function drawTitle(){const c=$('titleCanvas').getContext('2d'),w=320,h=420;px(c,0,0,w,215,'#172743');px(c,0,145,w,70,'#c87642');for(let i=0;i<6;i++){c.fillStyle=['#38477d','#4d5790','#2f3d73'][i%3];c.beginPath();c.moveTo(i*62-10,220);c.lineTo(i*62+28,120-rnd(0,18));c.lineTo(i*62+75,220);c.fill()}px(c,0,210,w,55,'#17301d');for(let i=0;i<24;i++)px(c,i*14,188,3,66,'#0b1e12');px(c,0,265,w,155,'#242424');c.fillStyle='#393939';c.beginPath();c.moveTo(102,265);c.lineTo(218,265);c.lineTo(305,420);c.lineTo(15,420);c.fill();for(let y=285;y<420;y+=46)px(c,157,y,7,22,'#ead9a2');drawCar(c,72,320,3.2,'#b9b9b7')}
+function drawSeller(){
+ const c=$('sellerCanvas').getContext('2d'),w=$('sellerCanvas').width,h=$('sellerCanvas').height;
+ c.imageSmoothingEnabled=false;
+ const carCol=state.car?.color||'#b7b7b4';
+ // sunset sky in horizontal pixel bands
+ const sky=['#202a4a','#39456c','#6e5670','#b86456','#ec9a54','#f7c76b'];
+ const band=Math.ceil(h*.52/sky.length);for(let i=0;i<sky.length;i++)px(c,0,i*band,w,band+1,sky[i]);
+ // distant neighborhood and tree line
+ px(c,0,h*.48,w,h*.52,'#283a25');
+ for(let x=0;x<w;x+=18){const ht=28+((x*17)%50);px(c,x,h*.48-ht,5,ht,'#122617');px(c,x-6,h*.48-ht+10,17,5,'#17351d');px(c,x-4,h*.48-ht+19,13,5,'#17351d')}
+ // house + garage
+ px(c,w*.61,h*.16,w*.39,h*.55,'#b9a27b');px(c,w*.58,h*.14,w*.42,18,'#4d342c');
+ px(c,w*.68,h*.31,w*.27,h*.40,'#24211e');px(c,w*.705,h*.34,w*.22,h*.34,'#342f28');
+ // garage light
+ px(c,w*.80,h*.19,36,8,'#ffe4a0');px(c,w*.81,h*.21,22,5,'#dba65a');
+ // tools and shelves
+ for(let y=145;y<235;y+=24){px(c,470,y,110,4,'#5b5146');for(let x=478;x<570;x+=22)px(c,x,y-14,5,14,['#9c3b2e','#d29b3c','#496c71'][((x+y)/2)%3|0])}
+ // driveway
+ px(c,0,h*.66,w,h*.34,'#554f48');for(let x=0;x<w;x+=31)for(let y=245;y<h;y+=27)if(((x+y)/27|0)%3===0)px(c,x,y,12,3,'#3e3a36');
+ // garage shadow
+ px(c,w*.60,h*.68,w*.40,h*.08,'#26231f');
+ // seller
+ const sx=w*.84,sy=h*.49;px(c,sx,sy-30,16,18,'#c28b69');px(c,sx-4,sy-11,25,48,'#303845');px(c,sx-2,sy+36,9,38,'#34506a');px(c,sx+12,sy+36,9,38,'#34506a');px(c,sx-9,sy+5,8,30,'#c28b69');px(c,sx+22,sy+3,8,31,'#c28b69');
+ // detailed-ish sedan
+ const x=72,y=218,sc=1.0;
+ c.fillStyle='#171717';c.fillRect(x+52,y+76,72,13);c.fillRect(x+302,y+76,72,13);
+ c.fillStyle=carCol;c.beginPath();c.moveTo(x,y+58);c.lineTo(x+55,y+39);c.lineTo(x+118,y+8);c.lineTo(x+275,y+8);c.lineTo(x+333,y+43);c.lineTo(x+412,y+55);c.lineTo(x+420,y+92);c.lineTo(x+12,y+92);c.closePath();c.fill();
+ // body highlights and trim
+ px(c,x+8,y+60,397,7,'rgba(255,255,255,.20)');px(c,x+20,y+82,385,5,'#6e6e68');
+ // glass
+ c.fillStyle='#253946';c.beginPath();c.moveTo(x+125,y+16);c.lineTo(x+188,y+16);c.lineTo(x+188,y+48);c.lineTo(x+91,y+48);c.closePath();c.fill();
+ c.beginPath();c.moveTo(x+198,y+16);c.lineTo(x+268,y+16);c.lineTo(x+316,y+48);c.lineTo(x+198,y+48);c.closePath();c.fill();
+ // pillars/doors
+ px(c,x+191,y+12,7,70,'#2d2d2d');px(c,x+91,y+50,225,4,'#3e3e3b');px(c,x+196,y+54,4,31,'#454542');px(c,x+300,y+54,4,31,'#454542');
+ // grille/lights
+ px(c,x+365,y+62,47,22,'#5a5a57');for(let gx=369;gx<410;gx+=7)px(c,gx,y+64,3,17,'#222');
+ px(c,x+345,y+62,20,14,'#f2dfb5');px(c,x+18,y+62,21,14,'#f2dfb5');px(c,x+39,y+64,10,9,'#d08138');
+ // wheels
+ for(const wx of [x+83,x+335]){c.fillStyle='#0a0a0a';c.beginPath();c.arc(wx,y+92,28,0,Math.PI*2);c.fill();c.fillStyle='#8d8d88';c.beginPath();c.arc(wx,y+92,15,0,Math.PI*2);c.fill();c.fillStyle='#333';c.beginPath();c.arc(wx,y+92,5,0,Math.PI*2);c.fill()}
+ // for-sale paper
+ px(c,x+232,y+24,31,19,'#f1e8c9');c.fillStyle='#742b24';c.font='bold 7px monospace';c.fillText('SALE',x+237,y+36);
+ // foreground shadow
+ c.fillStyle='rgba(0,0,0,.32)';c.fillRect(0,h-18,w,18);
+}
+function drawRoad(){const c=$('roadCanvas').getContext('2d'),w=320,h=400,night=isNight();px(c,0,0,w,205,night?'#07101d':state.weather==='HOT'?'#a65d41':state.weather.includes('RAIN')?'#3b4b5e':'#6f98b7');px(c,0,135,w,65,night?'#0e1815':'#31532f');for(let i=0;i<25;i++){const x=(i*15+roadPhase)%w;px(c,x,110,3,72,night?'#0a1310':'#1d391f')}px(c,0,190,w,85,'#8a7855');c.fillStyle=night?'#1d1d1f':'#36363a';c.beginPath();c.moveTo(105,175);c.lineTo(215,175);c.lineTo(305,285);c.lineTo(15,285);c.fill();for(let i=0;i<7;i++){const y=190+((i*38+roadPhase*2)%90);px(c,157,y,7,16+i*2,'#eee1aa')}if(state.weather.includes('RAIN')){c.strokeStyle='rgba(220,235,255,.55)';c.lineWidth=2;for(let i=0;i<55;i++){const x=(i*57+roadPhase*3)%w,y=(i*41+roadPhase*5)%220;c.beginPath();c.moveTo(x,y);c.lineTo(x-7,y+16);c.stroke()}}if(state.weather==='FOG'){c.fillStyle='rgba(210,216,219,.4)';c.fillRect(0,70,w,165)}px(c,0,0,28,330,'#111');px(c,w-28,0,28,330,'#111');c.fillStyle=state.car?.color||'#aaa';c.beginPath();c.moveTo(58,278);c.quadraticCurveTo(160,235,262,278);c.lineTo(292,330);c.lineTo(28,330);c.fill();px(c,0,323,w,77,'#3d3d3b');px(c,42,338,236,55,'#777');px(c,55,346,80,39,'#12181c');px(c,185,346,80,39,'#12181c');c.strokeStyle='#77a18f';c.lineWidth=3;c.beginPath();c.arc(95,367,24,Math.PI,Math.PI*2);c.stroke();c.beginPath();c.arc(225,367,24,Math.PI,Math.PI*2);c.stroke();c.strokeStyle='#17191a';c.lineWidth=18;c.beginPath();c.arc(88,407,50,Math.PI,Math.PI*2);c.stroke()}
+function drawEnding(){
+ const c=$('endingCanvas').getContext('2d'),w=$('endingCanvas').width,h=$('endingCanvas').height;
+ c.imageSmoothingEnabled=false;
+ const success=state.distance>=state.totalMiles&&state.condition>0;
+ if(success){
+   // sunset overlook
+   const sky=['#302a50','#5f456c','#9e5166','#e17154','#f3a85a','#ffd378'];
+   const bh=Math.ceil(h*.58/sky.length);for(let i=0;i<sky.length;i++)px(c,0,i*bh,w,bh+1,sky[i]);
+   c.fillStyle='#473e66';c.beginPath();c.moveTo(0,185);c.lineTo(115,78);c.lineTo(210,183);c.lineTo(320,98);c.lineTo(430,185);c.lineTo(530,122);c.lineTo(640,185);c.lineTo(640,250);c.lineTo(0,250);c.fill();
+   c.fillStyle='#263b32';c.beginPath();c.moveTo(0,204);c.quadraticCurveTo(190,175,330,226);c.quadraticCurveTo(490,180,640,213);c.lineTo(640,360);c.lineTo(0,360);c.fill();
+   px(c,0,263,w,97,'#514c46');px(c,0,279,w,7,'#76716b');px(c,0,255,w,8,'#262626');
+   // guardrail
+   px(c,345,230,260,8,'#9b9b95');for(let x=360;x<605;x+=52)px(c,x,235,6,58,'#686862');
+   // car
+   const x=48,y=228,col=state.car?.color||'#8e9696';px(c,x+18,y+34,262,46,col);c.fillStyle=col;c.beginPath();c.moveTo(x+65,y+34);c.lineTo(x+105,y+5);c.lineTo(x+204,y+5);c.lineTo(x+246,y+34);c.fill();px(c,x+112,y+10,39,21,'#253742');px(c,x+158,y+10,41,21,'#253742');for(const wx of [x+70,x+237]){c.fillStyle='#090909';c.beginPath();c.arc(wx,y+79,23,0,Math.PI*2);c.fill();c.fillStyle='#8b8b87';c.beginPath();c.arc(wx,y+79,12,0,Math.PI*2);c.fill()}
+   // traveler
+   px(c,500,214,15,17,'#be8968');px(c,494,231,26,48,'#30343b');px(c,496,277,8,34,'#334d67');px(c,510,277,8,34,'#334d67');
+   // city/lake lights
+   for(let x=355;x<560;x+=15)px(c,x,202+((x*7)%23),3,3,'#ffd576');
+ } else {
+   // breakdown shoulder
+   px(c,0,0,w,185,'#3b3f61');px(c,0,125,w,60,'#d97855');
+   c.fillStyle='#2c3855';c.beginPath();c.moveTo(0,200);c.lineTo(120,92);c.lineTo(230,193);c.lineTo(355,104);c.lineTo(470,198);c.lineTo(570,117);c.lineTo(640,183);c.lineTo(640,245);c.lineTo(0,245);c.fill();
+   px(c,0,205,w,155,'#3a3938');px(c,0,235,w,8,'#d8d3c3');px(c,30,260,610,6,'#555');
+   const x=62,y=220,col=state.car?.color||'#aaa';px(c,x+12,y+35,300,48,col);c.fillStyle=col;c.beginPath();c.moveTo(x+62,y+35);c.lineTo(x+106,y+8);c.lineTo(x+215,y+8);c.lineTo(x+260,y+35);c.fill();for(const wx of [x+75,x+260]){c.fillStyle='#080808';c.beginPath();c.arc(wx,y+82,25,0,Math.PI*2);c.fill()}
+   // open hood
+   c.fillStyle='#252525';c.beginPath();c.moveTo(x+245,y+35);c.lineTo(x+305,y-18);c.lineTo(x+314,y+34);c.fill();
+   // flame/smoke
+   for(let i=0;i<7;i++){px(c,x+242+i*11,y+6-(i%3)*8,14,32,['#f38b26','#ffd05b','#e14d22'][i%3])}
+   for(let i=0;i<7;i++){c.fillStyle=['#3a3538','#50474a','#62575a'][i%3];c.beginPath();c.arc(x+260+(i%3)*20,y-38-i*18,26+i*3,0,Math.PI*2);c.fill()}
+   // seated traveler
+   px(c,500,233,16,18,'#bf8967');px(c,488,251,36,35,'#252930');px(c,478,280,18,45,'#334b64');px(c,514,280,18,45,'#334b64');
+   // toolbox + coolant
+   px(c,390,300,65,34,'#1a1a1a');px(c,401,293,42,8,'#222');px(c,333,318,36,11,'#67a85f');
+ }
+}
+function startAnimation(){if(raf)return;lastFrame=performance.now();const loop=t=>{if(currentScreen!=='roadScreen'){raf=0;return}roadPhase=(roadPhase+Math.min(6,(t-lastFrame)/16))%60;lastFrame=t;drawRoad();raf=requestAnimationFrame(loop)};raf=requestAnimationFrame(loop)}function stopAnimation(){if(raf)cancelAnimationFrame(raf);raf=0}
+
+function escapeHtml(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+function resume(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));if(!s)return;state=s;ensureTripStats();if(state.ended){show('titleScreen');return}if(state.car&&state.distance>0){renderRoadHud();show('roadScreen')}else if(state.car){renderSupplies();show('supplyScreen')}else if(state.career&&state.reason){renderPrep();show('prepScreen')}else{renderSetupCards();show('setupScreen')}}catch(e){startNewLife()}}
+
+/* bindings */
+$('ageRange').oninput=e=>{$('ageOut').textContent=e.target.value;state.age=Number(e.target.value)};
+$('newGameBtn').onclick=()=>{startNewLife();try{ensureAudio();startMusic('title')}catch(e){}};$('resumeBtn').onclick=()=>{resume();try{ensureAudio();startMusic('title')}catch(e){}};$('soundBtn').onclick=toggleSound;$('lifetimeBtn').onclick=()=>openTripLog('lifetime','titleScreen');$('tripLogRoadBtn').onclick=()=>openTripLog('current','roadScreen');$('endTripReportBtn').onclick=()=>openTripLog('current','endingScreen');$('tripBackBtn').onclick=closeTripLog;$('currentTripTab').onclick=()=>{tripView='current';renderTripLog()};$('lifetimeTab').onclick=()=>{tripView='lifetime';renderTripLog()};$('rotateTitleBtn').onclick=rotateAppView;$('rotateRoadBtn').onclick=rotateAppView;
+$('randomRouteBtn').onclick=()=>{let a=rnd(0,cities.length-1),b=rnd(0,cities.length-1);while(b===a)b=rnd(0,cities.length-1);$('originSelect').value=a;$('destSelect').value=b};$('beginLifeBtn').onclick=beginLife;
+$('openMarketBtn').onclick=openCarMarket;$('prevCarBtn').onclick=()=>{state.carIndex=(state.carIndex+state.listings.length-1)%state.listings.length;renderCarAd()};$('nextCarBtn').onclick=()=>{state.carIndex=(state.carIndex+1)%state.listings.length;renderCarAd()};$('visitSellerBtn').onclick=visitSeller;$('backPrepBtn').onclick=()=>{renderPrep();show('prepScreen')};
+$('inspectBtn').onclick=inspectCar;$('testDriveBtn').onclick=testCar;$('mechanicCheckBtn').onclick=mechanicCheck;$('negotiateBtn').onclick=showOffers;$('buyCarBtn').onclick=buyCar;$('walkAwayBtn').onclick=()=>{renderCarAd();show('carMarketScreen')};
+$('departBtn').onclick=depart;$('prepAgainBtn').onclick=()=>{renderPrep();show('prepScreen')};$('driveLegBtn').onclick=driveLeg;$('marketStopBtn').onclick=()=>{ensureTripStats();state.stats.stops++;renderTrade();show('tradeScreen')};$('leaveMarketBtn').onclick=()=>{renderRoadHud();show('roadScreen')};$('againBtn').onclick=startNewLife;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!installPrompt)return;installPrompt.prompt();try{await installPrompt.userChoice}catch(e){}installPrompt=null;$('installBtn').hidden=true};
+document.addEventListener('pointerdown',()=>{if(soundOn)ensureAudio()},{once:true});
+
+function boot(){initSelects();renderSetupCards();drawTitle();try{if(localStorage.getItem(SAVE_KEY))$('resumeBtn').hidden=false}catch(e){}}
+boot();
+})();
+
+</script>
+</body>
+</html>+Math.abs(n).toLocaleString()}
 function ledgerRow(label,value){return '<div>'+label+'</div><div class="v">'+value+'</div>'}
 function questionableAchievements(){
  const s=ensureTripStats(),a=[];
