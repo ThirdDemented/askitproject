@@ -10,8 +10,8 @@ android {
         applicationId = "com.thirdemented.longwayhome.release2026"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.3"
+        versionCode = 3
+        versionName = "1.0.4"
     }
 
     signingConfigs {
