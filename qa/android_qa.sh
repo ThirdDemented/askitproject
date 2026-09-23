@@ -32,7 +32,7 @@ adb install -r "$APK"
 
 # Seller screen — landscape
 adb logcat -c
-adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode seller --ez forceLandscape true
+adb shell am start -W -n com.thirdemented.thelongwayhome/com.thelongwayhome.game.MainActivity --ez smokeTest true --es smokeMode seller --ez forceLandscape true
 sleep 7
 adb logcat -d -s LWH_SMOKE:I LWH_SELLER_SMOKE:I '*:S' | tee seller-smoke.log
 grep -q "LWH_SMOKE: true" seller-smoke.log
@@ -40,25 +40,25 @@ grep -q "LWH_SELLER_SMOKE: true" seller-smoke.log
 capture seller-landscape.png
 
 # Road screen — landscape
-adb shell am force-stop com.thelongwayhome.game
+adb shell am force-stop com.thirdemented.thelongwayhome
 adb logcat -c
-adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode road --ez forceLandscape true
+adb shell am start -W -n com.thirdemented.thelongwayhome/com.thelongwayhome.game.MainActivity --ez smokeTest true --es smokeMode road --ez forceLandscape true
 sleep 9
 adb logcat -d -s LWH_ROAD_SMOKE:I '*:S' | tee road-land-smoke.log
 grep -q "LWH_ROAD_SMOKE: true" road-land-smoke.log
 capture road-landscape.png
 
 # Road screen — portrait
-adb shell am force-stop com.thelongwayhome.game
+adb shell am force-stop com.thirdemented.thelongwayhome
 adb logcat -c
-adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez smokeTest true --es smokeMode road --ez forcePortrait true
+adb shell am start -W -n com.thirdemented.thelongwayhome/com.thelongwayhome.game.MainActivity --ez smokeTest true --es smokeMode road --ez forcePortrait true
 sleep 9
 adb logcat -d -s LWH_ROAD_SMOKE:I '*:S' | tee road-port-smoke.log
 grep -q "LWH_ROAD_SMOKE: true" road-port-smoke.log
 capture road-portrait.png
 
 # Clean title — portrait
-adb shell am force-stop com.thelongwayhome.game
-adb shell am start -W -n com.thelongwayhome.game/.MainActivity --ez forcePortrait true
+adb shell am force-stop com.thirdemented.thelongwayhome
+adb shell am start -W -n com.thirdemented.thelongwayhome/com.thelongwayhome.game.MainActivity --ez forcePortrait true
 sleep 5
 capture title-portrait.png
