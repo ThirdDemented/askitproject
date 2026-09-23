@@ -723,7 +723,7 @@ function renderContact(){const p=$('contactPanel');p.hidden=true;p.innerHTML='';
 
 /* trip computer + lifetime records */
 function fmt1(n){return Number(n||0).toLocaleString(undefined,{maximumFractionDigits:1})}
-function signedMoney(n){n=Math.round(Number(n)||0);return (n<0?'−':n>0?'+':'')+'
+function signedMoney(n){n=Math.round(Number(n)||0);return (n<0?'−':n>0?'+':'')+'$'+Math.abs(n).toLocaleString()}
 function ledgerRow(label,value){return '<div>'+label+'</div><div class="v">'+value+'</div>'}
 function questionableAchievements(){
  const s=ensureTripStats(),a=[];
