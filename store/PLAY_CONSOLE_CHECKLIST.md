@@ -1,10 +1,10 @@
 # Google Play Console Submission Checklist
 
 ## Build
-- [x] Package: com.thelongwayhome.game
-- [x] Version: 1.0.0
+- [x] Package: com.thirdemented.thelongwayhome
+- [x] Version: 1.0.1
 - [x] Target SDK: 36
-- [ ] Upload signed production AAB from the v1.0.0 GitHub release
+- [ ] Upload signed production AAB from the v1.0.1 GitHub release
 - [ ] Enroll in / confirm Play App Signing
 - [ ] Retain the upload key securely for future releases
 
