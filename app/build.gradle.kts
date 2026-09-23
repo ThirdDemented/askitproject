@@ -7,11 +7,11 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.thirdemented.thelongwayhome"
+        applicationId = "com.thirdemented.longwayhome.release2026"
         minSdk = 26
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.0.1"
+        versionCode = 1
+        versionName = "1.0.2-clean"
     }
 
     signingConfigs {
