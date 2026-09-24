@@ -23,3 +23,12 @@ Release remains blocked. No version change or final build publication is authori
 ## Still required
 
 Implement the actual-road map with agreed privacy safeguards and timeline interaction, layered driving environment, cockpit controls and animations, regional scenery/warnings and traffic events. Then repeat full browser and signed Android visual review, update evidence and only then advance the version and publish. The previous REVIEW.md is historical and explicitly superseded.
+
+## Cockpit interaction pass
+
+- Added three original synthesized radio stations plus radio-off, with selection saved per journey. Reopening now resumes the road's selected music rather than incorrectly forcing title music.
+- Added a short two-tone horn with repeat limiting, respecting global mute and without advancing game time or altering cash/distance.
+- Added an instrument close-up, accessible from the DASH control and a dashboard tap target. It shows actual vehicle odometer plus journey mileage, trip miles, fuel/range, condition, and relevant low-fuel, service, fatigue and glass warnings. A clear return button closes it without losing the event.
+- Controls remain accessible in portrait and landscape. The underlying dashboard art remains the existing shared cockpit; richer animated instruments and vehicle-specific interior families are not claimed complete.
+- Prior fuel and glass/overview commits both passed the signed Android workflow. The latest cockpit revision still needs its Android run and final native visual review.
+- Validation: 100 controlled fuel checks and 53 browser checks pass with 108 captures, both full journeys and no JavaScript exceptions. All seven effects, including the horn, produce unclipped signals. New dashboard captures were manually inspected in both orientations; the initial landscape layout hid lower readings, so it was replaced with a compact side-by-side layout and recaptured. Compact portrait road controls remain readable and scrollable.
