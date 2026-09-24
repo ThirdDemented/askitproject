@@ -104,6 +104,8 @@ jobs:
             qa/results/
             *-portrait.png
             *-landscape.png
+            *-portrait.json
+            *-landscape.json
             *-smoke.log
             *-verification.txt
             store/generated/
@@ -140,4 +142,4 @@ jobs:
           cp release-files/The-Long-Way-Home-Play-Store-Kit.zip .
           cp release-files/The-Long-Way-Home-QA-Evidence.zip .
           sha256sum "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" The-Long-Way-Home-Play-Store-Kit.zip The-Long-Way-Home-QA-Evidence.zip > SHA256SUMS.txt
-          gh release create "v${VERSION}" "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" The-Long-Way-Home-Play-Store-Kit.zip The-Long-Way-Home-QA-Evidence.zip SHA256SUMS.txt --title "The Long Way Home ${VERSION}" --notes-file store/RELEASE_NOTES.md
+          gh release create "v${VERSION}" "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" The-Long-Way-Home-Play-Store-Kit.zip The-Long-Way-Home-QA-Evidence.zip SHA256SUMS.txt --target "$GITHUB_SHA" --title "The Long Way Home ${VERSION}" --notes-file store/RELEASE_NOTES.md

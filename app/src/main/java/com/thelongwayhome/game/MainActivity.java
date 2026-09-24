@@ -54,8 +54,7 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.BLACK);
-        // Keep compositing accelerated for illustrated scenes and weather layers.
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        // The manifest enables hardware acceleration; let WebView manage its own layers.
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);

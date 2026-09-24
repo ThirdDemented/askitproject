@@ -56,10 +56,19 @@ public class GameReleaseTest {
     }
     private void capture(String name) throws Exception {
         waitFor("[...document.querySelectorAll('.screen.active img')].every(i=>i.complete&&i.naturalWidth>0&&(!i.dataset.requestedSrc||i.getAttribute('src')===i.dataset.requestedSrc))","art loaded");
-        SystemClock.sleep(350);
+        // A DOM query can complete before the WebView compositor presents that screen.
+        // Wait for finite scene/page transitions, then synchronize with visual state.
+        waitFor("document.getAnimations().filter(a=>Number.isFinite(a.effect.getTiming().iterations)).every(a=>a.playState==='finished'||a.playState==='idle')","scene transition finished");
+        CountDownLatch drawn=new CountDownLatch(1);
+        instrumentation.runOnMainSync(()->web.postVisualStateCallback(SystemClock.uptimeMillis(),new WebView.VisualStateCallback(){
+            @Override public void onComplete(long requestId){web.postInvalidateOnAnimation();web.postDelayed(drawn::countDown,750);}
+        }));
+        assertTrue("WebView frame presented",drawn.await(15,TimeUnit.SECONDS));
+        instrumentation.waitForIdleSync();
         Bitmap bitmap=instrumentation.getUiAutomation().takeScreenshot();assertNotNull(bitmap);
         File directory=new File(instrumentation.getTargetContext().getExternalFilesDir(null),"qa");directory.mkdirs();
         try(FileOutputStream stream=new FileOutputStream(new File(directory,name+".png"))){assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,stream));}
+        try(FileOutputStream stream=new FileOutputStream(new File(directory,name+".json"))){stream.write(js("JSON.stringify({screen:document.querySelector('.screen.active').id,width:innerWidth,height:innerHeight,images:[...document.querySelectorAll('.screen.active img')].map(i=>i.getAttribute('src'))})").getBytes(java.nio.charset.StandardCharsets.UTF_8));}
         bitmap.recycle();
     }
     @Test public void screensAndRotation() throws Exception {
@@ -69,8 +78,8 @@ public class GameReleaseTest {
         capture("setup-landscape");orient(true);capture("setup-portrait");click("beginLifeBtn");
         waitFor("document.getElementById('prepScreen').classList.contains('active')","preparation");
         js("[...document.querySelectorAll('#prepActions button')].find(b=>b.textContent.includes('CLAIM RELOCATION'))?.click()");
-        capture("prep-portrait");orient(false);capture("prep-landscape");click("openMarketBtn");capture("autotrader-landscape");
-        orient(true);capture("autotrader-portrait");click("visitSellerBtn");capture("seller-portrait");orient(false);capture("seller-landscape");
+        capture("prep-portrait");orient(false);capture("prep-landscape");click("openMarketBtn");capture("classifieds-landscape");
+        orient(true);capture("classifieds-portrait");click("visitSellerBtn");capture("seller-portrait");orient(false);capture("seller-landscape");
         click("inspectBtn");click("testDriveBtn");click("mechanicCheckBtn");click("negotiateBtn");
         js("document.getElementById('offerButtons').scrollIntoView()");capture("negotiation-landscape");
         click("buyCarBtn");waitFor("document.getElementById('supplyScreen').classList.contains('active')","purchase");

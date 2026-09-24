@@ -8,7 +8,7 @@ result=root/'qa/results';result.mkdir(exist_ok=True,parents=True)
 files=[]
 for folder in ['qa/captures','qa/results']:
     files += [p for p in (root/folder).rglob('*') if p.is_file()]
-for pattern in ['*-portrait.png','*-landscape.png','*-smoke.log','*-verification.txt']:
+for pattern in ['*-portrait.png','*-landscape.png','*-portrait.json','*-landscape.json','*-smoke.log','*-verification.txt']:
     files += list(root.glob(pattern))
 files += [root/'qa/release-gates.json',root/'ART_DIRECTION.md',root/'signing-certificate.sha256']
 if (root/'qa/REVIEW.md').exists():files.append(root/'qa/REVIEW.md')
