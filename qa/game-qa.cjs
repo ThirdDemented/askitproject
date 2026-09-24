@@ -39,6 +39,21 @@ async function doRun(page,fail=false){await startLife(page);await buyReliable(pa
   for(const id of vehicleIds){await page.evaluate(id=>{QA.fixture({listings:QA.carPool.map(c=>({...c,sold:false})),carIndex:QA.carPool.findIndex(c=>c.id===id)});QA.renderCarAd();QA.show('carMarketScreen')},id);await capture(page,'vehicle-'+id+'-'+orientation);}
  }
  ok('all ten fictional vehicles load in both orientations',vehicleIds.length===10);
+ // Controlled refueling through actual choices, including restart and the next leg.
+ await page.evaluate(s=>{QA.fixture({...s,departed:true,ended:false,distance:200,totalMiles:1000,fuel:10,cash:500,pendingLegMiles:50,lastFuelVisitMiles:null,stats:QA.blankTripStats()});QA.show('roadScreen');QA.triggerEvent(QA.roadEvents.find(e=>e.id==='fuel'));},purchased);
+ await page.locator('#eventChoices button').filter({hasText:/^FILL TANK/}).click();
+ ok('full refill sets tank to full and records actual gallons cost',await page.evaluate(()=>Math.abs(QA.state().fuel-100)<1e-8&&Math.abs(QA.state().stats.fuelSpent-QA.state().car.tank*.9*4)<.011));
+ await page.click('#driveLegBtn');
+ ok('refill permits planned leg without an immediate repeat fuel event',await page.evaluate(()=>QA.state().distance===250&&QA.state().currentEvent!=='fuel'&&Math.abs(QA.state().fuel-(100-50/(QA.state().car.mpg*QA.state().car.tank)*100))<1e-8));
+ await page.evaluate(()=>{QA.fixture({fuel:0,cash:5,pendingLegMiles:62,currentEvent:null});QA.triggerEvent(QA.roadEvents.find(e=>e.id==='fuel'))});
+ ok('cash-limited refill discloses amount and insufficient range before purchase',await page.locator('#eventBody').innerText().then(t=>t.includes('PARTIAL REFILL ONLY')&&t.includes('1.25 gallons')&&t.includes('WARNING')));
+ await capture(page,'partial-refill-landscape');await page.locator('#eventChoices').scrollIntoViewIfNeeded();await capture(page,'partial-refill-details-landscape');
+ await page.locator('#eventChoices button').filter({hasText:/^PARTIAL REFILL/}).click();
+ await page.reload();await page.click('#resumeBtn');
+ ok('partial refill money and fuel survive reopening',await page.evaluate(()=>QA.state().cash===0&&Math.abs(QA.state().fuel/100*QA.state().car.tank-1.25)<1e-8));
+ await page.evaluate(s=>{QA.fixture({...s,departed:true,ended:false,currentEvent:null,distance:0,totalMiles:1000,fuel:1,cash:0,pendingLegMiles:50,fuelStopDeclined:false,stats:QA.blankTripStats()});QA.showQuiet();QA.renderRoadHud();QA.show('roadScreen')},purchased);
+ await page.click('#driveLegBtn');await page.locator('#eventChoices button').filter({hasText:'KEEP GOING'}).click();await page.click('#driveLegBtn');
+ ok('running dry accounts for remaining gallons, distance and time',await page.evaluate(()=>{const s=QA.state();return s.ended&&s.fuel===0&&Math.abs(s.distance-s.car.tank*.01*s.car.mpg)<1e-8&&Math.abs(s.stats.gallonsUsed-s.car.tank*.01)<1e-8&&s.stats.driveHours>0}));
  // Three attempts are a hard cap even when a seller still has patience.
  await page.evaluate(s=>{QA.fixture({...s,car:{...QA.carPool.find(c=>c.id==='family')},carIndex:s.listings.findIndex(c=>c.id==='family'),cash:6000,ended:false,sellers:{}});QA.visitSeller();let seller=QA.sellerState(QA.state().car);seller.patience=4;window.savedRandom=Math.random;Math.random=()=>.999;},purchased);
  for(let n=0;n<3;n++){if(await page.locator('#negotiateBtn').isEnabled())await page.click('#negotiateBtn');await page.locator('#offerButtons button').nth(1).click();}

@@ -2,6 +2,6 @@
   "name": "the-long-way-home",
   "private": true,
   "version": "1.0.5",
-  "scripts": {"test": "node qa/game-qa.cjs", "validate": "node --check app/src/main/assets/www/game.js"},
+  "scripts": {"test": "node qa/fuel-qa.cjs && node qa/game-qa.cjs", "validate": "node --check app/src/main/assets/www/game.js"},
   "devDependencies": {"playwright": "1.62.1"}
 }
