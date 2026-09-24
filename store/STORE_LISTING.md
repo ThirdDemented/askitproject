@@ -9,7 +9,7 @@ Build a life, buy a questionable car, and survive a cross-country road trip.
 ## Full description
 Your life changed. Now you have to get across the country.
 
-**The Long Way Home** is a modern road-life survival game inspired by classic journey games and text-based life simulators. Build your starting life, scrape together enough money to leave, shop for a used car, negotiate with sellers, pack what you can afford, and try to make it to your destination before your money, time, health, luck, or vehicle runs out.
+**The Long Way Home** is a modern road-life survival game inspired by classic journey games and text-based life simulators. Build your starting life, scrape together enough money to leave, shop for a used car, negotiate with sellers, pack what you can afford, and try to make it to your destination before your money, time, luck, or vehicle runs out.
 
 Every run begins differently.
 
@@ -37,8 +37,11 @@ No two trips are meant to tell the same story.
 - Random events and decision chains
 - Legal/gray-market trading and a discoverable fictional underground market
 - Original synthesized chiptune music and retro sound effects
+- Trip Computer, final trip reports and lifetime records
+- Detailed automotive pixel art and animated roadside atmosphere
+- Optional online U.S. city search and road routes; offline estimates for built-in cities
 - Local save/resume
 - No account required
-- No ads or analytics in version 1.0
+- No ads or analytics
 
 **Same roads. Different you.**

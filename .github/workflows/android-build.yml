@@ -63,7 +63,7 @@ jobs:
         env:
           LWH_KEYSTORE: ${{ runner.temp }}/lwh-release.p12
           LWH_KEY_PASSWORD: ${{ secrets.LWH_KEY_PASSWORD }}
-        run: gradle :app:assembleRelease :app:bundleRelease --stacktrace
+        run: gradle :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest --stacktrace
       - name: Verify signatures and permanent package ID
         run: |
           "${ANDROID_HOME}/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk | tee signing-verification.txt
@@ -89,7 +89,9 @@ jobs:
           disable-animations: false
           script: bash qa/android_qa.sh
       - name: Generate store package from reviewed game assets
-        run: python scripts/store_assets.py
+        run: |
+          python scripts/store_assets.py
+          python scripts/collect_evidence.py
       - name: Collect review evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -106,6 +108,7 @@ jobs:
             *-verification.txt
             store/generated/
             The-Long-Way-Home-Play-Store-Kit.zip
+            The-Long-Way-Home-QA-Evidence.zip
           if-no-files-found: error
       - name: Remove temporary signing material
         if: always()
@@ -120,7 +123,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Enforce every reviewed release gate
-        run: python scripts/check_release.py
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/check_release.py
       - uses: actions/download-artifact@v4
         with:
           name: long-way-home-review-${{ github.sha }}
@@ -132,4 +137,7 @@ jobs:
           VERSION="$(python -c "import json;print(json.load(open('qa/release-gates.json'))['version'])")"
           cp release-files/app/build/outputs/apk/release/app-release.apk "The-Long-Way-Home-${VERSION}.apk"
           cp release-files/app/build/outputs/bundle/release/app-release.aab "The-Long-Way-Home-${VERSION}.aab"
-          gh release create "v${VERSION}" "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" release-files/The-Long-Way-Home-Play-Store-Kit.zip --title "The Long Way Home ${VERSION}" --notes-file store/RELEASE_NOTES.md
+          cp release-files/The-Long-Way-Home-Play-Store-Kit.zip .
+          cp release-files/The-Long-Way-Home-QA-Evidence.zip .
+          sha256sum "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" The-Long-Way-Home-Play-Store-Kit.zip The-Long-Way-Home-QA-Evidence.zip > SHA256SUMS.txt
+          gh release create "v${VERSION}" "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" The-Long-Way-Home-Play-Store-Kit.zip The-Long-Way-Home-QA-Evidence.zip SHA256SUMS.txt --title "The Long Way Home ${VERSION}" --notes-file store/RELEASE_NOTES.md

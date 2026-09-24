@@ -19,6 +19,7 @@
 <section id="titleScreen" class="screen active"><div class="scene-layout"><figure class="scene illustration" data-scene="title"><img id="titleScreenArt" src="art/title.webp" alt="A silver sedan overlooks the long road at sunset." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>SAME ROADS. DIFFERENT YOU.</figcaption></figure><div class="content-scroll title-menu"><div class="kicker">A ROAD TRIP. A FRESH START.</div><h1>THE LONG<br>WAY HOME</h1><p class="title-deck">Buy a questionable car.<br>Pack what is left of your life.<br>Make it to the other end.</p><button id="newGameBtn" class="btn primary" type="button">▶ NEW LIFE</button>
   <button id="resumeBtn" class="btn" type="button" hidden>RESUME JOURNEY</button>
   <div class="sound-row"><button id="soundBtn" class="btn" type="button">♪ SOUND ON</button><button id="lifetimeBtn" class="btn" type="button">▣ RECORDS</button><button id="rotateTitleBtn" class="btn orientation-btn" type="button">↻ ROTATE</button><button id="installBtn" class="btn" type="button" hidden>INSTALL APP</button></div>
+  <button id="aboutBtn" class="btn about-button" type="button">HOW TO PLAY · PRIVACY · CREDITS</button>
 </div></div></section>
 
 <section id="setupScreen" class="screen"><div class="topbar"><b>NEW LIFE</b><span>BUILD YOUR START</span></div><div class="scene-layout"><figure class="scene illustration" data-scene="setup"><img id="setupScreenArt" src="art/setup.webp" alt="A new life begins at the kitchen table." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>CHAPTER 01 / A NEW LIFE</figcaption></figure><div class="content-scroll">
@@ -26,6 +27,7 @@
   <div class="panel setup-career"><div class="kicker">CAREER</div><div id="careerGrid" class="grid2"></div></div>
   <div class="panel setup-reason"><div class="kicker">WHY ARE YOU MOVING?</div><div id="reasonGrid" class="grid2"></div></div>
   <div class="panel setup-route"><div class="kicker">ROUTE</div><div class="field"><label>STARTING CITY</label><select id="originSelect" aria-label="Starting city"></select></div><div class="field"><label>OR TYPE ANY U.S. CITY</label><input id="originCustom" aria-label="Custom starting U.S. city" type="text" placeholder="e.g. Havana, IL"></div><div class="field"><label>DESTINATION</label><select id="destSelect" aria-label="Destination city"></select></div><div class="field"><label>OR TYPE ANY U.S. CITY</label><input id="destCustom" aria-label="Custom destination U.S. city" type="text" placeholder="e.g. Bend, OR"></div><button id="randomRouteBtn" class="btn2" type="button">RANDOMIZE CITIES</button></div>
+  <div class="panel"><label class="online-option"><input id="onlineRoutes" type="checkbox" checked> USE ONLINE CITY SEARCH &amp; ROAD ROUTES</label><p class="muted">Online requests send your chosen game cities and your IP address to Photon and OSRM. No GPS is used. Turn this off to play with the city list and estimated distances.</p></div>
   <button id="beginLifeBtn" class="btn primary" type="button">BEGIN THIS LIFE</button>
 </div></div></section>
 
@@ -71,7 +73,7 @@
   <div class="road-layout">
     <div class="road-visual-column">
       <div class="scene road-art-scene" data-scene="drive">
-        <img id="roadArt" src="art/drive.webp" alt="A detailed cockpit overlooking the American highway"><div class="road-motion" aria-hidden="true"></div><div class="weather-fx" aria-hidden="true"></div><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div>
+        <img id="roadArt" src="art/drive.webp" alt="A detailed cockpit overlooking the American highway"><div class="road-motion" aria-hidden="true"><img src="art/drive.webp" alt=""><img src="art/drive.webp" alt=""></div><div class="weather-fx" aria-hidden="true"></div><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div>
         
       </div>
       <div class="road-caption" id="sceneCaption">ON THE ROAD</div>
@@ -114,6 +116,7 @@
 </div></div></section>
 
 </div>
+<dialog id="aboutDialog" aria-labelledby="aboutTitle"><div class="dialog-body"><h2 id="aboutTitle">THE LONG WAY HOME</h2><h3>HOW TO PLAY</h3><p>Choose a life and a destination. Sell what you can spare, earn your travel money, inspect a used car and pack supplies. On the road, keep fuel and condition above zero, rest before you become dangerously tired, and make your deadline. Each choice advances the story. Your journey saves automatically; use RESUME JOURNEY when you return.</p><p>Markets have limited stock and demand. Prices change along the route. The Trip Computer records your spending and decisions. Starting a new life replaces the current journey; lifetime records remain.</p><h3>PRIVACY</h3><p>Progress, records and settings stay in this app's local storage. There are no accounts, ads, analytics, purchases or developer telemetry. Clearing app storage removes local saves and records.</p><p>With online routes enabled, entered city searches are sent to Photon (komoot), and the selected cities' coordinates are sent to OSRM. Those services receive your IP address and normal request information, and may keep operational logs. These are game locations, not your device's GPS location. Online requests use HTTPS. Disable online routes in life setup to use the built-in cities and offline distance estimates. Custom city searches require a connection.</p><p>We do not sell data. We cannot erase logs held by routing providers. Read the <a href="https://github.com/ThirdDemented/askitproject/blob/main/PRIVACY.md" target="_blank" rel="noopener">full privacy policy and contact information</a>.</p><h3>CREDITS</h3><p>Game: ThirdDemented. Original illustrations created with OpenAI image generation, directed and reviewed for this game. Original synthesized music and sound effects.</p><p>City search: <a href="https://photon.komoot.io/" target="_blank" rel="noopener">Photon</a>. Road routing: <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a>. Geographic data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, ODbL. <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">Fix the map</a>.</p><p class="muted">A fictional journey game. All underground goods and transactions are fictional. Scratch-offs use game money only, with no cash value.</p></div><form method="dialog"><button class="btn primary">BACK TO THE ROAD</button></form></dialog>
 <script src="game.js"></script>
 </body>
 </html>
