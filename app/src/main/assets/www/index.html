@@ -11,390 +11,42 @@
 
 
 
-<style>
-:root{
-  --bg:#050505;--fg:#f1eee1;--muted:#9c988c;--panel:#0c0c0c;--card:#151515;
-  --line:#d8d3c3;--amber:#f1b54c;--good:#77c77d;--bad:#e56d62;--blue:#6aa0d6;
-  --safe:env(safe-area-inset-bottom,0px)
-}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Courier New",ui-monospace,monospace}
-body{overscroll-behavior:none}
-button,input,select{font:inherit}
-button{cursor:pointer;touch-action:manipulation}
-#app{max-width:540px;margin:0 auto;min-height:100vh;background:#050505}
-.screen{display:none;min-height:100vh;padding:10px 12px calc(18px + var(--safe))}
-.screen.active{display:block}.center{display:none;min-height:100vh;padding:12px;align-items:center;justify-content:center;flex-direction:column}.center.active{display:flex}
-.pixel-frame{border:3px solid var(--fg);box-shadow:inset 0 0 0 2px #000}
-.topbar{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:2px solid var(--fg);padding:5px 1px 8px;margin-bottom:9px}
-.topbar b{font-size:.82rem}.topbar span{font-size:.59rem;color:var(--muted);text-align:right}
-.hero{width:100%;position:relative;overflow:hidden;border:3px solid var(--fg);background:#111}
-.hero canvas{display:block;width:100%;aspect-ratio:3/4;image-rendering:pixelated}
-.hero-copy{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;text-shadow:2px 2px #000}
-.hero-copy small{font-size:.58rem;letter-spacing:.12em}.hero-copy h1{font-size:clamp(2rem,11vw,3.7rem);line-height:.84;letter-spacing:-.065em;margin:5px 0}
-.kicker{font-size:.58rem;letter-spacing:.1em;color:var(--amber);text-transform:uppercase;margin-bottom:6px}
-.panel{border:2px solid var(--line);background:var(--panel);padding:11px;margin-top:9px}
-.panel h2,.event h2{font-size:.96rem;margin:0 0 6px}.panel p,.event p{font-size:.7rem;line-height:1.46;margin:0;white-space:pre-line}
-.muted{color:var(--muted)}
-.btn,.btn2,.choice,.cardbtn{width:100%;min-height:54px;border:2px solid var(--line);background:var(--card);color:var(--fg);padding:10px 11px;text-align:left;font-weight:900;margin-top:7px;border-radius:0}
-.btn.primary,.btn2.primary{background:var(--fg);color:#050505;text-align:center;letter-spacing:.06em}
-.btn:active,.btn2:active,.choice:active,.cardbtn:active{transform:translateY(2px)}
-button:disabled{opacity:.34;cursor:not-allowed}
-button small{display:block;color:var(--muted);font-size:.56rem;font-weight:400;line-height:1.3;margin-top:4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}.grid2>button{margin-top:0}
-.cardbtn{min-height:88px}.cardbtn.selected{outline:3px solid var(--amber);outline-offset:-5px}
-.cardbtn .name{display:block;font-size:.74rem}.cardbtn .sub{display:block;color:var(--muted);font-size:.56rem;line-height:1.3;margin-top:4px;font-weight:400}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}.stat{border:1px solid var(--line);padding:8px;text-align:center}.stat b{display:block;font-size:.98rem}.stat span{display:block;font-size:.5rem;color:var(--muted)}
-.field{display:grid;gap:4px;margin-top:8px}.field label{font-size:.58rem;color:var(--muted)}.field input,.field select{width:100%;min-height:46px;border:2px solid var(--line);background:#0f0f0f;color:var(--fg);padding:8px;font-size:16px;border-radius:0}
-.age-row{display:grid;grid-template-columns:1fr 72px;gap:8px;align-items:center}.age-row input[type=range]{padding:0}.age-number{text-align:center;border:2px solid var(--line);padding:10px;font-weight:900}
-.asset-row,.market-row{border-bottom:1px solid #444;padding:8px 0}.asset-row:last-child,.market-row:last-child{border-bottom:0}.asset-row b,.market-row b{font-size:.7rem}.asset-row span,.market-row span{font-size:.57rem;color:var(--muted)}
-.mini-actions{display:flex;gap:5px;margin-top:6px}.mini-actions button{min-height:38px;margin:0;padding:6px;font-size:.6rem}
-.notice{border:2px solid var(--amber);color:var(--amber);padding:8px;margin-top:7px;font-size:.64rem;line-height:1.4}.notice.good{border-color:var(--good);color:var(--good)}.notice.bad{border-color:var(--bad);color:var(--bad)}
-.log{font-size:.59rem;max-height:150px;overflow:auto;line-height:1.38}.log div{border-left:2px solid #555;padding-left:7px;margin:5px 0}
-.mag{background:#d6c69d;color:#17130d;border:5px solid #3e3528;padding:10px;box-shadow:6px 6px 0 #000;margin-top:8px}.mag-head{display:flex;justify-content:space-between;gap:8px;border-bottom:4px double #17130d;padding-bottom:5px}.mag-head b{font-size:1.05rem}.mag-head span{font-size:.51rem;text-align:right}
-.ad{border:3px solid #17130d;background:#ece0be;padding:8px;margin-top:8px}.ad h3{font-size:.78rem;margin:0}.ad .price{font-size:1.15rem;font-weight:900}.ad .copy{font-size:.61rem;line-height:1.35;margin-top:4px}.ad .meta{font-size:.53rem;margin-top:6px}
-.event{border:4px double var(--fg);background:#050505;padding:11px;text-align:center;margin-top:8px}.event .tag{display:inline-block;border:1px solid #777;padding:2px 5px;font-size:.5rem;color:var(--muted);margin-bottom:6px}
-.scene{border:3px solid var(--fg);background:#111;overflow:hidden;margin-top:8px}.scene canvas{display:block;width:100%;aspect-ratio:3/4;image-rendering:pixelated;background:#111}
-.drive-stats{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--fg);border-top:0}.drive-stats>div{padding:8px 4px;border-right:1px solid #777;text-align:center}.drive-stats>div:last-child{border-right:0}.drive-stats span{display:block;font-size:.49rem;color:var(--muted)}.drive-stats b{font-size:.72rem}
-.meterrow{display:grid;grid-template-columns:78px 1fr 40px;gap:7px;align-items:center;font-size:.61rem;margin:5px 0}.meter{height:10px;border:1px solid var(--line);background:#171717;overflow:hidden}.meter i{display:block;height:100%;background:var(--good);width:50%}
-.progress{height:13px;border:2px solid var(--fg);margin-top:7px;overflow:hidden}.progress i{display:block;height:100%;background:var(--fg);width:0}
-.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.chip{border:1px solid #666;padding:3px 5px;font-size:.52rem;color:var(--muted)}
-.market-price{display:flex;justify-content:space-between;gap:8px;align-items:end}.market-price b{font-size:.9rem}.market-price span{font-size:.54rem;color:var(--muted)}
-.heat{display:grid;grid-template-columns:72px 1fr 40px;gap:7px;align-items:center;font-size:.61rem}.heatbar{height:10px;border:1px solid var(--line);background:#171717}.heatbar i{display:block;height:100%;background:var(--bad);width:0}
-.sound-row{display:flex;gap:7px;margin-top:8px}.sound-row .btn{min-height:42px;font-size:.64rem;margin-top:0}
-@media(max-width:400px){.grid2{grid-template-columns:1fr}.hero-copy h1{font-size:12vw}.stats{grid-template-columns:1fr 1fr}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}
-
-
-/* === VISUAL PASS 1.1: responsive portrait + landscape === */
-.responsive-art{display:block;width:100%;height:100%}
-.responsive-art img{display:block;width:100%;height:100%;object-fit:cover}
-.visual-hero{width:100%;aspect-ratio:4/5;background:#000}
-.visual-hero .hero-copy{background:linear-gradient(transparent,rgba(0,0,0,.88));padding-top:56px}
-.road-layout{display:block}
-.road-art-scene{width:100%;aspect-ratio:360/312;background:#000}
-.road-caption{text-align:center;color:var(--muted);font-size:.54rem;letter-spacing:.12em;margin:5px 0 8px}
-.road-control-column{min-width:0}
-.road-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.road-actions .btn{margin-top:7px}
-.road-choice-stack .choice{margin-top:7px}
-@media (orientation: landscape) and (min-width:700px){
-  #app{max-width:none;width:100%;min-height:100vh}
-  .screen{max-width:1600px;margin:0 auto;padding:8px 12px 12px}
-  .center{max-width:1600px;margin:0 auto}
-  #titleScreen.center.active{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(330px,.7fr);grid-template-rows:auto auto auto;gap:10px;align-items:center;padding:10px 18px}
-  #titleScreen .visual-hero{grid-row:1/4;grid-column:1;aspect-ratio:720/239;min-height:0}
-  #titleScreen .hero-copy{padding:28px 24px 22px}
-  #titleScreen .hero-copy h1{font-size:clamp(2.2rem,4.5vw,4.8rem)}
-  #titleScreen #newGameBtn,#titleScreen #resumeBtn,#titleScreen .sound-row{grid-column:2}
-  #roadScreen .road-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(360px,.85fr);gap:10px;align-items:start}
-  #roadScreen .road-art-scene{aspect-ratio:720/239;min-height:0}
-  #roadScreen .road-visual-column{position:sticky;top:8px}
-  #roadScreen .road-control-column{display:flex;flex-direction:column;gap:6px}
-  #roadScreen .road-control-column>.notice,
-  #roadScreen .road-control-column>.drive-stats,
-  #roadScreen .road-control-column>.progress,
-  #roadScreen .road-control-column>.panel,
-  #roadScreen .road-control-column>.event{margin-top:0}
-  #roadScreen .compact-road-panel{padding:8px}
-  #roadScreen .road-event h2{font-size:1rem}
-  #roadScreen .road-event p{font-size:.71rem}
-  #roadScreen .road-actions{grid-template-columns:1fr 1fr}
-  #roadScreen .btn{min-height:46px}
-}
-@media (orientation: portrait){
-  .visual-hero{aspect-ratio:360/430}
-  .visual-hero .responsive-art img{object-position:center top}
-}
-
-
-/* === VISUAL PASS 1.2: cockpit-first landscape + denser game panels === */
-html,body{background:#020202}
-body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px);background-size:100% 4px}
-.panel,.event,.stat,.cardbtn,.btn,.btn2,.choice{box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
-.panel{background:linear-gradient(180deg,#0e0e0e,#080808)}
-.btn,.btn2,.choice,.cardbtn{background:linear-gradient(180deg,#191919,#101010)}
-.btn.primary,.btn2.primary{background:linear-gradient(180deg,#faf7e9,#ded9c9)}
-.responsive-art img{filter:saturate(1.06) contrast(1.045);image-rendering:auto}
-.topbar{background:#030303}
-.mag{box-shadow:6px 6px 0 #000,0 0 0 2px #17130d inset}
-@media (orientation: landscape) and (min-width:700px){
-  body{overflow:hidden}
-  #app{max-width:none;width:100%;height:100vh;overflow:hidden}
-  .screen{height:100vh;min-height:0;max-width:none;padding:8px 12px 10px;overflow:auto}
-  .center{height:100vh;min-height:0;max-width:none}
-
-  #titleScreen.center.active{
-    display:grid;grid-template-columns:minmax(0,2.2fr) minmax(300px,.72fr);
-    grid-template-rows:1fr auto auto;gap:10px;padding:10px 16px;overflow:hidden
-  }
-  #titleScreen .visual-hero{grid-column:1;grid-row:1/4;height:calc(100vh - 20px);aspect-ratio:auto}
-  #titleScreen .visual-hero .responsive-art img{object-fit:cover;object-position:center}
-  #titleScreen .hero-copy{padding:80px 34px 26px;background:linear-gradient(transparent 35%,rgba(0,0,0,.88))}
-  #titleScreen .hero-copy h1{font-size:clamp(2.8rem,5.1vw,5.6rem)}
-  #titleScreen #newGameBtn{grid-column:2;grid-row:1;align-self:end}
-  #titleScreen #resumeBtn{grid-column:2;grid-row:2}
-  #titleScreen .sound-row{grid-column:2;grid-row:3}
-
-  #setupScreen.active{
-    display:grid;grid-template-columns:minmax(240px,.52fr) minmax(420px,1.2fr) minmax(420px,1.2fr);
-    grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden
-  }
-  #setupScreen .topbar{grid-column:1/-1;margin:0}
-  #setupScreen>.panel{margin:0;overflow:auto}
-  #setupScreen .setup-age{grid-column:1;grid-row:2;align-self:start}
-  #setupScreen .setup-route{grid-column:1;grid-row:2;align-self:end;max-height:58%}
-  #setupScreen .setup-career{grid-column:2;grid-row:2}
-  #setupScreen .setup-reason{grid-column:3;grid-row:2}
-  #setupScreen #beginLifeBtn{grid-column:1/-1;grid-row:3;margin:0;min-height:44px}
-  #setupScreen #careerGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #setupScreen #reasonGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #setupScreen .cardbtn{min-height:76px;padding:8px}
-
-  #prepScreen.active{
-    display:grid;grid-template-columns:minmax(320px,.8fr) minmax(420px,1.1fr) minmax(420px,1.1fr);
-    grid-template-rows:auto auto minmax(0,1fr) auto;gap:8px;overflow:hidden
-  }
-  #prepScreen .topbar{grid-column:1/-1;margin:0}
-  #prepScreen #prepStats{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}
-  #prepScreen>.panel{margin:0;overflow:auto}
-  #prepScreen .prep-situation{grid-column:1;grid-row:3;align-self:start;max-height:48%}
-  #prepScreen .prep-log{grid-column:1;grid-row:3;align-self:end;max-height:48%}
-  #prepScreen .prep-assets{grid-column:2;grid-row:3}
-  #prepScreen .prep-actions{grid-column:3;grid-row:3}
-  #prepScreen #openMarketBtn{grid-column:1/-1;grid-row:4;margin:0;min-height:44px}
-
-  #carMarketScreen.active{
-    display:grid;grid-template-columns:minmax(0,1.6fr) minmax(330px,.65fr);
-    grid-template-rows:auto 1fr auto auto auto;gap:8px;overflow:hidden
-  }
-  #carMarketScreen .topbar{grid-column:1/-1;margin:0}
-  #carMarketScreen .mag{grid-column:1;grid-row:2/6;margin:0;overflow:auto}
-  #carMarketScreen>.grid2{grid-column:2;grid-row:2;margin:0;align-self:end}
-  #carMarketScreen #visitSellerBtn{grid-column:2;grid-row:3;margin:0}
-  #carMarketScreen #backPrepBtn{grid-column:2;grid-row:4;margin:0}
-
-  #sellerScreen.active{
-    display:grid;grid-template-columns:minmax(0,1.35fr) minmax(380px,.85fr);
-    grid-template-rows:auto 1fr;gap:8px;overflow:hidden
-  }
-  #sellerScreen .topbar{grid-column:1/-1;margin:0}
-  #sellerScreen .scene{grid-column:1;grid-row:2;margin:0;height:100%;min-height:0}
-  #sellerScreen .scene canvas{height:100%;aspect-ratio:auto;object-fit:cover}
-  #sellerScreen .event{grid-column:2;grid-row:2;margin:0 0 auto}
-  #sellerScreen #sellerNotice{grid-column:2;grid-row:2;align-self:start;margin-top:118px}
-  #sellerScreen #inspectBtn,#sellerScreen #testDriveBtn,#sellerScreen #mechanicCheckBtn,#sellerScreen #negotiateBtn,
-  #sellerScreen #offerButtons,#sellerScreen #buyCarBtn,#sellerScreen #walkAwayBtn{grid-column:2;grid-row:2}
-  #sellerScreen #inspectBtn{align-self:start;margin-top:190px}
-  #sellerScreen #testDriveBtn{align-self:start;margin-top:250px}
-  #sellerScreen #mechanicCheckBtn{align-self:start;margin-top:310px}
-  #sellerScreen #negotiateBtn{align-self:start;margin-top:370px}
-  #sellerScreen #offerButtons{align-self:start;margin-top:430px;max-height:120px;overflow:auto}
-  #sellerScreen #buyCarBtn{align-self:end;margin-bottom:58px}
-  #sellerScreen #walkAwayBtn{align-self:end;margin-bottom:0}
-
-  #supplyScreen.active{
-    display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
-    grid-template-rows:auto 1fr auto auto;gap:8px;overflow:hidden
-  }
-  #supplyScreen .topbar{grid-column:1/-1;margin:0}
-  #supplyScreen>.panel{margin:0;overflow:auto}
-  #supplyScreen .supply-car{grid-column:1;grid-row:2;align-self:start;max-height:48%}
-  #supplyScreen .supply-inventory{grid-column:1;grid-row:2;align-self:end;max-height:48%}
-  #supplyScreen .supply-shop{grid-column:2;grid-row:2}
-  #supplyScreen #departBtn{grid-column:2;grid-row:3;margin:0}
-  #supplyScreen #prepAgainBtn{grid-column:1;grid-row:3;margin:0}
-
-  #roadScreen.screen.active{position:relative;height:100vh;overflow:hidden;padding:0;background:#000}
-  #roadScreen .road-top{
-    position:absolute;z-index:20;top:0;left:0;right:0;height:48px;margin:0;padding:8px 14px;
-    background:rgba(2,2,2,.93);border-bottom:2px solid var(--fg)
-  }
-  #roadScreen .road-layout{position:absolute;inset:48px 0 0;display:block}
-  #roadScreen .road-visual-column{position:absolute;inset:0}
-  #roadScreen .road-art-scene{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;border:0;margin:0}
-  #roadScreen .road-art-scene .responsive-art img{object-fit:cover;object-position:center}
-  #roadScreen .road-caption{display:none}
-  #roadScreen .road-control-column{position:absolute;inset:0;pointer-events:none}
-  #roadScreen .road-control-column>*{pointer-events:auto}
-  #roadScreen #routeInstruction{
-    position:absolute;left:12px;top:10px;width:min(36%,520px);margin:0;background:rgba(9,42,29,.9);
-    backdrop-filter:blur(2px);font-size:.62rem
-  }
-  #roadScreen .drive-stats{
-    position:absolute;right:12px;top:10px;width:min(35%,500px);background:rgba(2,2,2,.91);border:2px solid var(--fg)
-  }
-  #roadScreen .progress{position:absolute;right:12px;top:62px;width:min(35%,500px);margin:0;background:#000}
-  #roadScreen .compact-road-panel{
-    position:absolute;left:12px;bottom:12px;width:min(28%,420px);margin:0;padding:8px;background:rgba(2,2,2,.92);
-    border:2px solid var(--fg);backdrop-filter:blur(2px)
-  }
-  #roadScreen .road-event{
-    position:absolute;left:30%;right:28%;bottom:12px;margin:0;max-height:38%;overflow:auto;
-    background:rgba(2,2,2,.95);backdrop-filter:blur(2px);text-align:left
-  }
-  #roadScreen .road-event h2{font-size:1rem;margin-bottom:4px}
-  #roadScreen .road-event p{font-size:.68rem}
-  #roadScreen .road-choice-stack{
-    position:absolute;right:12px;bottom:76px;width:25%;max-height:47%;overflow:auto;display:grid;gap:5px
-  }
-  #roadScreen .road-choice-stack .choice{margin:0;min-height:42px;padding:7px}
-  #roadScreen .road-actions{
-    position:absolute;right:12px;bottom:12px;width:25%;display:grid;grid-template-columns:1fr 1fr;gap:5px
-  }
-  #roadScreen .road-actions .btn{margin:0;min-height:48px;padding:7px}
-
-  #tradeScreen.active{
-    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-    grid-template-rows:auto auto 1fr auto;gap:8px;overflow:hidden
-  }
-  #tradeScreen .topbar{grid-column:1/-1;margin:0}
-  #tradeScreen>.stats{grid-column:1/-1;grid-template-columns:repeat(4,1fr);margin:0}
-  #tradeScreen>.panel{margin:0;overflow:auto}
-  #tradeScreen .trade-legal{grid-column:1;grid-row:3}
-  #tradeScreen #undergroundPanel{grid-column:2;grid-row:3}
-  #tradeScreen #contactPanel{grid-column:2;grid-row:3;align-self:end}
-  #tradeScreen #leaveMarketBtn{grid-column:1/-1;grid-row:4;margin:0;min-height:44px}
-
-  #endingScreen.center.active{
-    display:grid;grid-template-columns:minmax(0,1.25fr) minmax(380px,.75fr);
-    grid-template-rows:1fr auto auto;gap:10px;padding:10px 16px
-  }
-  #endingScreen .scene{grid-column:1;grid-row:1/3;height:calc(100vh - 20px);margin:0}
-  #endingScreen .scene canvas{height:100%;aspect-ratio:auto}
-  #endingScreen .event{grid-column:2;grid-row:1;align-self:end}
-  #endingScreen #endTripReportBtn{grid-column:2;grid-row:2;margin:0}
-  #endingScreen #againBtn{grid-column:2;grid-row:3;margin:0}
-}
-
-
-.orientation-btn{min-height:42px}
-.orientation-icon{width:42px;min-width:42px;height:36px;min-height:36px;margin:0;padding:0;text-align:center;border:1px solid #777;background:#0b0b0b;color:var(--fg);font-size:1rem}
-@media (orientation: landscape) and (min-width:700px){
-  #roadScreen .road-top .orientation-icon{display:block}
-}
-
-
-.car-photo{position:relative;height:190px;margin:10px 0;border:3px solid #17130d;overflow:hidden;background:linear-gradient(#df9d55 0 54%,#4b643d 54% 68%,#615342 68%)}
-.car-photo:before{content:"";position:absolute;left:-5%;right:-5%;top:54%;height:38px;background:linear-gradient(170deg,#233b24 0 55%,transparent 56%)}
-.car-photo:after{content:"";position:absolute;left:0;right:0;bottom:0;height:62px;background:linear-gradient(#5e5a50,#373532)}
-.car-photo .car-sil{position:absolute;z-index:2;left:50%;bottom:27px;width:230px;height:62px;transform:translateX(-50%);background:var(--car);border:4px solid #1d1d1d;border-radius:28px 42px 12px 12px;box-shadow:0 5px 0 rgba(0,0,0,.45)}
-.car-photo .car-sil:before{content:"";position:absolute;left:42px;top:-35px;width:130px;height:42px;background:var(--car);border:4px solid #1d1d1d;clip-path:polygon(17% 100%,32% 8%,72% 8%,95% 100%)}
-.car-photo .car-sil:after{content:"";position:absolute;left:20px;bottom:-20px;width:34px;height:34px;border-radius:50%;background:#0a0a0a;border:6px solid #555;box-shadow:151px 0 0 #0a0a0a,151px 0 0 6px #555}
-.car-photo .photo-tag{position:absolute;z-index:3;right:8px;top:8px;background:#f3e6b6;color:#1b1710;border:2px solid #332a1e;padding:4px 7px;font-size:.55rem;font-weight:900;transform:rotate(2deg)}
-.car-photo .photo-caption{position:absolute;z-index:3;left:8px;bottom:5px;color:#eee7d3;font-size:.5rem;text-shadow:1px 1px #000}
-
-
-/* === VISUAL PASS 1.3: crisp pixel presentation === */
-.responsive-art img{
-  image-rendering:pixelated;
-  image-rendering:crisp-edges;
-  filter:saturate(1.14) contrast(1.08) brightness(.98);
-}
-.hero,.road-art-scene,.seller-art,.ending-art{position:relative}
-.hero:after,.road-art-scene:after,.seller-art:after,.ending-art:after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  box-shadow:inset 0 0 55px rgba(0,0,0,.42);
-  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.012) 0,rgba(255,255,255,.012) 1px,transparent 1px,transparent 4px);
-  mix-blend-mode:normal
-}
-#sellerScreen .seller-art canvas,#endingScreen .ending-art canvas{
-  width:100%;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges
-}
-.mag{background:
-  linear-gradient(rgba(255,255,255,.06),rgba(0,0,0,.03)),
-  #d6c69d}
-.mag-head b{letter-spacing:.08em}
-.car-photo{image-rendering:pixelated}
-.hero-copy small{color:#f1b54c;font-weight:900;text-shadow:2px 2px #000}
-.hero-copy h1{text-shadow:3px 3px 0 #000,0 0 16px rgba(0,0,0,.8)}
-@media (orientation:portrait){
-  #sellerScreen .seller-art canvas,#endingScreen .ending-art canvas{aspect-ratio:16/10}
-}
-
-
-/* === TRIP COMPUTER 1.0 === */
-.trip-actions{display:flex;gap:6px;align-items:center}
-.trip-actions .orientation-icon{flex:0 0 42px}
-.trip-log-btn{width:auto;min-width:82px;min-height:36px;height:36px;margin:0;padding:0 9px;text-align:center;border:1px solid #777;background:#0b0b0b;color:var(--fg);font-size:.6rem;font-weight:900}
-.trip-summary-hero{border:2px solid var(--line);background:linear-gradient(180deg,#121212,#070707);padding:12px;margin-top:8px}
-.trip-odometer{font-size:clamp(2rem,9vw,4.2rem);font-weight:900;letter-spacing:.045em;line-height:1;color:#f4efe0;text-shadow:0 2px #000}
-.trip-odometer small{display:block;font-size:.52rem;letter-spacing:.16em;color:var(--muted);margin-bottom:7px}
-.trip-route-line{font-size:.61rem;color:var(--amber);margin-top:8px}
-.trip-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}
-.trip-card{border:1px solid #68655e;background:#0b0b0b;padding:9px;min-height:68px}
-.trip-card b{display:block;font-size:1.02rem;line-height:1.1}
-.trip-card span{display:block;font-size:.52rem;color:var(--muted);margin-top:5px}
-.trip-section{border:2px solid var(--line);background:var(--panel);padding:10px;margin-top:8px}
-.trip-section h3{font-size:.67rem;letter-spacing:.1em;color:var(--amber);margin:0 0 8px}
-.trip-ledger{display:grid;grid-template-columns:1fr auto;gap:0}
-.trip-ledger div{padding:6px 2px;border-bottom:1px solid #333;font-size:.62rem}
-.trip-ledger .v{text-align:right;font-weight:900}
-.achievement{border-left:3px solid var(--amber);background:#111;padding:8px 9px;margin:6px 0}
-.achievement b{display:block;font-size:.65rem}
-.achievement span{display:block;font-size:.57rem;color:var(--muted);margin-top:3px;line-height:1.35}
-.trip-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.trip-tabs button{min-height:42px;margin:0;text-align:center}
-.trip-tabs button.active{background:var(--fg);color:#050505}
-@media (orientation:landscape) and (min-width:700px){
-  #tripLogScreen.active{display:grid;grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr);grid-template-rows:auto auto 1fr auto;gap:8px;height:100vh;overflow:hidden}
-  #tripLogScreen .topbar{grid-column:1/-1;margin:0}
-  #tripLogScreen .trip-tabs{grid-column:1/-1;margin:0}
-  #tripLogScreen .trip-summary-hero{grid-column:1;grid-row:3;margin:0;overflow:auto}
-  #tripLogScreen #tripDetail{grid-column:2;grid-row:3;overflow:auto;padding-right:4px}
-  #tripLogScreen #tripBackBtn{grid-column:1/-1;grid-row:4;margin:0;min-height:42px}
-  #tripLogScreen .trip-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-
-</style>
+<link rel="stylesheet" href="game.css">
 </head>
 <body>
 <div id="app">
 
-<section id="titleScreen" class="center active">
-  <div class="hero visual-hero">
-    <picture class="responsive-art">
-      <source media="(orientation: landscape)" srcset="art/drive-landscape.webp">
-      <img src="art/drive-portrait.webp" alt="First-person pixel-art road trip from inside a classic sedan">
-    </picture>
-    <canvas id="titleCanvas" width="320" height="420" aria-hidden="true" hidden></canvas>
-    <div class="hero-copy"><small>LIFE SIMULATOR • ROAD SURVIVAL</small><h1>THE LONG<br>WAY HOME</h1></div>
-  </div>
-  <button id="newGameBtn" class="btn primary" type="button">▶ NEW LIFE</button>
+<section id="titleScreen" class="screen active"><div class="scene-layout"><figure class="scene illustration" data-scene="title"><img id="titleScreenArt" src="art/title.webp" alt="A silver sedan overlooks the long road at sunset." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>SAME ROADS. DIFFERENT YOU.</figcaption></figure><div class="content-scroll title-menu"><div class="kicker">A ROAD TRIP. A FRESH START.</div><h1>THE LONG<br>WAY HOME</h1><p class="title-deck">Buy a questionable car.<br>Pack what is left of your life.<br>Make it to the other end.</p><button id="newGameBtn" class="btn primary" type="button">▶ NEW LIFE</button>
   <button id="resumeBtn" class="btn" type="button" hidden>RESUME JOURNEY</button>
   <div class="sound-row"><button id="soundBtn" class="btn" type="button">♪ SOUND ON</button><button id="lifetimeBtn" class="btn" type="button">▣ RECORDS</button><button id="rotateTitleBtn" class="btn orientation-btn" type="button">↻ ROTATE</button><button id="installBtn" class="btn" type="button" hidden>INSTALL APP</button></div>
-</section>
+</div></div></section>
 
-<section id="setupScreen" class="screen">
-  <div class="topbar"><b>NEW LIFE</b><span>BUILD YOUR START</span></div>
-  <div class="panel setup-age"><div class="kicker">AGE</div><div class="age-row"><input id="ageRange" type="range" min="18" max="60" value="31"><div id="ageOut" class="age-number">31</div></div></div>
+<section id="setupScreen" class="screen"><div class="topbar"><b>NEW LIFE</b><span>BUILD YOUR START</span></div><div class="scene-layout"><figure class="scene illustration" data-scene="setup"><img id="setupScreenArt" src="art/setup.webp" alt="A new life begins at the kitchen table." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>CHAPTER 01 / A NEW LIFE</figcaption></figure><div class="content-scroll">
+  <div class="panel setup-age"><div class="kicker">AGE</div><div class="age-row"><input aria-label="Age" id="ageRange" type="range" min="18" max="60" value="31"><div id="ageOut" class="age-number">31</div></div></div>
   <div class="panel setup-career"><div class="kicker">CAREER</div><div id="careerGrid" class="grid2"></div></div>
   <div class="panel setup-reason"><div class="kicker">WHY ARE YOU MOVING?</div><div id="reasonGrid" class="grid2"></div></div>
-  <div class="panel setup-route"><div class="kicker">ROUTE</div><div class="field"><label>STARTING CITY</label><select id="originSelect"></select></div><div class="field"><label>OR TYPE ANY U.S. CITY</label><input id="originCustom" type="text" placeholder="e.g. Havana, IL"></div><div class="field"><label>DESTINATION</label><select id="destSelect"></select></div><div class="field"><label>OR TYPE ANY U.S. CITY</label><input id="destCustom" type="text" placeholder="e.g. Bend, OR"></div><button id="randomRouteBtn" class="btn2" type="button">RANDOMIZE CITIES</button></div>
+  <div class="panel setup-route"><div class="kicker">ROUTE</div><div class="field"><label>STARTING CITY</label><select id="originSelect" aria-label="Starting city"></select></div><div class="field"><label>OR TYPE ANY U.S. CITY</label><input id="originCustom" aria-label="Custom starting U.S. city" type="text" placeholder="e.g. Havana, IL"></div><div class="field"><label>DESTINATION</label><select id="destSelect" aria-label="Destination city"></select></div><div class="field"><label>OR TYPE ANY U.S. CITY</label><input id="destCustom" aria-label="Custom destination U.S. city" type="text" placeholder="e.g. Bend, OR"></div><button id="randomRouteBtn" class="btn2" type="button">RANDOMIZE CITIES</button></div>
   <button id="beginLifeBtn" class="btn primary" type="button">BEGIN THIS LIFE</button>
-</section>
+</div></div></section>
 
-<section id="prepScreen" class="screen">
-  <div class="topbar"><b>BEFORE YOU LEAVE</b><span id="prepRoute"></span></div>
+<section id="prepScreen" class="screen"><div class="topbar"><b>BEFORE YOU LEAVE</b><span id="prepRoute"></span></div><div class="scene-layout"><figure class="scene illustration" data-scene="prep"><img id="prepScreenArt" src="art/prep.webp" alt="Moving boxes and possessions in a sunlit garage." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>CHAPTER 02 / WHAT YOU KEEP</figcaption></figure><div class="content-scroll">
   <div id="prepStats" class="stats"></div>
   <div class="panel prep-situation"><div class="kicker">YOUR SITUATION</div><h2 id="situationTitle"></h2><p id="situationCopy"></p><div id="stipendNote" class="notice" hidden></div></div>
   <div class="panel prep-assets"><div class="kicker">YOUR ACTUAL POSSESSIONS</div><p>Finite inventory. Once something is sold, it is gone.</p><div id="assetList"></div></div>
   <div class="panel prep-actions"><div class="kicker">WAYS TO RAISE MONEY</div><div id="prepActions" class="grid2"></div></div>
   <button id="openMarketBtn" class="btn primary" type="button">GRAB FREE AUTOTRADER</button>
   <div class="panel prep-log"><div class="kicker">LIFE LOG</div><div id="lifeLog" class="log"></div></div>
-</section>
+</div></div></section>
 
-<section id="carMarketScreen" class="screen">
-  <div class="topbar"><b>AUTOTRADER</b><span id="marketCash"></span></div>
+<section id="carMarketScreen" class="screen"><div class="topbar"><b>AUTOTRADER</b><span id="marketCash"></span></div><div class="scene-layout"><figure class="scene illustration" data-scene="car-buick"><img id="carMarketScreenArt" src="art/car-buick.webp" alt="Used car offered for private sale." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>CHAPTER 03 / CASH TALKS</figcaption></figure><div class="content-scroll">
   <div class="mag"><div class="mag-head"><b>AUTO TRADER</b><span>LOCAL CARS<br>CASH TALKS</span></div><div id="carAd"></div></div>
   <div class="grid2" style="margin-top:8px"><button id="prevCarBtn" class="btn2" type="button">← PREVIOUS</button><button id="nextCarBtn" class="btn2" type="button">NEXT →</button></div>
   <button id="visitSellerBtn" class="btn primary" type="button">VISIT SELLER</button>
   <button id="backPrepBtn" class="btn" type="button">KEEP PREPARING</button>
-</section>
+</div></div></section>
 
-<section id="sellerScreen" class="screen">
-  <div class="topbar"><b>SELLER'S HOUSE</b><span id="sellerCash"></span></div>
-  <div class="scene seller-art"><canvas id="sellerCanvas" width="640" height="360"></canvas></div>
+<section id="sellerScreen" class="screen"><div class="topbar"><b>SELLER'S HOUSE</b><span id="sellerCash"></span></div><div class="scene-layout"><figure class="scene illustration" data-scene="car-buick"><img id="sellerScreenArt" src="art/car-buick.webp" alt="Meet the owner and inspect the car." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>PRIVATE SALE / BUYER BEWARE</figcaption></figure><div class="content-scroll">
+  
   <div class="event"><span class="tag">PRIVATE SALE</span><h2 id="sellerTitle"></h2><p id="sellerBody"></p></div>
   <div id="sellerNotice" class="notice" hidden></div>
   <button id="inspectBtn" class="choice" type="button">LOOK IT OVER<small>Free. One visual inspection.</small></button>
@@ -404,520 +56,64 @@ body{background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px
   <div id="offerButtons"></div>
   <button id="buyCarBtn" class="btn primary" type="button">BUY THIS CAR</button>
   <button id="walkAwayBtn" class="btn" type="button">WALK AWAY</button>
-</section>
+</div></div></section>
 
-<section id="supplyScreen" class="screen">
-  <div class="topbar"><b>LAST CHANCE TO PREP</b><span id="supplyCash"></span></div>
+<section id="supplyScreen" class="screen"><div class="topbar"><b>LAST CHANCE TO PREP</b><span id="supplyCash"></span></div><div class="scene-layout"><figure class="scene illustration" data-scene="supplies"><img id="supplyScreenArt" src="art/supplies.webp" alt="Supplies at a roadside parts store." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>CHAPTER 04 / ONE LAST STOP</figcaption></figure><div class="content-scroll">
   <div class="panel supply-car"><div class="kicker">YOUR CAR</div><h2 id="ownedCar"></h2><p id="knownIssues"></p></div>
   <div class="panel supply-shop"><div class="kicker">SUPPLIES</div><div id="supplyGrid" class="grid2"></div></div>
   <div class="panel supply-inventory"><div class="kicker">INVENTORY</div><div id="inventoryView" class="chips"></div></div>
   <button id="departBtn" class="btn primary" type="button">LEAVE TOWN</button>
   <button id="prepAgainBtn" class="btn" type="button">WAIT — KEEP PREPARING</button>
-</section>
+</div></div></section>
 
 <section id="roadScreen" class="screen">
   <div class="topbar road-top"><b id="roadDay">DAY 1</b><span id="roadRoute"></span><div class="trip-actions"><button id="tripLogRoadBtn" class="trip-log-btn" type="button">▣ TRIP LOG</button><button id="rotateRoadBtn" class="orientation-btn orientation-icon" type="button" aria-label="Rotate screen">↻</button></div></div>
   <div class="road-layout">
     <div class="road-visual-column">
-      <div class="scene road-art-scene">
-        <picture class="responsive-art">
-          <source media="(orientation: landscape)" srcset="art/drive-landscape.webp">
-          <img src="art/drive-portrait.webp" alt="Pixel-art highway seen through the windshield of your car">
-        </picture>
-        <canvas id="roadCanvas" width="320" height="400" aria-hidden="true" hidden></canvas>
+      <div class="scene road-art-scene" data-scene="drive">
+        <img id="roadArt" src="art/drive.webp" alt="A detailed cockpit overlooking the American highway"><div class="road-motion" aria-hidden="true"></div><div class="weather-fx" aria-hidden="true"></div><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div>
+        
       </div>
-      <div class="road-caption">YOUR CAR • YOUR ROAD • YOUR CONSEQUENCES</div>
+      <div class="road-caption" id="sceneCaption">ON THE ROAD</div>
     </div>
     <div class="road-control-column">
       <div id="routeInstruction" class="notice good">ROUTE: Continue toward destination.</div>
-      <div class="drive-stats"><div><span>FUEL</span><b id="fuelOut">100%</b></div><div><span>CONDITION</span><b id="conditionOut">100%</b></div><div><span>CASH</span><b id="cashOut">$0</b></div></div>
-      <div class="progress"><i id="tripProgress"></i></div>
-      <div class="panel compact-road-panel"><div class="meterrow"><span>FATIGUE</span><div class="meter"><i id="fatigueBar"></i></div><b id="fatigueOut"></b></div><div class="meterrow"><span>HUNGER</span><div class="meter"><i id="hungerBar"></i></div><b id="hungerOut"></b></div><div class="meterrow"><span>MORALE</span><div class="meter"><i id="moraleBar"></i></div><b id="moraleOut"></b></div><div id="roadInventory" class="chips"></div></div>
+      <div class="drive-stats"><div class="fuel-gauge" aria-hidden="true"><i id="fuelNeedle"></i></div><div><span>FUEL</span><b id="fuelOut">100%</b></div><div><span>CONDITION</span><b id="conditionOut">100%</b></div><div><span>CASH</span><b id="cashOut">$0</b></div></div>
+      <div class="progress" aria-label="Journey progress"><i id="tripProgress"></i></div>
+      <div class="panel compact-road-panel"><div class="meterrow"><span>FATIGUE</span><div class="meter"><i id="fatigueBar"></i></div><b id="fatigueOut"></b></div><div class="meterrow"><span>HUNGER</span><div class="meter"><i id="hungerBar"></i></div><b id="hungerOut"></b></div><div class="meterrow"><span>MORALE</span><div class="meter"><i id="moraleBar"></i></div><b id="moraleOut"></b></div><details><summary>SUPPLIES IN THE CAR</summary><div id="roadInventory" class="chips"></div></details></div>
       <div class="event road-event"><span id="eventTag" class="tag">ROAD</span><h2 id="eventTitle">YOU PULL ONTO THE HIGHWAY.</h2><p id="eventBody"></p></div>
       <div id="eventChoices" class="road-choice-stack"></div>
       <div class="road-actions">
-        <button id="driveLegBtn" class="btn primary" type="button">DRIVE 50 MILES</button>
+        <button id="driveLegBtn" class="btn primary" type="button">DRIVE NEXT LEG</button>
         <button id="marketStopBtn" class="btn" type="button">CHECK LOCAL MARKET</button>
       </div>
     </div>
   </div>
 </section>
 
-<section id="tradeScreen" class="screen">
-  <div class="topbar"><b>LOCAL MARKET</b><span id="tradeLocation"></span></div>
+<section id="tradeScreen" class="screen"><div class="topbar"><b>LOCAL MARKET</b><span id="tradeLocation"></span></div><div class="scene-layout"><figure class="scene illustration" data-scene="trade"><img id="tradeScreenArt" src="art/trade.webp" alt="A roadside market at dusk." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>TRUNK SPACE / LOCAL PRICES</figcaption></figure><div class="content-scroll">
   <div class="stats"><div class="stat"><b id="tradeCash"></b><span>CASH</span></div><div class="stat"><b id="cargoUsed"></b><span>CARGO</span></div></div>
   <div class="panel trade-legal"><div class="kicker">LEGAL / GRAY MARKET</div><div id="tradeList"></div></div>
   <div id="undergroundPanel" class="panel" hidden><div class="kicker">UNDERGROUND MARKET</div><div class="heat"><span>HEAT</span><div class="heatbar"><i id="heatBar"></i></div><b id="heatOut"></b></div><p style="margin-top:7px">Fictional contraband only. High margins, high consequences.</p><div id="undergroundList"></div></div>
   <div id="contactPanel" class="notice" hidden></div>
   <button id="leaveMarketBtn" class="btn primary" type="button">BACK TO THE ROAD</button>
-</section>
+</div></div></section>
 
 
-<section id="tripLogScreen" class="screen">
-  <div class="topbar"><b>TRIP COMPUTER</b><span id="tripLogRoute"></span></div>
+<section id="tripLogScreen" class="screen"><div class="topbar"><b>TRIP COMPUTER</b><span id="tripLogRoute"></span></div><div class="scene-layout"><figure class="scene illustration" data-scene="records"><img id="tripLogScreenArt" src="art/records.webp" alt="Receipts and a road atlas in the glovebox." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>THE TRIP COMPUTER / EVERY MILE COUNTS</figcaption></figure><div class="content-scroll">
   <div class="trip-tabs"><button id="currentTripTab" class="btn2 active" type="button">CURRENT RUN</button><button id="lifetimeTab" class="btn2" type="button">LIFETIME RECORD</button></div>
   <div id="tripSummaryHero" class="trip-summary-hero"></div>
   <div id="tripDetail"></div>
   <button id="tripBackBtn" class="btn primary" type="button">BACK</button>
-</section>
+</div></div></section>
 
-<section id="endingScreen" class="center">
-  <div class="scene ending-art"><canvas id="endingCanvas" width="640" height="360"></canvas></div>
+<section id="endingScreen" class="screen"><div class="topbar"><b>THE JOURNEY</b><span>FINAL CHAPTER</span></div><div class="scene-layout"><figure class="scene illustration" data-scene="arrival"><img id="endingScreenArt" src="art/arrival.webp" alt="The road reaches a new beginning." width="1536" height="1024"><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div><figcaption>THE LONG WAY HOME</figcaption></figure><div class="content-scroll">
+  
   <div class="event"><div class="kicker" id="endKicker">JOURNEY OVER</div><h2 id="endTitle"></h2><p id="endBody"></p></div>
   <button id="endTripReportBtn" class="btn" type="button">▣ VIEW FINAL TRIP REPORT</button><button id="againBtn" class="btn primary" type="button">START ANOTHER LIFE</button>
-</section>
+</div></div></section>
 
 </div>
-<script>
-(()=>{
-'use strict';
-const $=id=>document.getElementById(id);
-const screens=[...document.querySelectorAll('.screen,.center')];
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,n));
-const round25=n=>Math.round(n/25)*25;
-const money=n=>'$'+Math.max(0,Math.round(n)).toLocaleString();
-const chance=p=>Math.random()<p;
-const SAVE_KEY='lwh-rc1-save';
-const LIFETIME_KEY='lwh-lifetime-v1';
-let tripReturnScreen='roadScreen',tripView='current';
-let currentScreen='titleScreen';
-let installPrompt=null;
-let raf=0,roadPhase=0,lastFrame=0;
-
-const cities=[
- {n:'Peoria, IL',lat:40.6936,lon:-89.5890},{n:'Chicago, IL',lat:41.8781,lon:-87.6298},{n:'St. Louis, MO',lat:38.6270,lon:-90.1994},{n:'Denver, CO',lat:39.7392,lon:-104.9903},{n:'Phoenix, AZ',lat:33.4484,lon:-112.0740},{n:'Seattle, WA',lat:47.6062,lon:-122.3321},{n:'Portland, OR',lat:45.5152,lon:-122.6784},{n:'Las Vegas, NV',lat:36.1699,lon:-115.1398},{n:'Albuquerque, NM',lat:35.0844,lon:-106.6504},{n:'Dallas, TX',lat:32.7767,lon:-96.7970},{n:'Houston, TX',lat:29.7604,lon:-95.3698},{n:'Austin, TX',lat:30.2672,lon:-97.7431},{n:'San Antonio, TX',lat:29.4241,lon:-98.4936},{n:'Oklahoma City, OK',lat:35.4676,lon:-97.5164},{n:'Tulsa, OK',lat:36.1540,lon:-95.9928},{n:'Kansas City, MO',lat:39.0997,lon:-94.5786},{n:'Omaha, NE',lat:41.2565,lon:-95.9345},{n:'Minneapolis, MN',lat:44.9778,lon:-93.2650},{n:'Milwaukee, WI',lat:43.0389,lon:-87.9065},{n:'Detroit, MI',lat:42.3314,lon:-83.0458},{n:'Cleveland, OH',lat:41.4993,lon:-81.6944},{n:'Columbus, OH',lat:39.9612,lon:-82.9988},{n:'Indianapolis, IN',lat:39.7684,lon:-86.1581},{n:'Louisville, KY',lat:38.2527,lon:-85.7585},{n:'Nashville, TN',lat:36.1627,lon:-86.7816},{n:'Memphis, TN',lat:35.1495,lon:-90.0490},{n:'Atlanta, GA',lat:33.7490,lon:-84.3880},{n:'Charlotte, NC',lat:35.2271,lon:-80.8431},{n:'Richmond, VA',lat:37.5407,lon:-77.4360},{n:'Washington, DC',lat:38.9072,lon:-77.0369},{n:'Philadelphia, PA',lat:39.9526,lon:-75.1652},{n:'New York, NY',lat:40.7128,lon:-74.0060},{n:'Boston, MA',lat:42.3601,lon:-71.0589},{n:'New Orleans, LA',lat:29.9511,lon:-90.0715},{n:'Jacksonville, FL',lat:30.3322,lon:-81.6557},{n:'Tampa, FL',lat:27.9506,lon:-82.4572},{n:'Miami, FL',lat:25.7617,lon:-80.1918},{n:'Salt Lake City, UT',lat:40.7608,lon:-111.8910},{n:'Boise, ID',lat:43.6150,lon:-116.2023},{n:'Billings, MT',lat:45.7833,lon:-108.5007},{n:'Fargo, ND',lat:46.8772,lon:-96.7898},{n:'Little Rock, AR',lat:34.7465,lon:-92.2896},{n:'Des Moines, IA',lat:41.5868,lon:-93.6250},{n:'Wichita, KS',lat:37.6872,lon:-97.3301},{n:'Amarillo, TX',lat:35.2220,lon:-101.8313},{n:'Flagstaff, AZ',lat:35.1983,lon:-111.6513},{n:'Sacramento, CA',lat:38.5816,lon:-121.4944},{n:'San Francisco, CA',lat:37.7749,lon:-122.4194}
-];
-const careers=[
- {id:'nurse',n:'TRAVEL NURSE',cash:2900,stip:2200,pay:480,skill:'medical',shifts:3,ot:2,d:'Good savings and strong relocation help.'},
- {id:'paramedic',n:'PARAMEDIC',cash:2100,stip:700,pay:310,skill:'medical',shifts:3,ot:2,d:'Moderate savings. Useful under pressure.'},
- {id:'engineer',n:'SOFTWARE ENGINEER',cash:4200,stip:4000,pay:620,skill:'tech',shifts:2,ot:1,d:'Big relocation package. Less useful under a hood.'},
- {id:'mechanic',n:'AUTO MECHANIC',cash:2400,stip:400,pay:340,skill:'repair',shifts:3,ot:2,d:'Spots bad cars and repairs them cheaper.'},
- {id:'teacher',n:'TEACHER',cash:1800,stip:500,pay:235,skill:'people',shifts:2,ot:1,d:'Some savings. Some patience.'},
- {id:'warehouse',n:'WAREHOUSE WORKER',cash:1400,stip:0,pay:210,skill:'grit',shifts:4,ot:2,d:'No stipend. Overtime is available.'},
- {id:'bartender',n:'BARTENDER',cash:1200,stip:0,pay:190,skill:'people',shifts:4,ot:1,d:'Low savings. Better at talking to strangers.'},
- {id:'sales',n:'SALES REP',cash:2600,stip:1800,pay:390,skill:'people',shifts:2,ot:1,d:'Good negotiation odds. Decent relocation help.'},
- {id:'unemployed',n:'BETWEEN JOBS',cash:850,stip:0,pay:120,skill:'grit',shifts:1,ot:0,d:'Lots of time. Very little money.'}
-];
-const reasons=[
- {id:'career',n:'NEW CAREER',days:7,bonus:350,hard:true,d:'A job is waiting. Miss the start date and the offer disappears.'},
- {id:'divorce',n:'DIVORCED / STARTING OVER',days:12,bonus:-600,hard:false,d:'You are leaving with what survived the lawyers.'},
- {id:'lease',n:'LEASE ENDED',days:6,bonus:0,hard:true,d:'The building sold. You need somewhere else to be.'},
- {id:'family',n:'FAMILY EMERGENCY',days:5,bonus:200,hard:true,d:'Someone needs you. Yesterday would have been better.'},
- {id:'partner',n:'FOLLOWING A PARTNER',days:10,bonus:450,hard:false,d:'They already moved. You are supposed to be next.'},
- {id:'inheritance',n:'INHERITANCE DEADLINE',days:8,bonus:800,hard:true,d:'There may be money at the other end. You must arrive in person.'},
- {id:'fresh',n:'JUST LEAVE',days:16,bonus:-150,hard:false,d:'No employer. No deadline except rent and your own tolerance.'}
-];
-const assetPool=[['TELEVISION',180],['GAME CONSOLE',220],['BICYCLE',130],['CORDLESS TOOLS',280],['OLD LAPTOP',170],['GUITAR',210],['COUCH',90],['DINING SET',110],['WATCH',145],['CAMERA',240],['SPARE PHONE',120],['LAWN EQUIPMENT',260],['VINYL COLLECTION',190],['SMALL APPLIANCES',125]];
-const carPool=[
- {id:'buick',y:1998,n:'Buick LeSabre Custom',p:1450,mi:184221,rel:84,mpg:24,tank:18,cargo:9,s:'Dale',color:'#a8aa9c',issues:['slow coolant seep','rear window sticks'],ad:'Runs good. AC needs charged. 3800 motor. Elderly owned. CASH ONLY.'},
- {id:'lincoln',y:2005,n:'Lincoln Town Car Signature',p:1900,mi:212904,rel:78,mpg:20,tank:19,cargo:11,s:'Ron',color:'#c2c2c2',issues:['coolant staining near intake','air suspension compressor sounds tired'],ad:'Highway miles. Leather. Cold AC. Grandma car. No lowballs.'},
- {id:'altima',y:2007,n:'Nissan Altima 2.5 S',p:1650,mi:168440,rel:61,mpg:27,tank:20,cargo:7,s:'Trevor',color:'#9ba2a8',issues:['CVT shudders when hot','front tire shoulder wear'],ad:'FAST reliable daily. New battery. Just drove to Chicago.'},
- {id:'camry',y:1999,n:'Toyota Camry LE',p:2300,mi:224501,rel:91,mpg:27,tank:18,cargo:7,s:'Marlene',color:'#b39b7f',issues:['small valve-cover seep','driver handle requires technique'],ad:'One owner. Has dents. Full maintenance folder.'},
- {id:'bmw',y:2008,n:'BMW 328i',p:1800,mi:137902,rel:49,mpg:23,tank:16,cargo:6,s:'Cody',color:'#5c6873',issues:['electric water pump weak','coolant warning was cleared'],ad:'MUST SELL. Runs perfect. Only needs coolant sensor.'},
- {id:'crownvic',y:2004,n:'Ford Crown Victoria LX',p:1750,mi:196211,rel:82,mpg:19,tank:19,cargo:10,s:'Curtis',color:'#d0c7b1',issues:['power steering seep','blend door stuck warm'],ad:'Former county car NOT POLICE. V8. New tires. Will run forever.'},
- {id:'focus',y:2011,n:'Ford Focus SE',p:2200,mi:156880,rel:72,mpg:30,tank:12,cargo:6,s:'Brenda',color:'#566d84',issues:['motor mount vibration','rear bearing hum'],ad:'Good commuter. Great MPG. Son bought truck. Price firm-ish.'},
- {id:'impala',y:2003,n:'Chevrolet Impala LS',p:1300,mi:201331,rel:68,mpg:23,tank:17,cargo:8,s:'Mike',color:'#907b72',issues:['wheel hub sensor intermittent','fuel gauge optimistic'],ad:'Starts runs stops. Heat works. 200k mostly highway.'},
- {id:'accord',y:2006,n:'Honda Accord LX',p:2600,mi:233104,rel:88,mpg:29,tank:17,cargo:7,s:'Keisha',color:'#9c9c99',issues:['AC clutch noisy','front rotors warped'],ad:'High miles but Honda. New alternator. Clean title.'},
- {id:'pontiac',y:2002,n:'Pontiac Grand Prix GT',p:1200,mi:191455,rel:64,mpg:22,tank:17,cargo:7,s:'Shawn',color:'#7d2f32',issues:['cooling fans only work on high','rear struts exhausted'],ad:'Strong 3800. Small exhaust leak. NEED GONE.'}
-];
-const supplyDefs=[
- {id:'toolkit',n:'BASIC TOOLKIT',cost:48,d:'Improves roadside repair attempts.'},{id:'coolant',n:'COOLANT',cost:18,d:'Can save an overheating car.'},{id:'oil',n:'2 QT OIL',cost:17,d:'Buys time if the engine gets thirsty.'},{id:'food',n:'ROAD FOOD',cost:32,d:'Reduces hunger for several legs.'},{id:'charger',n:'PHONE CHARGER',cost:14,d:'Protects navigation during a phone event.'},{id:'atlas',n:'PAPER ROAD ATLAS',cost:12,d:'Helps when navigation fails.'},{id:'fixflat',n:'FIX-A-FLAT',cost:13,d:'One desperate tire repair.'},{id:'blanket',n:'BLANKET',cost:22,d:'Makes sleeping in the car less miserable.'}
-];
-const legalGoods=[
- {id:'electronics',n:'USED ELECTRONICS',base:90,size:1,gray:false},{id:'tools',n:'POWER TOOLS',base:120,size:2,gray:false},{id:'records',n:'VINTAGE RECORDS',base:55,size:1,gray:false},{id:'camping',n:'CAMPING GEAR',base:80,size:2,gray:false},{id:'autoparts',n:'AUTO PARTS',base:135,size:2,gray:false},{id:'collectibles',n:'COLLECTIBLES',base:70,size:1,gray:false},{id:'bootlegs',n:'BOOTLEG CONCERT TEES',base:45,size:1,gray:true},{id:'mysteryelectronics',n:'UNLABELED ELECTRONICS',base:115,size:1,gray:true}
-];
-const undergroundGoods=[
- {id:'bluecaps',n:'BLUE CAPSULES',base:260,size:1},{id:'nightpowder',n:'NIGHT POWDER',base:420,size:1},{id:'redvials',n:'RED VIALS',base:190,size:1}
-];
-
-function blankTripStats(){return {startingCash:0,milesDriven:0,driveHours:0,gallonsUsed:0,totalSpent:0,totalEarned:0,fuelSpent:0,foodSpent:0,lodgingSpent:0,repairsSpent:0,carSpent:0,suppliesSpent:0,ticketsSpent:0,tradeSpent:0,tradeEarned:0,undergroundSpent:0,undergroundEarned:0,scratchSpent:0,scratchWon:0,debtTaken:0,negotiationSaved:0,possessionsSold:0,shiftsWorked:0,familyHelp:0,plasmaEarned:0,fuelStops:0,motelNights:0,carNights:0,policeStops:0,breakdowns:0,warningsIgnored:0,mealsSkipped:0,marketTrades:0,attractions:0,buyersGhosted:0,cargoConfiscated:0,peakHeat:0,stops:0,committed:false}}
-function blankState(){return {version:2,age:31,career:null,reason:null,origin:0,dest:4,cash:0,debt:0,days:0,assets:[],limits:{shifts:0,ot:0,parents:1,plasma:2,scratch:2,loan:1,stipend:1},log:[],listings:[],carIndex:0,sellers:{},car:null,inventory:[],distance:0,totalMiles:1600,fuel:100,condition:100,fatigue:5,hunger:8,morale:70,day:1,hour:9,weather:'CLEAR',phone:100,usedEvents:[],recentFamilies:[],known:[],cargo:{},heat:0,underworldScore:0,undergroundUnlocked:false,marketVisits:0,currentMarket:null,lastMarketKey:'',currentEvent:null,routeSteps:[],routeStepIndex:0,routeDistanceSource:'estimate',ended:false,stats:blankTripStats()}}
-let state=blankState();
-
-function ensureTripStats(){if(!state.stats)state.stats=blankTripStats();for(const [k,v] of Object.entries(blankTripStats()))if(state.stats[k]===undefined)state.stats[k]=v;return state.stats}
-function blankLifetime(){return {runs:0,successes:0,failures:0,totalMiles:0,totalGallons:0,totalSpent:0,fuelSpent:0,repairsSpent:0,carsBought:0,negotiationSaved:0,motelNights:0,carNights:0,policeStops:0,arrests:0,scratchNet:0,tradingProfit:0,undergroundProfit:0,peakHeat:0,furthestFailure:0,bestCashFinish:0,totalDebt:0}}
-function loadLifetime(){try{return {...blankLifetime(),...JSON.parse(localStorage.getItem(LIFETIME_KEY)||'{}')}}catch(e){return blankLifetime()}}
-function saveLifetime(x){try{localStorage.setItem(LIFETIME_KEY,JSON.stringify(x))}catch(e){}}
-function statSpend(amount,cat){amount=Math.max(0,Number(amount)||0);const s=ensureTripStats();s.totalSpent+=amount;if(cat&&s[cat]!==undefined)s[cat]+=amount}
-function statEarn(amount,cat){amount=Math.max(0,Number(amount)||0);const s=ensureTripStats();s.totalEarned+=amount;if(cat&&s[cat]!==undefined)s[cat]+=amount}
-function noteHeat(){const s=ensureTripStats();s.peakHeat=Math.max(s.peakHeat,state.heat||0)}
-function finalizeLifetime(success,kicker=''){const s=ensureTripStats();if(s.committed)return;s.committed=true;const l=loadLifetime();l.runs++;if(success)l.successes++;else l.failures++;l.totalMiles+=s.milesDriven||state.distance||0;l.totalGallons+=s.gallonsUsed;l.totalSpent+=s.totalSpent;l.fuelSpent+=s.fuelSpent;l.repairsSpent+=s.repairsSpent;if(s.carSpent>0)l.carsBought++;l.negotiationSaved+=s.negotiationSaved;l.motelNights+=s.motelNights;l.carNights+=s.carNights;l.policeStops+=s.policeStops;if(String(kicker).includes('ARREST'))l.arrests++;l.scratchNet+=(s.scratchWon-s.scratchSpent);l.tradingProfit+=(s.tradeEarned-s.tradeSpent);l.undergroundProfit+=(s.undergroundEarned-s.undergroundSpent);l.peakHeat=Math.max(l.peakHeat,s.peakHeat);if(!success)l.furthestFailure=Math.max(l.furthestFailure,s.milesDriven||state.distance||0);if(success)l.bestCashFinish=Math.max(l.bestCashFinish,state.cash||0);l.totalDebt+=state.debt||0;saveLifetime(l)}
-
-
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));$('resumeBtn').hidden=false}catch(e){}}
-function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch(e){} $('resumeBtn').hidden=true}
-function show(id){screens.forEach(s=>s.classList.remove('active'));$(id).classList.add('active');currentScreen=id;window.scrollTo(0,0);setTheme(id);if(id==='roadScreen')startAnimation();else stopAnimation();save()}
-function addLog(t){state.log.unshift(t);state.log=state.log.slice(0,24)}
-function hav(a,b){const R=3958.8,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),q=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
-function routeMiles(){const d=haversineObj(cities[state.origin],cities[state.dest]);return Math.max(90,Math.round(d*(d<300?1.18:1.13)))}
-async function refineRouteMiles(){const a=cities[state.origin],b=cities[state.dest];try{const u=`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&steps=true`;const r=await fetch(u,{headers:{'Accept':'application/json'}});if(!r.ok)return;const j=await r.json(),route=j?.routes?.[0],m=route?.distance;if(Number.isFinite(m)&&m>1000){state.totalMiles=Math.round(m/1609.344);state.routeDistanceSource='live road route';let cum=0;state.routeSteps=[];for(const st of (route?.legs?.[0]?.steps||[])){cum+=Number(st.distance||0)/1609.344;const name=(st.name||'').trim(),type=st.maneuver?.type||'continue',modifier=st.maneuver?.modifier||'';if(name||type==='arrive')state.routeSteps.push({mile:cum,name:name||cities[state.dest].n,type,modifier})}addLog(`Live road routing updated the trip to ${state.totalMiles.toLocaleString()} miles.`);renderPrep();save()}}catch(e){/* offline fallback keeps approximate mileage */}}
-function haversineObj(a,b){return hav(a,b)}
-function interpolatePoint(){const a=cities[state.origin],b=cities[state.dest],p=clamp(state.distance/state.totalMiles,0,1);return {lat:a.lat+(b.lat-a.lat)*p,lon:a.lon+(b.lon-a.lon)*p}}
-function nearestCity(){const p=interpolatePoint();let best=cities[0],bd=Infinity;for(const c of cities){const d=haversineObj(p,c);if(d<bd){bd=d;best=c}}return best}
-function spendTime(days){state.days=Math.max(-2,state.days-days);for(const l of state.listings){if(!l.sold&&chance(days*.07))l.sold=true}}
-function advance(hours){state.hour+=hours;state.days-=hours/24;while(state.hour>=24){state.hour-=24;state.day++}while(state.hour<0){state.hour+=24;state.day=Math.max(1,state.day-1)}}
-function clockText(){let h=Math.floor(state.hour),m=Math.round((state.hour-h)*60/5)*5;if(m===60){h=(h+1)%24;m=0}const ap=h>=12?'PM':'AM';return `${h%12||12}:${String(m).padStart(2,'0')} ${ap}`}
-function isNight(){return state.hour<6||state.hour>=19}
-function cargoUsed(){let n=0;for(const [id,q] of Object.entries(state.cargo)){const g=[...legalGoods,...undergroundGoods].find(x=>x.id===id);n+=(g?.size||1)*q}return n}
-function cargoCount(id){return state.cargo[id]||0}
-function addCargo(id,q){state.cargo[id]=(state.cargo[id]||0)+q;if(state.cargo[id]<=0)delete state.cargo[id]}
-
-/* audio */
-let audioCtx=null,master=null,musicGain=null,sfxGain=null,musicTimer=null,musicStep=0,soundOn=true,currentTheme='title';
-const note={C2:65.41,D2:73.42,E2:82.41,G2:98,A2:110,C3:130.81,D3:146.83,E3:164.81,G3:196,A3:220,C4:261.63,D4:293.66,E4:329.63,G4:392,A4:440,B4:493.88,C5:523.25,E5:659.25,G5:783.99};
-const themes={title:{bpm:112,m:['E4',null,'G4','A4','B4','A4','G4','E4'],b:['E2','C2','G2','D2']},prep:{bpm:96,m:['C4','E4','G4',null,'A4','G4','E4','D4'],b:['C2','A2','E2','G2']},road:{bpm:132,m:['E4','G4','A4','B4','A4','G4','E4','D4'],b:['E2','G2','C2','D2']},end:{bpm:78,m:['E4','D4','C4',null,'G3',null,'C4',null],b:['C2','E2','G2','C2']}};
-function ensureAudio(){if(!soundOn)return null;if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;audioCtx=new AC();master=audioCtx.createGain();musicGain=audioCtx.createGain();sfxGain=audioCtx.createGain();master.gain.value=.55;musicGain.gain.value=.12;sfxGain.gain.value=.35;musicGain.connect(master);sfxGain.connect(master);master.connect(audioCtx.destination)}if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});return audioCtx}
-function tone(freq,d=.08,type='square',vol=.06,when=0,target='sfx'){const ac=ensureAudio();if(!ac||!freq)return;const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(freq,ac.currentTime+when);g.gain.setValueAtTime(.0001,ac.currentTime+when);g.gain.exponentialRampToValueAtTime(Math.max(.001,vol),ac.currentTime+when+.006);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+when+d);o.connect(g);g.connect(target==='music'?musicGain:sfxGain);o.start(ac.currentTime+when);o.stop(ac.currentTime+when+d+.02)}
-function noise(d=.08,v=.08){const ac=ensureAudio();if(!ac)return;const len=Math.max(1,Math.floor(ac.sampleRate*d)),buf=ac.createBuffer(1,len,ac.sampleRate),arr=buf.getChannelData(0);for(let i=0;i<len;i++)arr[i]=(Math.random()*2-1)*(1-i/len);const s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf;g.gain.value=v;s.connect(g);g.connect(sfxGain);s.start()}
-function sfx(k){if(!soundOn)return;if(k==='ui')tone(note.C5,.04);if(k==='cash'){tone(note.C5,.05);tone(note.E5,.07,'square',.06,.06)}if(k==='car'){tone(note.E2,.09,'sawtooth',.08);tone(note.G2,.11,'square',.04,.06)}if(k==='bad'){noise(.08,.12);tone(note.C2,.18,'square',.08)}if(k==='cop'){tone(note.A4,.1);tone(note.E5,.1,'square',.06,.1);tone(note.A4,.1,'square',.06,.2);tone(note.E5,.1,'square',.06,.3)}if(k==='win'){[note.C4,note.E4,note.G4,note.C5].forEach((f,i)=>tone(f,.12,'square',.06,i*.08))}}
-function musicTick(){if(!soundOn||!audioCtx)return;const t=themes[currentTheme]||themes.title,beat=60/t.bpm/2,m=t.m[musicStep%t.m.length],b=t.b[Math.floor(musicStep/2)%t.b.length];if(m)tone(note[m],beat*.7,'square',.035,0,'music');if(musicStep%2===0&&b)tone(note[b],beat*1.2,'triangle',.03,0,'music');musicStep++}
-function startMusic(theme=currentTheme){currentTheme=theme;if(!soundOn||!ensureAudio())return;clearInterval(musicTimer);musicStep=0;musicTick();musicTimer=setInterval(musicTick,(60/(themes[currentTheme]?.bpm||110)/2)*1000)}
-function setTheme(screen){const map={titleScreen:'title',setupScreen:'title',prepScreen:'prep',carMarketScreen:'prep',sellerScreen:'prep',supplyScreen:'prep',roadScreen:'road',tradeScreen:'road',endingScreen:'end'};const t=map[screen]||'prep';if(t!==currentTheme){currentTheme=t;if(audioCtx)startMusic(t)}}
-function rotateAppView(){
-  try{
-    if(window.AndroidOrientation&&typeof window.AndroidOrientation.toggle==='function'){
-      window.AndroidOrientation.toggle();
-      return;
-    }
-  }catch(e){}
-  alert('Rotate your phone to switch orientation.');
-}
-function toggleSound(){soundOn=!soundOn;$('soundBtn').textContent=soundOn?'♪ SOUND ON':'♪ SOUND OFF';if(soundOn){if(master)master.gain.value=.55;ensureAudio();startMusic(currentTheme)}else{clearInterval(musicTimer);musicTimer=null;if(master)master.gain.value=0}}
-
-/* setup */
-function initSelects(){cities.forEach((c,i)=>{for(const id of ['originSelect','destSelect']){const o=document.createElement('option');o.value=i;o.textContent=c.n;$(id).appendChild(o)}});$('originSelect').value='0';$('destSelect').value='4'}
-function renderSetupCards(){$('careerGrid').innerHTML='';for(const c of careers){const b=document.createElement('button');b.className='cardbtn'+(state.career?.id===c.id?' selected':'');b.type='button';b.innerHTML=`<span class="name">${c.n}</span><span class="sub">${c.d}<br>START ${money(c.cash)} • STIPEND ${money(c.stip)}</span>`;b.onclick=()=>{state.career=c;renderSetupCards();sfx('ui')};$('careerGrid').appendChild(b)}$('reasonGrid').innerHTML='';for(const r of reasons){const b=document.createElement('button');b.className='cardbtn'+(state.reason?.id===r.id?' selected':'');b.type='button';b.innerHTML=`<span class="name">${r.n}</span><span class="sub">${r.d}<br>${r.days} DAYS TO MOVE</span>`;b.onclick=()=>{state.reason=r;renderSetupCards();sfx('ui')};$('reasonGrid').appendChild(b)}}
-function rollAssets(){const count=rnd(4,7);state.assets=[...assetPool].sort(()=>Math.random()-.5).slice(0,count).map(([n,v])=>({n,v:round25(v*(.72+Math.random()*.56)),sold:false}))}
-function rollListings(){state.listings=[...carPool].sort(()=>Math.random()-.5).slice(0,rnd(7,10)).map(c=>({...c,sold:false}));state.carIndex=0}
-function startNewLife(){clearSave();state=blankState();$('ageRange').value=31;$('ageOut').textContent='31';$('originSelect').value='0';$('destSelect').value='4';renderSetupCards();show('setupScreen')}
-async function resolveCustomCity(text){const q=(text||'').trim();if(!q)return null;try{const u='https://photon.komoot.io/api/?limit=8&q='+encodeURIComponent(q+', USA');const r=await fetch(u,{headers:{'Accept':'application/json'}});if(!r.ok)throw new Error('geocoder unavailable');const j=await r.json();const feats=(j.features||[]);const hit=feats.find(x=>String(x.properties?.countrycode||'').toUpperCase()==='US')||feats[0];if(!hit?.geometry?.coordinates)return null;const [lon,lat]=hit.geometry.coordinates;const p=hit.properties||{};const label=[p.name||q,p.state].filter(Boolean).join(', ');return {n:label,lat:Number(lat),lon:Number(lon)}}catch(e){return null}}
-async function beginLife(){if(!state.career||!state.reason){alert('Choose a career and a reason for moving.');return}const btn=$('beginLifeBtn');btn.disabled=true;const oldText=btn.textContent;btn.textContent='FINDING ROUTE…';try{state.age=Number($('ageRange').value);let oi=Number($('originSelect').value),di=Number($('destSelect').value);const oc=await resolveCustomCity($('originCustom').value),dc=await resolveCustomCity($('destCustom').value);if($('originCustom').value.trim()&&!oc){alert('I could not find that starting city. Try “City, State”.');return}if($('destCustom').value.trim()&&!dc){alert('I could not find that destination. Try “City, State”.');return}if(oc){cities.push(oc);oi=cities.length-1}if(dc){cities.push(dc);di=cities.length-1}state.origin=oi;state.dest=di;if(cities[state.origin].n===cities[state.dest].n){alert('Choose a different destination.');return}state.totalMiles=routeMiles();state.cash=Math.max(250,state.career.cash+state.reason.bonus);ensureTripStats();state.stats.startingCash=state.cash;state.days=state.reason.days;state.limits={shifts:state.career.shifts,ot:state.career.ot,parents:1,plasma:2,scratch:2,loan:1,stipend:1};rollAssets();rollListings();state.log=[`You are ${state.age}, working as ${state.career.n.toLowerCase()}.`,`You need to get from ${cities[state.origin].n} to ${cities[state.dest].n}: about ${state.totalMiles.toLocaleString()} road miles.`];renderPrep();show('prepScreen');refineRouteMiles()}finally{btn.disabled=false;btn.textContent=oldText}}
-
-/* prep economy */
-function prepAction(id){if(id==='shift'){if(state.limits.shifts<=0||state.days<1)return;state.limits.shifts--;state.cash+=state.career.pay;statEarn(state.career.pay);state.stats.shiftsWorked++;spendTime(1);addLog(`Extra shift: +${money(state.career.pay)}.`)}if(id==='ot'){if(state.limits.ot<=0||state.days<1)return;state.limits.ot--;const g=Math.round(state.career.pay*1.55);state.cash+=g;statEarn(g);state.stats.shiftsWorked++;spendTime(1);addLog(`Overtime: +${money(g)}.`)}if(id==='parents'){if(state.limits.parents<=0)return;state.limits.parents--;const g=chance(.22)?0:rnd(150,900);if(g){state.cash+=g;state.debt+=Math.round(g*.25);statEarn(g);state.stats.familyHelp+=g;addLog(`Family helped with ${money(g)}.`)}else addLog('Family provided advice instead of money.')}if(id==='plasma'){if(state.limits.plasma<=0||state.days<.5)return;state.limits.plasma--;const g=rnd(50,85);state.cash+=g;statEarn(g);state.stats.plasmaEarned+=g;spendTime(.5);state.morale=clamp(state.morale-2);addLog(`Plasma: +${money(g)}.`)}if(id==='scratch'){if(state.limits.scratch<=0)return;state.limits.scratch--;const spend=Math.min(20,state.cash);state.cash-=spend;statSpend(spend,'scratchSpent');const r=Math.random();const win=r<.02?rnd(500,1800):r<.16?rnd(40,220):0;state.cash+=win;if(win)statEarn(win,'scratchWon');addLog(win?`Scratch-offs: spent ${money(spend)}, won ${money(win)}.`:`Scratch-offs: -${money(spend)}.`)}if(id==='loan'){if(state.limits.loan<=0)return;state.limits.loan--;state.cash+=500;state.debt+=720;state.stats.debtTaken+=720;addLog('Payday loan: +$500 now, $720 debt later.')}if(id==='stipend'){if(state.limits.stipend<=0)return;state.limits.stipend--;if(state.career.stip>0){state.cash+=state.career.stip;statEarn(state.career.stip);addLog(`Relocation money: +${money(state.career.stip)}.`)}else addLog('Employer offers no relocation assistance.')}sfx('cash');renderPrep();save()}
-function renderPrep(){$('prepRoute').textContent=`${cities[state.origin].n} → ${cities[state.dest].n}`;$('prepStats').innerHTML=`<div class="stat"><b>${money(state.cash)}</b><span>CASH</span></div><div class="stat"><b>${state.days.toFixed(1).replace('.0','')}</b><span>DAYS LEFT</span></div><div class="stat"><b>${money(state.debt)}</b><span>DEBT</span></div><div class="stat"><b>${state.totalMiles.toLocaleString()}</b><span>ROAD MILES</span></div>`;$('situationTitle').textContent=`${state.reason.n} • ${state.career.n}`;$('situationCopy').textContent=`${state.reason.d}\n\nEvery preparation day is one less day available for the road.`;$('stipendNote').hidden=!(state.career.stip>0&&state.limits.stipend>0);if(!$('stipendNote').hidden)$('stipendNote').textContent=`Your employer may provide ${money(state.career.stip)} in relocation money.`;$('assetList').innerHTML='';for(const a of state.assets){const row=document.createElement('div');row.className='asset-row';row.innerHTML=`<b>${a.n}</b><br><span>${a.sold?'SOLD':'Estimated value '+money(a.v)}</span>`;if(!a.sold){const mini=document.createElement('div');mini.className='mini-actions';const market=document.createElement('button');market.type='button';market.textContent='MARKETPLACE';market.onclick=()=>{if(state.days<.5)return;spendTime(.5);if(chance(.22)){state.stats.buyersGhosted++;addLog(`${a.n}: buyer ghosted you.`)}else{const g=round25(a.v*(.85+Math.random()*.3));a.sold=true;state.cash+=g;statEarn(g);state.stats.possessionsSold++;addLog(`${a.n} sold for ${money(g)}.`)}renderPrep()};const pawn=document.createElement('button');pawn.type='button';pawn.textContent='PAWN NOW';pawn.onclick=()=>{const g=round25(a.v*.55);a.sold=true;state.cash+=g;statEarn(g);state.stats.possessionsSold++;addLog(`${a.n} pawned for ${money(g)}.`);renderPrep()};mini.append(market,pawn);row.appendChild(mini)}$('assetList').appendChild(row)}const acts=[['WORK EXTRA SHIFT','shift',state.limits.shifts],['ASK FOR OVERTIME','ot',state.limits.ot],['ASK FAMILY','parents',state.limits.parents],['SELL PLASMA','plasma',state.limits.plasma],['BUY SCRATCH-OFFS','scratch',state.limits.scratch],['PAYDAY LOAN','loan',state.limits.loan],['CLAIM RELOCATION','stipend',state.limits.stipend]];$('prepActions').innerHTML='';for(const [n,k,left] of acts){const b=document.createElement('button');b.className='cardbtn';b.type='button';b.disabled=left<=0;b.innerHTML=`<span class="name">${n}</span><span class="sub">${left} use${left===1?'':'s'} left</span>`;b.onclick=()=>prepAction(k);$('prepActions').appendChild(b)}$('lifeLog').innerHTML=state.log.map(x=>`<div>${escapeHtml(x)}</div>`).join('')}
-
-/* cars and negotiation */
-function sellerState(c){if(!state.sellers[c.id])state.sellers[c.id]={ask:c.p,floor:round25(c.p*(.80+Math.random()*.10)),attempts:0,patience:rnd(2,4),accepted:false,dead:false,inspected:false,tested:false,mechanic:false,known:[],urgency:Math.random()};return state.sellers[c.id]}
-function renderCarAd(){const c=state.listings[state.carIndex],s=sellerState(c),cond=c.rel>=85?'GOOD':c.rel>=70?'FAIR':'QUESTIONABLE';$('marketCash').textContent=`YOU HAVE ${money(state.cash)}`;$('carAd').innerHTML=`<div class="ad"><h3>${c.y} ${c.n.toUpperCase()}</h3><div class="car-photo" style="--car:${c.color}"><div class="car-sil"></div><span class="photo-tag">PHOTO ${state.carIndex+1} OF ${state.listings.length}</span><span class="photo-caption">${c.s.toUpperCase()} • LOCAL PRIVATE SALE</span></div><div class="price">${money(s.ask)}</div><div class="copy">“${c.ad}”</div><div class="meta">${c.mi.toLocaleString()} MILES • ${cond} • ${c.mpg} MPG • SELLER: ${c.s.toUpperCase()}${c.sold||s.dead?'<br><b>UNAVAILABLE</b>':''}</div></div>`;$('visitSellerBtn').disabled=c.sold||s.dead}
-function openCarMarket(){state.carIndex=0;renderCarAd();show('carMarketScreen')}
-function visitSeller(){const c=state.listings[state.carIndex],s=sellerState(c);state.car=c;$('sellerCash').textContent=`YOU HAVE ${money(state.cash)}`;$('sellerTitle').textContent=`${c.s.toUpperCase()} HAS THE CAR IN THE DRIVEWAY.`;$('sellerBody').textContent=`${c.y} ${c.n}\n${c.mi.toLocaleString()} miles\nAsking ${money(s.ask)}.`;$('sellerNotice').hidden=true;$('offerButtons').innerHTML='';renderSellerButtons();drawSeller();show('sellerScreen')}
-function renderSellerButtons(){const s=sellerState(state.car);$('negotiationLeft').textContent=`${Math.max(0,3-s.attempts)} attempts left`;$('negotiateBtn').disabled=s.attempts>=3||s.dead||s.accepted;$('inspectBtn').disabled=s.inspected;$('testDriveBtn').disabled=s.tested;$('mechanicCheckBtn').disabled=s.mechanic||state.cash<85;$('buyCarBtn').disabled=s.dead}
-function sellerNotice(text,kind=''){const n=$('sellerNotice');n.hidden=false;n.className='notice '+kind;n.textContent=text}
-function inspectCar(){const s=sellerState(state.car);if(s.inspected)return;s.inspected=true;const find=state.career.skill==='repair'||chance(.68);if(find&&!s.known.includes(state.car.issues[0]))s.known.push(state.car.issues[0]);sellerNotice(find?`YOU NOTICE: ${state.car.issues[0].toUpperCase()}.\n${state.car.s.toUpperCase()}: “Yeah, it’s been like that.”`:'Nothing obviously catastrophic jumps out. That is not the same as good.');renderSellerButtons()}
-function testCar(){const s=sellerState(state.car);if(s.tested)return;s.tested=true;const find=state.car.rel<72||chance(.36);if(find&&!s.known.includes(state.car.issues[1]))s.known.push(state.car.issues[1]);sellerNotice(find?`ON THE TEST DRIVE: ${state.car.issues[1].toUpperCase()}.\nThe seller turns the radio up slightly.`:'It starts, accelerates, brakes and returns. At this price, that is a strong performance.');sfx('car');renderSellerButtons()}
-function mechanicCheck(){const s=sellerState(state.car);if(s.mechanic||state.cash<85)return;state.cash-=85;statSpend(85,'repairsSpent');s.mechanic=true;s.known=[...state.car.issues];sellerNotice(`THE MECHANIC FOUND: ${state.car.issues.join(' AND ').toUpperCase()}.\n\n“Could make it. Could also ruin your week.”`,'good');$('sellerCash').textContent=`YOU HAVE ${money(state.cash)}`;renderSellerButtons()}
-function showOffers(){
- const s=sellerState(state.car);if(s.attempts>=3||s.dead||s.accepted)return;
- $('offerButtons').innerHTML='';
- const rep=state.career.skill==='people'?0.012:0;
- const leverage=(s.known.length&&state.career.skill==='repair')?0.018:0;
- const bands=[{lo:.94,hi:.98,label:'REASONABLE'},{lo:.86,hi:.92,label:'AGGRESSIVE'},{lo:.76,hi:.84,label:'LOWBALL'}];
- for(const band of bands){
-   const mult=band.lo+Math.random()*(band.hi-band.lo)-rep-leverage;
-   const v=Math.max(500,round25(s.ask*mult));
-   const b=document.createElement('button');b.className='choice';b.type='button';
-   b.innerHTML=`OFFER ${money(v)}<small>${band.label}</small>`;
-   b.onclick=()=>makeOffer(v,band.label);$('offerButtons').appendChild(b)
- }
-}
-function makeOffer(v,label){
- const s=sellerState(state.car);s.attempts++;
- const skillBonus=state.career.skill==='people'?35:0;
- const defectBonus=(s.known.length&&state.career.skill==='repair')?60:0;
- const effective=v+skillBonus+defectBonus;
- const closeness=clamp((effective-s.floor)/Math.max(1,s.ask-s.floor),0,1);
- const urgencyBonus=s.urgency*.24;
- const roundBonus=(s.attempts-1)*.10;
- const labelPenalty=label==='LOWBALL'?.22:label==='AGGRESSIVE'?.08:0;
- const acceptChance=clamp(.12+closeness*.58+urgencyBonus+roundBonus-labelPenalty,0.05,.92);
- const automatic=effective>=s.ask-25;
- if(automatic||chance(acceptChance)){
-   s.ask=v;s.accepted=true;
-   $('sellerBody').textContent=`${state.car.s}: “Alright. ${money(v)}. Cash.”`;
-   sellerNotice('OFFER ACCEPTED.','good');$('offerButtons').innerHTML='';
- }else{
-   s.patience-=label==='LOWBALL'?2:1;
-   if(s.patience<=0){
-     s.dead=true;$('sellerBody').textContent=`${state.car.s}: “Actually, forget it.”`;
-     sellerNotice('SELLER ENDED THE DEAL.','bad');$('offerButtons').innerHTML='';
-   }else{
-     const movement=.18+Math.random()*.24+(s.urgency*.08);
-     const counter=Math.max(s.floor,round25(s.ask-(s.ask-v)*movement));s.ask=counter;
-     $('sellerBody').textContent=`${state.car.s}: “No. I can do ${money(counter)}.”`;
-     if(s.attempts<3)showOffers();
-     else{$('offerButtons').innerHTML='';sellerNotice('THAT WAS YOUR THIRD NEGOTIATION ATTEMPT. The current counter is final. Buy it or walk away.')}
-   }
- }
- renderSellerButtons();
-}
-function buyCar(){const s=sellerState(state.car);if(s.dead||state.cash<s.ask){sellerNotice(`You need ${money(s.ask)}. You have ${money(state.cash)}.`,'bad');return}state.cash-=s.ask;statSpend(s.ask,'carSpent');state.stats.negotiationSaved+=Math.max(0,state.car.p-s.ask);state.car={...state.car,boughtPrice:s.ask};state.known=[...s.known];state.condition=clamp(state.car.rel+rnd(-5,6),35,96);addLog(`Bought ${state.car.y} ${state.car.n} for ${money(s.ask)}.`);renderSupplies();show('supplyScreen')}
-
-/* supplies */
-function renderSupplies(){$('supplyCash').textContent=`YOU HAVE ${money(state.cash)}`;$('ownedCar').textContent=`${state.car.y} ${state.car.n}`;$('knownIssues').textContent=`Known defects: ${state.known.length?state.known.join(', '):'none discovered'}\nEstimated condition: ${Math.round(state.condition)}%\nCargo capacity: ${state.car.cargo} units.`;$('supplyGrid').innerHTML='';for(const s of supplyDefs){const owned=state.inventory.includes(s.id);const b=document.createElement('button');b.className='cardbtn';b.type='button';b.disabled=owned||state.cash<s.cost;b.innerHTML=`<span class="name">${owned?'✓ ':''}${s.n} — ${money(s.cost)}</span><span class="sub">${s.d}</span>`;b.onclick=()=>{state.cash-=s.cost;statSpend(s.cost,'suppliesSpent');state.inventory.push(s.id);sfx('cash');renderSupplies()};$('supplyGrid').appendChild(b)}$('inventoryView').innerHTML=state.inventory.length?state.inventory.map(id=>`<span class="chip">${supplyDefs.find(x=>x.id===id)?.n||id}</span>`).join(''):'<span class="chip">Nothing extra</span>'}
-function hasItem(id){return state.inventory.includes(id)}function useItem(id){const i=state.inventory.indexOf(id);if(i<0)return false;state.inventory.splice(i,1);return true}
-function depart(){ensureTripStats();state.distance=0;state.stats.milesDriven=0;state.stats.driveHours=0;state.stats.gallonsUsed=0;state.fuel=100;state.fatigue=4;state.hunger=8;state.morale=70;state.day=1;state.hour=9.5;state.weather='CLEAR';state.usedEvents=[];state.recentFamilies=[];state.currentEvent=null;state.ended=false;$('eventTag').textContent='DEPARTURE';$('eventTitle').textContent='YOU PULL ONTO THE HIGHWAY.';$('eventBody').textContent=`The ${state.car.n} settles into highway speed.\n\n${cities[state.dest].n} is about ${state.totalMiles.toLocaleString()} miles away. Everything you own is either in this car or behind you.`;$('eventChoices').innerHTML='';$('driveLegBtn').hidden=false;renderRoadHud();show('roadScreen');sfx('car')}
-
-/* road events */
-const roadEvents=[
- {id:'heat',family:'mechanical',tag:'MECHANICAL',eligible:s=>s.condition<80||s.car.issues.some(x=>/coolant|water pump|fan|intake/i.test(x)),title:'THE TEMPERATURE NEEDLE STARTS CLIMBING.',body:s=>s.known.some(x=>/coolant|water pump|fan|intake/i.test(x))?'That defect you knew about is becoming less theoretical.':'The gauge creeps past normal.',choices:[['PULL OVER',s=>{advance(.4);s.fatigue=clamp(s.fatigue-1);return'You stop before the gauge reaches red. The engine cools down.'}],['ADD COOLANT',s=>useItem('coolant')?(s.condition=clamp(s.condition+5),'Coolant buys you breathing room.'):(s.condition=clamp(s.condition-8),'You do not have coolant.')],['KEEP DRIVING',s=>{state.stats.warningsIgnored++;s.condition=clamp(s.condition-rnd(8,18));return'The engine stays hot. You keep moving anyway.'}]]},
- {id:'fuel',family:'stop',tag:'FUEL',eligible:s=>s.fuel<42,title:'LOW FUEL.',body:()=> 'A gas station sign appears ahead. Fuel is expensive. Walking is worse.',choices:[['FILL TANK',s=>{if(s.cash<1){endGame('STRANDED','YOU CANNOT AFFORD FUEL.',`The tank is nearly empty and your cash is gone.\nDistance traveled: ${Math.round(s.distance)} miles.`);return'You cannot buy fuel.'}const c=Math.min(s.cash,Math.round((100-s.fuel)/100*72));s.cash-=c;statSpend(c,'fuelSpent');state.stats.fuelStops++;s.fuel=clamp(s.fuel+(c/72)*100);return`You spend ${money(c)} on fuel.`}],['ADD $20',s=>{if(s.cash<1){endGame('STRANDED','YOU CANNOT AFFORD FUEL.',`The tank is nearly empty and your cash is gone.\nDistance traveled: ${Math.round(s.distance)} miles.`);return'You cannot buy fuel.'}const c=Math.min(20,s.cash);s.cash-=c;statSpend(c,'fuelSpent');state.stats.fuelStops++;s.fuel=clamp(s.fuel+(c/72)*100);return`You add ${money(c)} worth of fuel.`}],['KEEP GOING',()=> 'You pass the station. The gauge notices.']]},
- {id:'tire',family:'mechanical',tag:'MECHANICAL',eligible:s=>s.distance>80,title:'THUMP. THUMP. THUMP.',body:()=> 'The steering wheel starts vibrating. Something is wrong with a tire.',choices:[['STOP NOW',s=>useItem('fixflat')?'Fix-a-Flat keeps you moving.':(s.cash=Math.max(0,s.cash-85),'The tire costs you $85.')],['KEEP GOING',s=>{state.stats.warningsIgnored++;s.condition=clamp(s.condition-10);return'The vibration becomes part of the soundtrack.'}]]},
- {id:'motel',family:'rest',tag:'REST',eligible:s=>s.fatigue>58||s.hour>19,title:'VACANCY.',body:()=> 'A roadside motel glows beside the highway.',choices:[['GET A ROOM',s=>{const c=Math.min(s.cash,78);s.cash-=c;statSpend(c,'lodgingSpent');state.stats.motelNights++;s.fatigue=10;s.morale=clamp(s.morale+7);advance(8);return`You spend ${money(c)} and sleep eight hours.`}],['SLEEP IN CAR',s=>{state.stats.carNights++;s.fatigue=28;s.morale=clamp(s.morale-(hasItem('blanket')?0:5));advance(6);return'Your spine files a formal complaint.'}],['KEEP DRIVING',s=>{s.fatigue=clamp(s.fatigue+14);return'Rest becomes Future You’s problem.'}]]},
- {id:'food',family:'stop',tag:'FOOD',eligible:s=>s.hunger>48,title:'YOU NEED FOOD.',body:()=> 'A diner and a gas station share the next exit.',choices:[['DINER — $22',s=>{statSpend(Math.min(22,s.cash),'foodSpent');s.cash=Math.max(0,s.cash-22);s.hunger=12;s.morale=clamp(s.morale+5);return'Hot food makes you feel human again.'}],['USE ROAD FOOD',s=>useItem('food')?(s.hunger=18,'You eat from your supplies.'):(statSpend(Math.min(9,s.cash),'foodSpent'),s.cash=Math.max(0,s.cash-9),s.hunger=30,'Gas-station food does the job.')],['SKIP IT',s=>{state.stats.mealsSkipped++;s.hunger=clamp(s.hunger+8);return'Hunger becomes a future problem.'}]]},
- {id:'cop',family:'law',tag:'LAW',eligible:s=>s.distance>120,title:'RED AND BLUE LIGHTS APPEAR IN THE MIRROR.',body:s=>s.heat>0?`A patrol car settles in behind you. Heat: ${Math.round(s.heat)}.`:'A patrol car settles in behind you.',choices:[['PULL OVER',s=>policeOutcome(s)],['SLOW DOWN AND WAIT',s=>chance(.65)?'The cruiser passes. You exhale.':policeOutcome(s)]]},
- {id:'repair',family:'repair',tag:'REPAIR',eligible:s=>s.condition<58,title:'REPAIR SHOP — NEXT EXIT.',body:()=> 'The sign says FOREIGN & DOMESTIC. Your car appears to be both.',choices:[['FULL REPAIR',s=>{const c=Math.min(s.cash,rnd(180,420));s.cash-=c;statSpend(c,'repairsSpent');s.condition=clamp(s.condition+rnd(22,36));return`You spend ${money(c)}. The car leaves with fewer noises.`}],['CHEAP FIX',s=>{const c=Math.min(s.cash,rnd(60,130));s.cash-=c;statSpend(c,'repairsSpent');s.condition=clamp(s.condition+rnd(8,17));return`You authorize the “get me there” repair for ${money(c)}.`}],['KEEP GOING',()=> 'You pass the shop. The car says nothing.']]},
- {id:'phone',family:'social',tag:'SOCIAL',eligible:s=>s.distance>180,title:'YOUR PHONE RINGS.',body:()=> pick(['Your mother asks whether the car is “one of those safe ones.”','Your dad asks how the engine sounds, then listens in silence.','A family group chat starts discussing your trip like a missing-person case.']),choices:[['ANSWER',s=>{s.morale=clamp(s.morale+5);return'The conversation is annoying and reassuring.'}],['IGNORE IT',()=> 'The notification remains. You keep driving.']]},
- {id:'deer',family:'hazard',tag:'HAZARD',eligible:s=>isNight()&&s.distance>100,title:'EYES FLASH IN THE HEADLIGHTS.',body:()=> 'A deer commits fully to a terrible idea.',choices:[['BRAKE HARD',s=>chance(.18)?(s.condition=clamp(s.condition-8),'You miss the deer and hit a pothole hard enough to move the dashboard.'):'ABS chatters. The deer disappears into the dark.'],['HOLD YOUR LINE',s=>chance(.22)?(s.condition=clamp(s.condition-28),'Impact. The hood is bent. The car is still running, somehow.'):'The deer clears the lane by inches.']]},
- {id:'shortcut',family:'navigation',tag:'NAVIGATION',eligible:s=>s.distance>250,title:'THE NAVIGATION APP OFFERS A SHORTCUT.',body:()=> 'It claims the alternate route saves 17 minutes and looks suspiciously like a county road.',choices:[['TAKE IT',s=>chance(.55)?(s.distance+=18,'The shortcut works. You will now trust technology too much.'):(s.condition=clamp(s.condition-5),advance(.8),'The shortcut turns to gravel, then mud, then regret.')],['STAY ON HIGHWAY',()=> 'You keep to the interstate.'],['USE PAPER ATLAS',s=>hasItem('atlas')?(s.distance+=10,'The atlas suggests a sane alternate route.'):'You remember that you did not buy the atlas.']]},
- {id:'jobcall',family:'social',tag:'DEADLINE',eligible:s=>s.reason.id==='career'&&s.distance>300,title:'YOUR NEW EMPLOYER CALLS.',body:()=> 'They want to confirm your start date. They sound cheerful because they are not the ones crossing the country.',choices:[['SAY YOU’RE ON TRACK',s=>{s.morale=clamp(s.morale+3);return'You sound much more confident than the dashboard justifies.'}],['ASK FOR ONE MORE DAY',s=>chance(.45)?(s.days+=1,'They agree. You gain one day.'):'They cannot move the date.']]},
- {id:'luck',family:'luck',tag:'LUCK',eligible:s=>s.distance>60,title:'YOU FIND SOMETHING UNDER THE SEAT.',body:()=> 'While reaching for a receipt, your hand hits something folded.',choices:[['GRAB IT',s=>{const c=rnd(12,85);s.cash+=c;return`Cash. ${money(c)}. The previous owner has sponsored part of your trip.`}],['CHECK THE WHOLE CAR',s=>{const c=rnd(20,120);s.cash+=c;advance(.3);return`You find ${money(c)}, two pens, and a receipt from 2021.`}]]},
- {id:'marketcontact',family:'social',tag:'ODD JOB',eligible:s=>s.distance>150&&!s.undergroundUnlocked&&s.underworldScore<2,title:'A STRANGER AT THE TRUCK STOP ASKS WHERE YOU’RE HEADED.',body:()=> '“You ever carry things for people?”',choices:[['ASK WHAT KIND OF THINGS',s=>{s.underworldScore++;return'The stranger gives you a first name and says to ask around at certain markets.'}],['NO THANKS',()=> 'You leave the conversation where it is.']]}
-];
-
-roadEvents.push(
- {id:'windshield',family:'mechanical',tag:'ROAD DAMAGE',eligible:s=>s.distance>90,title:'CRACK.',body:()=> 'A stone snaps off a truck tire and puts a bright new star in the windshield.',choices:[['IGNORE IT',s=>{s.morale=clamp(s.morale-2);return'The crack becomes part of the scenery.'}],['REPAIR AT NEXT STOP — $45',s=>{s.cash=Math.max(0,s.cash-45);return'A resin patch keeps it from spreading.'}]]},
- {id:'exhaust',family:'mechanical',tag:'MECHANICAL',eligible:s=>s.distance>120,title:'THE CAR SUDDENLY SOUNDS LIKE A TRACTOR.',body:()=> 'Something in the exhaust has stopped participating.',choices:[['WIRE IT UP',s=>hasItem('toolkit')?(s.condition=clamp(s.condition-1),'The toolkit and questionable confidence get it off the pavement.'):(s.condition=clamp(s.condition-5),'You improvise badly. It mostly works.')],['REPAIR — $110',s=>{s.cash=Math.max(0,s.cash-110);s.condition=clamp(s.condition+2);return'The muffler shop removes the soundtrack.'}],['LIVE WITH IT',s=>{s.morale=clamp(s.morale-3);return'You become the loudest thing on the interstate.'}]]},
- {id:'alternator',family:'mechanical',tag:'ELECTRICAL',eligible:s=>s.distance>250&&s.condition<82,title:'THE DASH LIGHTS DIM WHEN YOU BRAKE.',body:()=> 'The radio cuts out for half a second. Then comes back.',choices:[['FIND A PARTS STORE',s=>{const c=Math.min(s.cash,190);s.cash-=c;s.condition=clamp(s.condition+8);advance(1.2);return`You spend ${money(c)} and lose an hour changing an alternator.`}],['KEEP GOING',s=>{s.condition=clamp(s.condition-8);return'The battery light joins the conversation.'}]]},
- {id:'wipers',family:'weather',tag:'WEATHER',eligible:s=>s.weather.includes('RAIN'),title:'THE WIPERS STOP HALFWAY UP THE WINDSHIELD.',body:()=> 'Of course they do this now.',choices:[['PULL OVER',s=>{advance(.35);s.fatigue=clamp(s.fatigue-1);return'You wait for the worst rain to pass.'}],['TRY TO FIX THEM',s=>hasItem('toolkit')?'A loose linkage pops back into place.':'You move them by hand exactly once and learn nothing.'],['KEEP GOING SLOW',s=>{s.fatigue=clamp(s.fatigue+5);return'Every pair of headlights becomes an abstract painting.'}]]},
- {id:'construction',family:'navigation',tag:'DETOUR',eligible:s=>s.distance>100,title:'ROAD CLOSED AHEAD.',body:()=> 'Orange barrels funnel everyone toward a two-lane detour.',choices:[['TAKE DETOUR',s=>{state.totalMiles+=rnd(12,28);advance(.6);return'The trip gets longer. So does the line of brake lights.'}],['WAIT IT OUT',s=>{advance(1.1);s.fatigue=clamp(s.fatigue-2);return'You lose an hour but keep the planned route.'}]]},
- {id:'toll',family:'law',tag:'TOLL',eligible:s=>s.distance>100,title:'SURPRISE TOLL ROAD.',body:()=> 'The highway did not mention this until you were committed.',choices:[['PAY — $9',s=>{s.cash=Math.max(0,s.cash-9);return'Nine dollars buys permission to keep using the road you are already on.'}],['TAKE THE EXIT',s=>{state.totalMiles+=18;return'You save nine dollars and spend eighteen miles.'}]]},
- {id:'ac',family:'mechanical',tag:'COMFORT',eligible:s=>s.weather==='HOT',title:'THE AIR CONDITIONING GIVES UP.',body:()=> 'The vents are now moving hot air from one part of the car to another.',choices:[['BUY ICE — $6',s=>{s.cash=Math.max(0,s.cash-6);s.morale=clamp(s.morale+3);return'A bag of ice becomes climate control.'}],['KEEP GOING',s=>{s.fatigue=clamp(s.fatigue+7);s.morale=clamp(s.morale-5);return'The seat belt becomes a branding iron.'}]]},
- {id:'hail',family:'weather',tag:'WEATHER',eligible:s=>s.weather==='HEAVY RAIN'||s.weather==='WINDY',title:'HAIL STARTS HITTING THE ROOF.',body:()=> 'At first it sounds like gravel. Then it gets bigger.',choices:[['FIND COVER',s=>{advance(.5);return'You hide under a gas-station canopy with six other cars.'}],['KEEP MOVING',s=>{s.condition=clamp(s.condition-rnd(2,7));return'The hood gains several permanent memories.'}]]},
- {id:'stateLine',family:'milestone',tag:'MILESTONE',eligible:s=>s.distance>200,title:'WELCOME TO ANOTHER STATE.',body:()=> 'For a moment the trip feels measurable.',choices:[['STOP FOR A PHOTO',s=>{advance(.15);s.morale=clamp(s.morale+7);return'You document the fact that you are, technically, making progress.'}],['KEEP MOVING',s=>{s.morale=clamp(s.morale+3);return'The sign disappears in the mirror.'}]]},
- {id:'overlook',family:'rest',tag:'SCENIC',eligible:s=>s.distance>280&&s.morale<78,title:'SCENIC OVERLOOK — 1/4 MILE.',body:()=> 'The view looks expensive. The parking is free.',choices:[['STOP',s=>{advance(.25);s.morale=clamp(s.morale+12);s.fatigue=clamp(s.fatigue-3);return'For fifteen minutes, the move feels like a trip instead of an emergency.'}],['NOT TODAY',()=> 'You watch the overlook disappear behind a guardrail.']]},
- {id:'trucker',family:'social',tag:'ROADSIDE',eligible:s=>s.distance>220,title:'A TRUCKER AT THE COFFEE COUNTER NODS AT YOUR CAR.',body:()=> pick(['“Keep an eye on that weather west of here.”','“That route gets ugly after dark.”','“I had one of those. Transmission outlived the body.”']),choices:[['LISTEN',s=>{s.morale=clamp(s.morale+2);return'You get coffee, a route tip, and an unsolicited story about Wyoming.'}],['THANK HIM AND GO',()=> 'You head back to the car.']]},
- {id:'restarea',family:'rest',tag:'REST AREA',eligible:s=>s.fatigue>35,title:'REST AREA — NEXT RIGHT.',body:()=> 'Clean bathrooms are not guaranteed. Stopping is free.',choices:[['TAKE 20 MINUTES',s=>{advance(.33);s.fatigue=clamp(s.fatigue-10);return'You stretch, wash your face, and become marginally safer.'}],['KEEP DRIVING',()=> 'You keep the cruise control set.']]},
- {id:'vending',family:'stop',tag:'VENDING',eligible:s=>s.hunger>25,title:'THE REST-AREA VENDING MACHINE HAS DINNER.',body:()=> 'A spiral of snacks rotates behind scratched glass.',choices:[['BUY SOMETHING — $4',s=>{s.cash=Math.max(0,s.cash-4);s.hunger=clamp(s.hunger-12);return'Your meal has a shelf life measured in presidential administrations.'}],['SAVE THE MONEY',()=> 'You decide hunger builds character.']]},
- {id:'festival',family:'navigation',tag:'SMALL TOWN',eligible:s=>s.distance>300,title:'THE MAIN ROAD IS BLOCKED BY A PARADE.',body:()=> 'There are tractors, folding chairs, and absolutely no urgency.',choices:[['WATCH FOR A WHILE',s=>{advance(.65);s.morale=clamp(s.morale+9);return'You eat something fried and forget the deadline for thirty minutes.'}],['FIND A WAY AROUND',s=>{state.totalMiles+=9;return'You learn several residential streets no tourist has ever needed.'}]]},
- {id:'roadsideAttraction',family:'luck',tag:'ROADSIDE',eligible:s=>s.distance>250,title:'WORLD’S LARGEST SOMETHING — NEXT EXIT.',body:()=> 'The billboard refuses to specify what the something is.',choices:[['GO SEE IT',s=>{advance(.4);s.cash=Math.max(0,s.cash-8);s.morale=clamp(s.morale+10);return'It is larger than expected and somehow less impressive.'}],['ABSOLUTELY NOT',()=> 'You will never know. This may haunt you.']]},
- {id:'extext',family:'social',tag:'SOCIAL',eligible:s=>s.reason.id==='divorce'&&s.distance>180,title:'YOUR EX TEXTS: “YOU MAKE IT YET?”',body:()=> 'There are several ways to answer this incorrectly.',choices:[['“WORKING ON IT.”',s=>{s.morale=clamp(s.morale+1);return'The typing bubbles appear. Then disappear.'}],['DON’T ANSWER',s=>{s.morale=clamp(s.morale+2);return'The phone goes face down in the cup holder.'}]]},
- {id:'refund',family:'luck',tag:'MONEY',eligible:s=>s.distance>200,title:'A DEPOSIT HITS YOUR ACCOUNT.',body:()=> pick(['Your old utility company finally returned the deposit.','Your landlord remembered the security deposit existed.','A forgotten reimbursement finally cleared.']),choices:[['CHECK BALANCE',s=>{const c=rnd(45,210);s.cash+=c;return`Unexpected money: +${money(c)}.`}]]},
- {id:'cargoOffer',family:'trade',tag:'OPPORTUNITY',eligible:s=>s.distance>300&&cargoUsed()<s.car.cargo,title:'A GUY AT THE FUEL PUMP WANTS SOMETHING MOVED ONE TOWN OVER.',body:()=> 'The item is legal, bulky, and wrapped in more tape than seems necessary.',choices:[['TAKE THE JOB',s=>{const c=rnd(80,180);s.cash+=c;advance(.45);return`You make ${money(c)} for being temporarily useful.`}],['PASS',()=> 'You decide the trunk already contains enough uncertainty.']]},
- {id:'cargoScam',family:'trade',tag:'MARKET',eligible:s=>cargoUsed()>0&&s.distance>300,title:'A BUYER CHANGES THE DEAL IN THE PARKING LOT.',body:()=> 'The price is suddenly lower than the messages suggested.',choices:[['TAKE THE LOWER PRICE',s=>{const ids=Object.keys(s.cargo);if(!ids.length)return'You have nothing to sell.';const id=pick(ids);const g=[...legalGoods,...undergroundGoods].find(x=>x.id===id);addCargo(id,-1);const c=Math.round((g?.base||50)*.7);s.cash+=c;return`You unload one unit for ${money(c)} and leave annoyed.`}],['WALK AWAY',s=>{s.morale=clamp(s.morale+2);return'You put it back in the trunk. No deal.'}]]},
- {id:'battery',family:'mechanical',tag:'ELECTRICAL',eligible:s=>s.distance>250&&s.condition<78,title:'CLICK. CLICK. CLICK.',body:()=> 'After a fuel stop, the starter has opinions.',choices:[['ASK FOR A JUMP',s=>{advance(.25);return'A stranger with jumper cables saves the next twenty minutes of your life.'}],['BUY A BATTERY — $145',s=>{const c=Math.min(145,s.cash);s.cash-=c;s.condition=clamp(s.condition+6);return`You spend ${money(c)} on a new battery.`}]]}
-);
-
-function policeOutcome(s){sfx('cop');ensureTripStats();state.stats.policeStops++;if(s.heat>0&&chance(Math.min(.7,.15+s.heat/120))){const illegalIds=undergroundGoods.map(g=>g.id);let lost=0;for(const id of illegalIds){lost+=cargoCount(id);delete s.cargo[id]}s.heat=clamp(s.heat+10);if(lost&&chance(.18+s.heat/150)){endGame('ARRESTED','THE JOURNEY WILL NOT CONTINUE.',`Underground cargo was discovered during a traffic stop.\nVehicle impounded.\nCash remaining: ${money(s.cash)}.`);return'The stop becomes much more serious.'}statSpend(Math.min(600,s.cash),'ticketsSpent');state.stats.cargoConfiscated+=lost;s.cash=Math.max(0,s.cash-600);return`Your underground cargo is confiscated. Legal costs: $600.`}return chance(.55)?(statSpend(Math.min(120,s.cash),'ticketsSpent'),s.cash=Math.max(0,s.cash-120),'You leave with a $120 ticket.'):'You get a warning and a lecture.'}
-function chooseEvent(){const forcedId=state.fuel<26?'fuel':state.fatigue>82?'motel':state.hunger>76?'food':state.condition<36?'repair':null;if(forcedId){const forced=roadEvents.find(e=>e.id===forcedId&&e.eligible(state));if(forced)return forced}let pool=roadEvents.filter(e=>e.eligible(state)&&!state.usedEvents.includes(e.id));if(!pool.length){state.usedEvents=[];pool=roadEvents.filter(e=>e.eligible(state))}const filtered=pool.filter(e=>!state.recentFamilies.includes(e.family));return pick(filtered.length?filtered:pool)}
-function triggerEvent(forced=null){const e=forced||chooseEvent();if(!e){showQuiet();return}state.currentEvent=e.id;state.usedEvents.push(e.id);state.recentFamilies.push(e.family);state.recentFamilies=state.recentFamilies.slice(-3);$('eventTag').textContent=e.tag;$('eventTitle').textContent=e.title;$('eventBody').textContent=typeof e.body==='function'?e.body(state):e.body;$('eventChoices').innerHTML='';$('driveLegBtn').hidden=true;if(e.family==='mechanical'||e.family==='hazard')sfx('bad');for(const [label,resolver] of e.choices){const b=document.createElement('button');b.className='choice';b.type='button';b.textContent=label;b.onclick=()=>resolveEvent(resolver);$('eventChoices').appendChild(b)}renderRoadHud();save()}
-function resolveEvent(resolver){const out=resolver(state);if(state.ended)return;$('eventTag').textContent='CONTINUE';$('eventTitle').textContent='YOU CONTINUE.';$('eventBody').textContent=out;$('eventChoices').innerHTML='';$('driveLegBtn').hidden=false;state.currentEvent=null;state.condition=clamp(state.condition);state.fatigue=clamp(state.fatigue);state.hunger=clamp(state.hunger);state.morale=clamp(state.morale);checkFailure();renderRoadHud();save()}
-function showQuiet(){$('eventTag').textContent='ROAD';$('eventTitle').textContent='THE ROAD KEEPS GOING.';$('eventBody').textContent=pick(['Nothing goes wrong for fifty miles.','The radio fades between stations while the landscape rolls by.','For a while, the trip is almost peaceful.','The highway opens up and the car seems content enough.']);$('eventChoices').innerHTML='';$('driveLegBtn').hidden=false}
-function driveLeg(){if(state.ended)return;const miles=Math.min(rnd(38,62),state.totalMiles-state.distance);const fullRange=state.car.mpg*state.car.tank;const fuelNeed=(miles/fullRange)*100;if(state.fuel<=fuelNeed+9){const fuelEvent=roadEvents.find(e=>e.id==='fuel');triggerEvent(fuelEvent);return}const hours=miles/60+Math.random()*.18;state.distance+=miles;ensureTripStats();state.stats.milesDriven=state.distance;state.stats.driveHours+=hours;state.stats.gallonsUsed+=miles/Math.max(1,state.car.mpg);advance(hours);state.fuel=clamp(state.fuel-fuelNeed);state.fatigue=clamp(state.fatigue+rnd(4,8));state.hunger=clamp(state.hunger+rnd(3,7));state.phone=clamp(state.phone-rnd(2,5));state.condition=clamp(state.condition-rnd(0,2)-(state.car.rel<65&&chance(.3)?2:0));state.morale=clamp(state.morale-rnd(0,2));state.heat=clamp(state.heat-rnd(1,3));noteHeat();if(chance(.22))state.weather=pick(['CLEAR','OVERCAST','LIGHT RAIN','HEAVY RAIN','WINDY','HOT','COOL','FOG']);if(state.distance>=state.totalMiles){endGame('YOU MADE IT',`WELCOME TO ${cities[state.dest].n.toUpperCase()}.`,successSummary());return}if(checkFailure())return;if(chance(.8))triggerEvent();else showQuiet();renderRoadHud();save()}
-function checkFailure(){if(state.fuel<=0){endGame('STRANDED','YOU RAN OUT OF FUEL.',`You made it ${Math.round(state.distance)} miles. The gauge had been telling the truth.`);return true}if(state.condition<=0){endGame('THE CAR IS DONE',`${state.car.n.toUpperCase()} WILL NOT CONTINUE.`,failureSummary());return true}if(state.fatigue>=98){endGame('YOU NODDED OFF','THE ROAD BLURRED FOR ONE SECOND TOO LONG.',`The journey ends ${Math.max(0,state.totalMiles-Math.round(state.distance))} miles from ${cities[state.dest].n}.`);return true}if(state.reason.hard&&state.days<0){endGame('YOU MISSED THE DEADLINE','THE REASON FOR THE TRIP EXPIRED BEFORE YOU ARRIVED.',`You are still ${Math.max(0,state.totalMiles-Math.round(state.distance))} miles from ${cities[state.dest].n}.`);return true}return false}
-function failureSummary(){const known=state.known.length?`You knew about ${state.known.join(' and ')} before leaving.`:'You never found the worst problem before it mattered.';return `${known}\nCash remaining: ${money(state.cash)}\nDistance traveled: ${Math.round(state.distance)} miles.`}
-function successSummary(){return `Cash remaining: ${money(state.cash)}\nDebt waiting for you: ${money(state.debt)}\nVehicle condition: ${Math.round(state.condition)}%\nHeat: ${Math.round(state.heat)}\n\nAgainst several reasonable objections, the journey worked.`}
-function updateRouteInstruction(){let text='Continue toward '+cities[state.dest].n+'.';if(state.routeSteps?.length){const step=state.routeSteps.find(x=>x.mile>state.distance)||state.routeSteps[state.routeSteps.length-1];if(step){const mod=step.modifier?step.modifier.toUpperCase()+' ':'';text=`${(step.type||'continue').toUpperCase()} ${mod}${step.name||cities[state.dest].n}`.replace(/\s+/g,' ').trim()+` • about ${Math.max(0,Math.round(step.mile-state.distance))} mi`;}}$('routeInstruction').textContent='ROUTE: '+text;}
-function renderRoadHud(){$('roadDay').textContent=`DAY ${state.day} • ${clockText()}`;$('roadRoute').textContent=`${cities[state.origin].n} → ${cities[state.dest].n}`;$('fuelOut').textContent=Math.round(state.fuel)+'%';$('conditionOut').textContent=Math.round(state.condition)+'%';$('cashOut').textContent=money(state.cash);$('tripProgress').style.width=Math.min(100,state.distance/state.totalMiles*100)+'%';$('fatigueOut').textContent=Math.round(state.fatigue);$('hungerOut').textContent=Math.round(state.hunger);$('moraleOut').textContent=Math.round(state.morale);$('fatigueBar').style.width=state.fatigue+'%';$('hungerBar').style.width=state.hunger+'%';$('moraleBar').style.width=state.morale+'%';$('roadInventory').innerHTML=state.inventory.length?state.inventory.map(id=>`<span class="chip">${supplyDefs.find(x=>x.id===id)?.n||id}</span>`).join(''):'<span class="chip">No supplies</span>';updateRouteInstruction()}
-
-/* trading */
-function marketSeed(){return Math.abs(hashString(`${nearestCity().n}|${state.day}|${Math.floor(state.distance/100)}`))}
-function hashString(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-function seeded(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function buildMarket(){const loc=nearestCity(),key=`${loc.n}-${state.day}-${Math.floor(state.distance/100)}`;if(state.currentMarket&&state.lastMarketKey===key)return;const r=seeded(marketSeed()),goods=[...legalGoods].sort(()=>r()-.5).slice(0,5).map(g=>({...g,buy:round25(g.base*(.65+r()*.75)),sell:round25(g.base*(.65+r()*.9)),supply:1+Math.floor(r()*4),demand:1+Math.floor(r()*4)}));const underground=[...undergroundGoods].map(g=>({...g,buy:round25(g.base*(.65+r()*.65)),sell:round25(g.base*(.85+r()*1.15)),supply:1+Math.floor(r()*3),demand:1+Math.floor(r()*3)}));state.currentMarket={loc:loc.n,goods,underground};state.lastMarketKey=key;state.marketVisits++}
-function renderTrade(){buildMarket();const mkt=state.currentMarket;$('tradeLocation').textContent=`NEAR ${mkt.loc.toUpperCase()}`;$('tradeCash').textContent=money(state.cash);$('cargoUsed').textContent=`${cargoUsed()} / ${state.car.cargo}`;$('tradeList').innerHTML='';for(const g of mkt.goods){$('tradeList').appendChild(tradeRow(g,false))}$('undergroundPanel').hidden=!state.undergroundUnlocked;if(state.undergroundUnlocked){$('heatBar').style.width=state.heat+'%';$('heatOut').textContent=Math.round(state.heat);$('undergroundList').innerHTML='';for(const g of mkt.underground){$('undergroundList').appendChild(tradeRow(g,true))}}renderContact();save()}
-function tradeRow(g,underground){const row=document.createElement('div');row.className='market-row';row.innerHTML=`<div class="market-price"><b>${g.n}</b><span>YOU OWN ${cargoCount(g.id)}</span></div><span>Buy ${money(g.buy)} • Sell ${money(g.sell)} • Supply ${g.supply} • Demand ${g.demand}</span>`;const mini=document.createElement('div');mini.className='mini-actions';const buy=document.createElement('button');buy.type='button';buy.textContent='BUY 1';buy.disabled=g.supply<=0||state.cash<g.buy||cargoUsed()+g.size>state.car.cargo;buy.onclick=()=>{state.cash-=g.buy;statSpend(g.buy,underground?'undergroundSpent':'tradeSpent');state.stats.marketTrades++;g.supply--;addCargo(g.id,1);if(g.gray){state.underworldScore++;state.heat=clamp(state.heat+2);noteHeat()}if(underground){state.heat=clamp(state.heat+rnd(7,13));noteHeat();state.underworldScore+=2}sfx('cash');renderTrade()};const sell=document.createElement('button');sell.type='button';sell.textContent='SELL 1';sell.disabled=g.demand<=0||cargoCount(g.id)<=0;sell.onclick=()=>{state.cash+=g.sell;statEarn(g.sell,underground?'undergroundEarned':'tradeEarned');state.stats.marketTrades++;g.demand--;addCargo(g.id,-1);if(g.gray)state.underworldScore++;if(underground)state.heat=clamp(state.heat+rnd(5,10));noteHeat();sfx('cash');renderTrade()};mini.append(buy,sell);row.appendChild(mini);return row}
-function renderContact(){const p=$('contactPanel');p.hidden=true;p.innerHTML='';if(state.undergroundUnlocked)return;if(state.underworldScore>=2){p.hidden=false;p.innerHTML='<b>THE SAME FIRST NAME KEEPS COMING UP.</b><br>A contact offers to show you another market.';const b=document.createElement('button');b.className='btn2';b.type='button';b.textContent='ASK ABOUT WORK';b.onclick=()=>{state.undergroundUnlocked=true;state.heat=clamp(state.heat+5);addLog('You found the underground market.');renderTrade()};p.appendChild(b)}else if(state.marketVisits>=2&&chance(.35)){p.hidden=false;p.innerHTML='A stranger notices you checking prices and asks where you are headed.';const b=document.createElement('button');b.className='btn2';b.type='button';b.textContent='KEEP TALKING';b.onclick=()=>{state.underworldScore++;p.hidden=true;save()};p.appendChild(b)}}
-
-
-/* trip computer + lifetime records */
-function fmt1(n){return Number(n||0).toLocaleString(undefined,{maximumFractionDigits:1})}
-function signedMoney(n){n=Math.round(Number(n)||0);return (n<0?'−':n>0?'+':'')+'$'+Math.abs(n).toLocaleString()}
-function ledgerRow(label,value){return '<div>'+label+'</div><div class="v">'+value+'</div>'}
-function questionableAchievements(){
- const s=ensureTripStats(),a=[];
- if(s.scratchSpent>s.scratchWon)a.push(['FINANCIAL GENIUS',`Lost ${money(s.scratchSpent-s.scratchWon)} on scratch-offs.`]);
- if(s.warningsIgnored>=3)a.push(['CHECK ENGINE MEANS CHECK LATER',`Ignored ${s.warningsIgnored} mechanical warnings.`]);
- if(s.carNights>=2)a.push(['HOME IS WHERE YOU PARK IT',`Slept in the car ${s.carNights} nights.`]);
- if(s.negotiationSaved>=300)a.push(['NEGOTIATOR',`Talked ${money(s.negotiationSaved)} off asking prices.`]);
- if(state.fuel<=5&&state.distance>0)a.push(['GAS LIGHT ENTHUSIAST','Reached the current point of the trip on fumes.']);
- if((s.tradeEarned-s.tradeSpent)>=750)a.push(['THIS WAS SUPPOSED TO BE A MOVE',`Legal/gray trading profit: ${money(s.tradeEarned-s.tradeSpent)}.`]);
- if((s.undergroundEarned-s.undergroundSpent)>=750)a.push(['SIDE HUSTLE GOT COMPLICATED',`Underground profit: ${money(s.undergroundEarned-s.undergroundSpent)}. Peak heat: ${Math.round(s.peakHeat)}.`]);
- if(s.buyersGhosted>=2)a.push(['MARKETPLACE VETERAN',`${s.buyersGhosted} buyers ghosted you before departure.`]);
- if(s.policeStops>=2)a.push(['FAMILIAR FACE',`Stopped by police ${s.policeStops} times.`]);
- if(!a.length)a.push(['STILL TECHNICALLY RESPONSIBLE','No especially questionable milestone has been unlocked yet. Keep driving.']);
- return a;
-}
-function renderTripCurrent(){
- const s=ensureTripStats(),remain=Math.max(0,state.totalMiles-(state.distance||0)),tradeProfit=s.tradeEarned-s.tradeSpent,ugProfit=s.undergroundEarned-s.undergroundSpent;
- $('tripLogRoute').textContent=(state.car?cities[state.origin]?.n+' → '+cities[state.dest]?.n:'CURRENT RUN');
- $('tripSummaryHero').innerHTML=`<div class="trip-odometer"><small>TRIP ODOMETER</small>${Math.round(s.milesDriven||state.distance||0).toLocaleString()} MI</div><div class="trip-route-line">${escapeHtml(cities[state.origin]?.n||'START')} → ${escapeHtml(cities[state.dest]?.n||'DESTINATION')} • ${Math.round(remain).toLocaleString()} MI REMAINING</div><div class="trip-grid"><div class="trip-card"><b>${fmt1(s.gallonsUsed)} gal</b><span>FUEL USED</span></div><div class="trip-card"><b>${money(s.totalSpent)}</b><span>TOTAL SPENT</span></div><div class="trip-card"><b>${money(state.cash)}</b><span>CASH NOW</span></div><div class="trip-card"><b>${fmt1(s.driveHours)} hr</b><span>DRIVING TIME</span></div></div>`;
- $('tripDetail').innerHTML=`
- <div class="trip-section"><h3>MONEY</h3><div class="trip-ledger">
- ${ledgerRow('Starting cash',money(s.startingCash))}
- ${ledgerRow('Earned / received',money(s.totalEarned))}
- ${ledgerRow('Total spent',money(s.totalSpent))}
- ${ledgerRow('Vehicle purchase',money(s.carSpent))}
- ${ledgerRow('Fuel',money(s.fuelSpent))}
- ${ledgerRow('Repairs / inspections',money(s.repairsSpent))}
- ${ledgerRow('Food',money(s.foodSpent))}
- ${ledgerRow('Motels',money(s.lodgingSpent))}
- ${ledgerRow('Supplies',money(s.suppliesSpent))}
- ${ledgerRow('Tickets / legal',money(s.ticketsSpent))}
- ${ledgerRow('Negotiation savings',money(s.negotiationSaved))}
- ${ledgerRow('Legal/gray trading P&L',signedMoney(tradeProfit))}
- ${ledgerRow('Underground P&L',signedMoney(ugProfit))}
- ${ledgerRow('Scratch-off P&L',signedMoney(s.scratchWon-s.scratchSpent))}
- ${ledgerRow('Debt waiting',money(state.debt))}
- </div></div>
- <div class="trip-section"><h3>VEHICLE & ROAD</h3><div class="trip-ledger">
- ${ledgerRow('Miles driven',Math.round(s.milesDriven||0).toLocaleString()+' mi')}
- ${ledgerRow('Fuel burned',fmt1(s.gallonsUsed)+' gal')}
- ${ledgerRow('Fuel stops',s.fuelStops)}
- ${ledgerRow('Current condition',Math.round(state.condition)+'%')}
- ${ledgerRow('Mechanical warnings ignored',s.warningsIgnored)}
- ${ledgerRow('Police stops',s.policeStops)}
- ${ledgerRow('Peak heat',Math.round(s.peakHeat))}
- ${ledgerRow('Market trades',s.marketTrades)}
- </div></div>
- <div class="trip-section"><h3>LIFE ON THE ROAD</h3><div class="trip-ledger">
- ${ledgerRow('Extra / OT shifts',s.shiftsWorked)}
- ${ledgerRow('Possessions sold',s.possessionsSold)}
- ${ledgerRow('Family help',money(s.familyHelp))}
- ${ledgerRow('Motel nights',s.motelNights)}
- ${ledgerRow('Nights in the car',s.carNights)}
- ${ledgerRow('Meals skipped',s.mealsSkipped)}
- ${ledgerRow('Marketplace ghosts',s.buyersGhosted)}
- </div></div>
- <div class="trip-section"><h3>QUESTIONABLE ACHIEVEMENTS</h3>${questionableAchievements().map(x=>`<div class="achievement"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('')}</div>`;
-}
-function renderTripLifetime(){
- const l=loadLifetime();
- $('tripLogRoute').textContent='LIFETIME RECORD';
- $('tripSummaryHero').innerHTML=`<div class="trip-odometer"><small>LIFETIME ODOMETER</small>${Math.round(l.totalMiles).toLocaleString()} MI</div><div class="trip-route-line">${l.runs} RUNS • ${l.successes} ARRIVALS • ${l.failures} FAILED JOURNEYS</div><div class="trip-grid"><div class="trip-card"><b>${fmt1(l.totalGallons)} gal</b><span>FUEL BURNED</span></div><div class="trip-card"><b>${money(l.totalSpent)}</b><span>MONEY SPENT</span></div><div class="trip-card"><b>${l.carsBought}</b><span>CARS BOUGHT</span></div><div class="trip-card"><b>${money(l.negotiationSaved)}</b><span>NEGOTIATED OFF</span></div></div>`;
- $('tripDetail').innerHTML=`<div class="trip-section"><h3>CAREER TOTALS</h3><div class="trip-ledger">
- ${ledgerRow('Successful moves',l.successes)}
- ${ledgerRow('Failed moves',l.failures)}
- ${ledgerRow('Total miles',Math.round(l.totalMiles).toLocaleString()+' mi')}
- ${ledgerRow('Fuel burned',fmt1(l.totalGallons)+' gal')}
- ${ledgerRow('Fuel spending',money(l.fuelSpent))}
- ${ledgerRow('Repair spending',money(l.repairsSpent))}
- ${ledgerRow('Motel nights',l.motelNights)}
- ${ledgerRow('Nights in car',l.carNights)}
- ${ledgerRow('Police stops',l.policeStops)}
- ${ledgerRow('Arrests',l.arrests)}
- ${ledgerRow('Scratch-off net',signedMoney(l.scratchNet))}
- ${ledgerRow('Trading profit',signedMoney(l.tradingProfit))}
- ${ledgerRow('Underground profit',signedMoney(l.undergroundProfit))}
- ${ledgerRow('Highest heat',Math.round(l.peakHeat))}
- ${ledgerRow('Furthest failed run',Math.round(l.furthestFailure).toLocaleString()+' mi')}
- ${ledgerRow('Best arrival cash',money(l.bestCashFinish))}
- ${ledgerRow('Debt accumulated',money(l.totalDebt))}
- </div></div>`;
-}
-function renderTripLog(){ensureTripStats();$('currentTripTab').classList.toggle('active',tripView==='current');$('lifetimeTab').classList.toggle('active',tripView==='lifetime');if(tripView==='lifetime')renderTripLifetime();else renderTripCurrent()}
-function openTripLog(view='current',returnTo=currentScreen){tripReturnScreen=returnTo;tripView=view;renderTripLog();show('tripLogScreen')}
-function closeTripLog(){if(tripReturnScreen==='endingScreen'){show('endingScreen');return}if(tripReturnScreen==='titleScreen'){show('titleScreen');return}if(tripReturnScreen==='roadScreen'){renderRoadHud();show('roadScreen');return}show(tripReturnScreen||'roadScreen')}
-
-/* endings */
-function endGame(kicker,title,body){state.ended=true;ensureTripStats();state.stats.milesDriven=Math.max(state.stats.milesDriven,state.distance||0);finalizeLifetime(kicker==='YOU MADE IT',kicker);$('endKicker').textContent=kicker;$('endTitle').textContent=title;$('endBody').textContent=body;drawEnding();clearSave();show('endingScreen');sfx(kicker==='YOU MADE IT'?'win':'bad')}
-
-/* placeholder art */
-function px(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(x,y,w,h)}
-function drawCar(c,x,y,s,col){px(c,x,y+12*s,48*s,12*s,col);px(c,x+10*s,y+4*s,29*s,11*s,col);px(c,x+14*s,y+6*s,9*s,6*s,'#496274');px(c,x+25*s,y+6*s,10*s,6*s,'#526b7b');px(c,x+6*s,y+23*s,10*s,9*s,'#080808');px(c,x+34*s,y+23*s,10*s,9*s,'#080808')}
-function drawTitle(){const c=$('titleCanvas').getContext('2d'),w=320,h=420;px(c,0,0,w,215,'#172743');px(c,0,145,w,70,'#c87642');for(let i=0;i<6;i++){c.fillStyle=['#38477d','#4d5790','#2f3d73'][i%3];c.beginPath();c.moveTo(i*62-10,220);c.lineTo(i*62+28,120-rnd(0,18));c.lineTo(i*62+75,220);c.fill()}px(c,0,210,w,55,'#17301d');for(let i=0;i<24;i++)px(c,i*14,188,3,66,'#0b1e12');px(c,0,265,w,155,'#242424');c.fillStyle='#393939';c.beginPath();c.moveTo(102,265);c.lineTo(218,265);c.lineTo(305,420);c.lineTo(15,420);c.fill();for(let y=285;y<420;y+=46)px(c,157,y,7,22,'#ead9a2');drawCar(c,72,320,3.2,'#b9b9b7')}
-function drawSeller(){
- const c=$('sellerCanvas').getContext('2d'),w=$('sellerCanvas').width,h=$('sellerCanvas').height;
- c.imageSmoothingEnabled=false;
- const carCol=state.car?.color||'#b7b7b4';
- // sunset sky in horizontal pixel bands
- const sky=['#202a4a','#39456c','#6e5670','#b86456','#ec9a54','#f7c76b'];
- const band=Math.ceil(h*.52/sky.length);for(let i=0;i<sky.length;i++)px(c,0,i*band,w,band+1,sky[i]);
- // distant neighborhood and tree line
- px(c,0,h*.48,w,h*.52,'#283a25');
- for(let x=0;x<w;x+=18){const ht=28+((x*17)%50);px(c,x,h*.48-ht,5,ht,'#122617');px(c,x-6,h*.48-ht+10,17,5,'#17351d');px(c,x-4,h*.48-ht+19,13,5,'#17351d')}
- // house + garage
- px(c,w*.61,h*.16,w*.39,h*.55,'#b9a27b');px(c,w*.58,h*.14,w*.42,18,'#4d342c');
- px(c,w*.68,h*.31,w*.27,h*.40,'#24211e');px(c,w*.705,h*.34,w*.22,h*.34,'#342f28');
- // garage light
- px(c,w*.80,h*.19,36,8,'#ffe4a0');px(c,w*.81,h*.21,22,5,'#dba65a');
- // tools and shelves
- for(let y=145;y<235;y+=24){px(c,470,y,110,4,'#5b5146');for(let x=478;x<570;x+=22)px(c,x,y-14,5,14,['#9c3b2e','#d29b3c','#496c71'][((x+y)/2)%3|0])}
- // driveway
- px(c,0,h*.66,w,h*.34,'#554f48');for(let x=0;x<w;x+=31)for(let y=245;y<h;y+=27)if(((x+y)/27|0)%3===0)px(c,x,y,12,3,'#3e3a36');
- // garage shadow
- px(c,w*.60,h*.68,w*.40,h*.08,'#26231f');
- // seller
- const sx=w*.84,sy=h*.49;px(c,sx,sy-30,16,18,'#c28b69');px(c,sx-4,sy-11,25,48,'#303845');px(c,sx-2,sy+36,9,38,'#34506a');px(c,sx+12,sy+36,9,38,'#34506a');px(c,sx-9,sy+5,8,30,'#c28b69');px(c,sx+22,sy+3,8,31,'#c28b69');
- // detailed-ish sedan
- const x=72,y=218,sc=1.0;
- c.fillStyle='#171717';c.fillRect(x+52,y+76,72,13);c.fillRect(x+302,y+76,72,13);
- c.fillStyle=carCol;c.beginPath();c.moveTo(x,y+58);c.lineTo(x+55,y+39);c.lineTo(x+118,y+8);c.lineTo(x+275,y+8);c.lineTo(x+333,y+43);c.lineTo(x+412,y+55);c.lineTo(x+420,y+92);c.lineTo(x+12,y+92);c.closePath();c.fill();
- // body highlights and trim
- px(c,x+8,y+60,397,7,'rgba(255,255,255,.20)');px(c,x+20,y+82,385,5,'#6e6e68');
- // glass
- c.fillStyle='#253946';c.beginPath();c.moveTo(x+125,y+16);c.lineTo(x+188,y+16);c.lineTo(x+188,y+48);c.lineTo(x+91,y+48);c.closePath();c.fill();
- c.beginPath();c.moveTo(x+198,y+16);c.lineTo(x+268,y+16);c.lineTo(x+316,y+48);c.lineTo(x+198,y+48);c.closePath();c.fill();
- // pillars/doors
- px(c,x+191,y+12,7,70,'#2d2d2d');px(c,x+91,y+50,225,4,'#3e3e3b');px(c,x+196,y+54,4,31,'#454542');px(c,x+300,y+54,4,31,'#454542');
- // grille/lights
- px(c,x+365,y+62,47,22,'#5a5a57');for(let gx=369;gx<410;gx+=7)px(c,gx,y+64,3,17,'#222');
- px(c,x+345,y+62,20,14,'#f2dfb5');px(c,x+18,y+62,21,14,'#f2dfb5');px(c,x+39,y+64,10,9,'#d08138');
- // wheels
- for(const wx of [x+83,x+335]){c.fillStyle='#0a0a0a';c.beginPath();c.arc(wx,y+92,28,0,Math.PI*2);c.fill();c.fillStyle='#8d8d88';c.beginPath();c.arc(wx,y+92,15,0,Math.PI*2);c.fill();c.fillStyle='#333';c.beginPath();c.arc(wx,y+92,5,0,Math.PI*2);c.fill()}
- // for-sale paper
- px(c,x+232,y+24,31,19,'#f1e8c9');c.fillStyle='#742b24';c.font='bold 7px monospace';c.fillText('SALE',x+237,y+36);
- // foreground shadow
- c.fillStyle='rgba(0,0,0,.32)';c.fillRect(0,h-18,w,18);
-}
-function drawRoad(){const c=$('roadCanvas').getContext('2d'),w=320,h=400,night=isNight();px(c,0,0,w,205,night?'#07101d':state.weather==='HOT'?'#a65d41':state.weather.includes('RAIN')?'#3b4b5e':'#6f98b7');px(c,0,135,w,65,night?'#0e1815':'#31532f');for(let i=0;i<25;i++){const x=(i*15+roadPhase)%w;px(c,x,110,3,72,night?'#0a1310':'#1d391f')}px(c,0,190,w,85,'#8a7855');c.fillStyle=night?'#1d1d1f':'#36363a';c.beginPath();c.moveTo(105,175);c.lineTo(215,175);c.lineTo(305,285);c.lineTo(15,285);c.fill();for(let i=0;i<7;i++){const y=190+((i*38+roadPhase*2)%90);px(c,157,y,7,16+i*2,'#eee1aa')}if(state.weather.includes('RAIN')){c.strokeStyle='rgba(220,235,255,.55)';c.lineWidth=2;for(let i=0;i<55;i++){const x=(i*57+roadPhase*3)%w,y=(i*41+roadPhase*5)%220;c.beginPath();c.moveTo(x,y);c.lineTo(x-7,y+16);c.stroke()}}if(state.weather==='FOG'){c.fillStyle='rgba(210,216,219,.4)';c.fillRect(0,70,w,165)}px(c,0,0,28,330,'#111');px(c,w-28,0,28,330,'#111');c.fillStyle=state.car?.color||'#aaa';c.beginPath();c.moveTo(58,278);c.quadraticCurveTo(160,235,262,278);c.lineTo(292,330);c.lineTo(28,330);c.fill();px(c,0,323,w,77,'#3d3d3b');px(c,42,338,236,55,'#777');px(c,55,346,80,39,'#12181c');px(c,185,346,80,39,'#12181c');c.strokeStyle='#77a18f';c.lineWidth=3;c.beginPath();c.arc(95,367,24,Math.PI,Math.PI*2);c.stroke();c.beginPath();c.arc(225,367,24,Math.PI,Math.PI*2);c.stroke();c.strokeStyle='#17191a';c.lineWidth=18;c.beginPath();c.arc(88,407,50,Math.PI,Math.PI*2);c.stroke()}
-function drawEnding(){
- const c=$('endingCanvas').getContext('2d'),w=$('endingCanvas').width,h=$('endingCanvas').height;
- c.imageSmoothingEnabled=false;
- const success=state.distance>=state.totalMiles&&state.condition>0;
- if(success){
-   // sunset overlook
-   const sky=['#302a50','#5f456c','#9e5166','#e17154','#f3a85a','#ffd378'];
-   const bh=Math.ceil(h*.58/sky.length);for(let i=0;i<sky.length;i++)px(c,0,i*bh,w,bh+1,sky[i]);
-   c.fillStyle='#473e66';c.beginPath();c.moveTo(0,185);c.lineTo(115,78);c.lineTo(210,183);c.lineTo(320,98);c.lineTo(430,185);c.lineTo(530,122);c.lineTo(640,185);c.lineTo(640,250);c.lineTo(0,250);c.fill();
-   c.fillStyle='#263b32';c.beginPath();c.moveTo(0,204);c.quadraticCurveTo(190,175,330,226);c.quadraticCurveTo(490,180,640,213);c.lineTo(640,360);c.lineTo(0,360);c.fill();
-   px(c,0,263,w,97,'#514c46');px(c,0,279,w,7,'#76716b');px(c,0,255,w,8,'#262626');
-   // guardrail
-   px(c,345,230,260,8,'#9b9b95');for(let x=360;x<605;x+=52)px(c,x,235,6,58,'#686862');
-   // car
-   const x=48,y=228,col=state.car?.color||'#8e9696';px(c,x+18,y+34,262,46,col);c.fillStyle=col;c.beginPath();c.moveTo(x+65,y+34);c.lineTo(x+105,y+5);c.lineTo(x+204,y+5);c.lineTo(x+246,y+34);c.fill();px(c,x+112,y+10,39,21,'#253742');px(c,x+158,y+10,41,21,'#253742');for(const wx of [x+70,x+237]){c.fillStyle='#090909';c.beginPath();c.arc(wx,y+79,23,0,Math.PI*2);c.fill();c.fillStyle='#8b8b87';c.beginPath();c.arc(wx,y+79,12,0,Math.PI*2);c.fill()}
-   // traveler
-   px(c,500,214,15,17,'#be8968');px(c,494,231,26,48,'#30343b');px(c,496,277,8,34,'#334d67');px(c,510,277,8,34,'#334d67');
-   // city/lake lights
-   for(let x=355;x<560;x+=15)px(c,x,202+((x*7)%23),3,3,'#ffd576');
- } else {
-   // breakdown shoulder
-   px(c,0,0,w,185,'#3b3f61');px(c,0,125,w,60,'#d97855');
-   c.fillStyle='#2c3855';c.beginPath();c.moveTo(0,200);c.lineTo(120,92);c.lineTo(230,193);c.lineTo(355,104);c.lineTo(470,198);c.lineTo(570,117);c.lineTo(640,183);c.lineTo(640,245);c.lineTo(0,245);c.fill();
-   px(c,0,205,w,155,'#3a3938');px(c,0,235,w,8,'#d8d3c3');px(c,30,260,610,6,'#555');
-   const x=62,y=220,col=state.car?.color||'#aaa';px(c,x+12,y+35,300,48,col);c.fillStyle=col;c.beginPath();c.moveTo(x+62,y+35);c.lineTo(x+106,y+8);c.lineTo(x+215,y+8);c.lineTo(x+260,y+35);c.fill();for(const wx of [x+75,x+260]){c.fillStyle='#080808';c.beginPath();c.arc(wx,y+82,25,0,Math.PI*2);c.fill()}
-   // open hood
-   c.fillStyle='#252525';c.beginPath();c.moveTo(x+245,y+35);c.lineTo(x+305,y-18);c.lineTo(x+314,y+34);c.fill();
-   // flame/smoke
-   for(let i=0;i<7;i++){px(c,x+242+i*11,y+6-(i%3)*8,14,32,['#f38b26','#ffd05b','#e14d22'][i%3])}
-   for(let i=0;i<7;i++){c.fillStyle=['#3a3538','#50474a','#62575a'][i%3];c.beginPath();c.arc(x+260+(i%3)*20,y-38-i*18,26+i*3,0,Math.PI*2);c.fill()}
-   // seated traveler
-   px(c,500,233,16,18,'#bf8967');px(c,488,251,36,35,'#252930');px(c,478,280,18,45,'#334b64');px(c,514,280,18,45,'#334b64');
-   // toolbox + coolant
-   px(c,390,300,65,34,'#1a1a1a');px(c,401,293,42,8,'#222');px(c,333,318,36,11,'#67a85f');
- }
-}
-function startAnimation(){if(raf)return;lastFrame=performance.now();const loop=t=>{if(currentScreen!=='roadScreen'){raf=0;return}roadPhase=(roadPhase+Math.min(6,(t-lastFrame)/16))%60;lastFrame=t;drawRoad();raf=requestAnimationFrame(loop)};raf=requestAnimationFrame(loop)}function stopAnimation(){if(raf)cancelAnimationFrame(raf);raf=0}
-
-function escapeHtml(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
-function resume(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));if(!s)return;state=s;ensureTripStats();if(state.ended){show('titleScreen');return}if(state.car&&state.distance>0){renderRoadHud();show('roadScreen')}else if(state.car){renderSupplies();show('supplyScreen')}else if(state.career&&state.reason){renderPrep();show('prepScreen')}else{renderSetupCards();show('setupScreen')}}catch(e){startNewLife()}}
-
-/* bindings */
-$('ageRange').oninput=e=>{$('ageOut').textContent=e.target.value;state.age=Number(e.target.value)};
-$('newGameBtn').onclick=()=>{startNewLife();try{ensureAudio();startMusic('title')}catch(e){}};$('resumeBtn').onclick=()=>{resume();try{ensureAudio();startMusic('title')}catch(e){}};$('soundBtn').onclick=toggleSound;$('lifetimeBtn').onclick=()=>openTripLog('lifetime','titleScreen');$('tripLogRoadBtn').onclick=()=>openTripLog('current','roadScreen');$('endTripReportBtn').onclick=()=>openTripLog('current','endingScreen');$('tripBackBtn').onclick=closeTripLog;$('currentTripTab').onclick=()=>{tripView='current';renderTripLog()};$('lifetimeTab').onclick=()=>{tripView='lifetime';renderTripLog()};$('rotateTitleBtn').onclick=rotateAppView;$('rotateRoadBtn').onclick=rotateAppView;
-$('randomRouteBtn').onclick=()=>{let a=rnd(0,cities.length-1),b=rnd(0,cities.length-1);while(b===a)b=rnd(0,cities.length-1);$('originSelect').value=a;$('destSelect').value=b};$('beginLifeBtn').onclick=beginLife;
-$('openMarketBtn').onclick=openCarMarket;$('prevCarBtn').onclick=()=>{state.carIndex=(state.carIndex+state.listings.length-1)%state.listings.length;renderCarAd()};$('nextCarBtn').onclick=()=>{state.carIndex=(state.carIndex+1)%state.listings.length;renderCarAd()};$('visitSellerBtn').onclick=visitSeller;$('backPrepBtn').onclick=()=>{renderPrep();show('prepScreen')};
-$('inspectBtn').onclick=inspectCar;$('testDriveBtn').onclick=testCar;$('mechanicCheckBtn').onclick=mechanicCheck;$('negotiateBtn').onclick=showOffers;$('buyCarBtn').onclick=buyCar;$('walkAwayBtn').onclick=()=>{renderCarAd();show('carMarketScreen')};
-$('departBtn').onclick=depart;$('prepAgainBtn').onclick=()=>{renderPrep();show('prepScreen')};$('driveLegBtn').onclick=driveLeg;$('marketStopBtn').onclick=()=>{ensureTripStats();state.stats.stops++;renderTrade();show('tradeScreen')};$('leaveMarketBtn').onclick=()=>{renderRoadHud();show('roadScreen')};$('againBtn').onclick=startNewLife;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!installPrompt)return;installPrompt.prompt();try{await installPrompt.userChoice}catch(e){}installPrompt=null;$('installBtn').hidden=true};
-document.addEventListener('pointerdown',()=>{if(soundOn)ensureAudio()},{once:true});
-
-function boot(){initSelects();renderSetupCards();drawTitle();try{if(localStorage.getItem(SAVE_KEY))$('resumeBtn').hidden=false}catch(e){}}
-boot();
-})();
-
-</script>
+<script src="game.js"></script>
 </body>
 </html>

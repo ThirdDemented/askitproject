@@ -1,0 +1,7 @@
+{
+  "version": null,
+  "reviewed_source_digest": null,
+  "gates": {},
+  "status": "in_progress",
+  "rule": "No publishing or version bump until every required gate has passed with reviewed evidence."
+}

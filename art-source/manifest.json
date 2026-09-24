@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "assets": [
+    {
+      "id": "title",
+      "source": "title.png",
+      "sha256": "c86c35468bbd031c5c21f956698a839649da5d19fef451195eaa40dc1d98286b",
+      "prompt": "Use case: stylized-concept. Production background asset for THE LONG WAY HOME, a commercial 16/32-bit automotive pixel-art game. Create one wide 1536x1024 richly illustrated cinematic pixel-art scene: a weathered silver 2005 full-size American luxury sedan (Town Car proportions, accurate chrome vertical grille, rectangular headlights, spoke wheels) parked on a highway overlook at dusk, distant pine forest and layered mountains, orange horizon, navy sky, road curving away, roadside wildflowers, telephone poles, reflective chrome, detailed asphalt. Car is centered within middle 60% so portrait crops retain the subject. Camera low three-quarter front view, car entirely in frame. Hand-placed square pixel clusters, deliberate stepped edges, controlled dithering, rich 32-bit adventure-game detail, realistic automotive proportions. Warm amber highlights, deep ink/navy shadows, sage-green landscape, cream chrome reflections. NO text, lettering, logos, UI, watermark, borders, gradients pretending to be pixel art, cartoon blobs, vector shapes, photorealism, blur. This is final game artwork, not a mockup. Leave upper left sky relatively quiet for a separate HTML title.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "setup",
+      "source": "setup.png",
+      "sha256": "287dc09d65e886bbcf49ff07a6e84aa802cba5e458a77c9db6fdbcb258ee2032",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. A modest apartment dining table at dusk, a road atlas folded open, house keys, employment envelope without readable writing, coffee cup, moving boxes, desk lamp and the window overlooking a quiet American street. Wide room composition with tangible details, contemplative beginning of a new life.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "prep",
+      "source": "prep.png",
+      "sha256": "1c3aa03435573530dea60306502e78967fc6060048dcc065549c05df63cc8f56",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. A half-packed American garage in warm late afternoon: cardboard moving boxes, used guitar, bicycle, game console, toolbox and folded blankets carefully staged as possessions ready to sell. Roller door open toward suburban driveway, warm dust-lit atmosphere. No car or people.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "supplies",
+      "source": "supplies.png",
+      "sha256": "4719931d5ee05757ab8584a3c89c062afe9ba03f0fc7c2d42a8a82920c94d433",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Interior of a small roadside auto-parts and general store at golden hour, detailed shelves of oil jugs, coolant bottles, a portable toolkit, road atlas, food packets, tire repair can, phone cables, blanket. No product lettering. Warm counter lamp, receipts, stocked shelves, rich tactile pixels.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "gas",
+      "source": "gas.png",
+      "sha256": "e236e237d21202b18f1e81e2fb6c06250008809e02f522562c405f8f423f656d",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. A richly detailed rural American gasoline station after rain at blue hour, two old fuel pumps under a cream and amber canopy, small shop window glowing warmly, wet asphalt reflections, air hose, tire rack, pines and mountains beyond. No cars in foreground, no people, all signage blank. Central open pump bay.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "motel",
+      "source": "motel.png",
+      "sha256": "443f6d5e298e017a49427981a4e56a5b04c57adf38be39c04ea0590141b03a18",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. A cinematic roadside American motor court at night: one-story rooms, amber windows, crimson and cyan neon vacancy sign with NO lettering, wet parking lot, vending machine, plastic chairs, distant dark pines, buzzing porch lamps. No visible cars; central open parking space. Rich intimate 32-bit pixel-art mood.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "mechanic",
+      "source": "mechanic.png",
+      "sha256": "d7b201c2e312ddbe43e83eb0fb279915cdf71cb310ac030f184848ede1ac9363",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. A small independent mechanic's workshop in late afternoon, lift bay empty, detailed tool chest, engine hoist, hanging work lights, oil stained concrete, fan, tires, pegboard tools, sunlight through half-open rolling door. Empty central service bay, no vehicle or people. Warm amber and cool teal.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "diner",
+      "source": "diner.png",
+      "sha256": "90929798134ca551c36473a9f6fc3b3bb7732bf1e3e05a380107e7455de11ac3",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. Interior of a cozy 24-hour American highway diner, close view of an empty red vinyl booth, steaming coffee, simple hot meal on a cream plate, chrome counter, napkin holder, amber pendant lamps, rainy window with cyan reflections. Night, no mountains, no car, no lettering.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "rest",
+      "source": "rest.png",
+      "sha256": "dae01269fa1e470aa0b9a9c57fe0db7f4a6df2ee11c75624c723baf7c0eaf644",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. American interstate rest area on the Great Plains, central picnic shelter, detailed wooden tables, vending-machine building on right, blue sky and drifting clouds, cottonwood trees, windswept tall grass, empty parking spaces, soft late afternoon light. No mountain scenery, no cars, no text.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "trade",
+      "source": "trade.png",
+      "sha256": "27aeffecb0f346ffde6a67c11733656c25e2b4cffb129d169492ae2589e8c22d",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. Small-town American flea market in a parking lot at dusk, several stalls with detailed secondhand radios, vinyl records, tools, car parts and boxes, string lights, two adult vendors in jackets in background, damp pavement, muted brick buildings. Foreground table with goods. No mountain scenery, no cars, no text.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "underground",
+      "source": "underground.png",
+      "sha256": "9baeaaa19275ecaf5247487cee07c606ad036107c1f4d5aa3144b76c47678ea9",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. Fictional noir barter scene behind an American roadside pawn shop at night: a closed anonymous hard case and a few sealed nondescript packages on a crate, shadowed adult in denim leaning by doorway, orange utility light, teal spill from store, rain puddles, brick wall and bins. No weapons, drugs or instructions, no readable lettering, no car.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "records",
+      "source": "records.png",
+      "sha256": "842066d3220199f5cb971b6e60987fe66833c36d72d41125a3086f70ec8b4931",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. Close cinematic view of an old car glove compartment opened over passenger seat: neatly folded road atlas, receipts with tiny illegible ink marks, brass car keys, worn travel journal, coffee cup, amber dashboard illumination, cool blue light through rain on passenger window. Rich textured leather and paper, no readable words or numbers.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "arrival",
+      "source": "arrival.png",
+      "sha256": "475efa28b2b238f82fb1217f40e2973f7e9c536d816cc4fc99fff8ca747e409a",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. View from a front porch toward a welcoming small American home at dawn: open doorway glowing warmly, several taped moving boxes and a suitcase at the entrance, sunrise over leafy neighborhood with bungalow houses and sidewalk, optimistic atmosphere. No vehicle or people, no mountains, no text.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "failure",
+      "source": "failure.png",
+      "sha256": "63ff876c20af695d1c116b7870e2e2b933b379434e3914e3432df2de8b3193dd",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. An empty stretch of American interstate at night seen from the roadside shoulder, reflective warning triangle in foreground, an abandoned suitcase and road atlas, distant tow-truck amber beacons fading into mist, dark pines and wet pavement. Poignant and non-graphic, no visible car model, no text.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "breakdown",
+      "source": "breakdown.png",
+      "sha256": "f0ba8c3f04475e1368f99f9e3d187579842117946ac6f1726808da4f9edc21db",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. Close first-person perspective looking down into an older sedan's engine bay with hood raised, detailed hoses and engine components, a thin plume of steam rising near radiator, roadside gravel, pine-lined highway behind at dusk, warm hazard light reflections. No car body or identifiable model, no person, no lettering.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "drive",
+      "source": "drive.png",
+      "sha256": "51e25cd7a441aae44de1f28ffd07ee310a99c9194f344541f678702901a58be2",
+      "prompt": "Use case: stylized-concept. Create ONE production illustration for the game The Long Way Home, 1536x1024 landscape. Match the attached reference's high-detail 16/32-bit pixel-art craft: crisp stepped pixel clusters, richly textured surfaces, accurate object proportions, cinematic amber illumination against ink/navy shadows and sage greens. This is a final scene background, not UI. No text, lettering, logo, watermark, borders, panels, buttons, blur, vector primitives or cartoon shapes. Keep essential subjects in the central 65%, entire scene coherent when scaled. Reference is for palette and pixel craftsmanship ONLY; create a completely new composition and location, do not copy reference geography or car. First-person driver's-eye view inside a beautifully detailed worn 1990s American sedan cockpit driving on a straight two-lane highway through flat American plains, horizon centered at 42% image height, windshield covering upper 65%, worn black steering wheel left below, analog gauges and radio lower 35%, right seat edge and paper map. Daylight, amber sun low ahead, accurate dashboard perspective. Empty highway road centered, white road edges and broken yellow center stripes recede to vanishing point. No mountains. No letters or numbers on gauges; overlays will be added by code.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-buick",
+      "source": "car-buick.png",
+      "sha256": "1a0e27fa8dacab0faa9a39bb57e25a1a88073690fd72726005f342088895558c",
+      "prompt": "ONE finished 1536x1024 32-bit hand-pixelled scene illustration for a retro automotive game, rich crisp 2px pixel clusters and selective dithering, no photorealism or blur. A correct 1998 BUICK LESABRE CUSTOM (1992-1999 H-body generation) in pale sage silver. This is a broad low ROUND sedan with a very low slender central horizontal oval Buick grille, sweeping hood, long wraparound narrow headlights with amber outer corners, gently curved side windows and near-horizontal beltline, rounded wheel arches and simple hubcaps. It is NOT a Lincoln: no tall upright vertical grille, no boxy hood, no Town Car front end. Low front three-quarter view, whole car fills central 65% width. A middle-aged man in plaid stands behind it in suburban driveway next to open garage, warm sunset light, cool navy shadows, worn concrete and foliage. No text, logos, badges, words, UI or watermark.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-lincoln",
+      "source": "car-lincoln.png",
+      "sha256": "d016ffc96df35b88fb07a96e25dfacd7368460179676caec034110705ddbc33b",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 2005 Lincoln Town Car Signature, silver paint, long luxury sedan with tall chrome vertical grille, rectangular paired headlamps and spoke wheels. Seller: older man in navy cardigan.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-altima",
+      "source": "car-altima.png",
+      "sha256": "38ba91bbd8072d58b2aa5258aeae2bb8e37127c7146a70f6945bb8a58ea408d0",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 2007 Nissan Altima 2.5 S, silver blue-gray paint, rounded sporty four-door sedan, elongated swept-back triangular headlamps, low trapezoid grille, factory alloy wheels. Seller: young adult man in dark hoodie.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-camry",
+      "source": "car-camry.png",
+      "sha256": "e5bc403e9998881de54515021e7d4bf12347d80bcd2c09c01eb9d9375b146d8e",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 1999 Toyota Camry LE, beige gold paint, conservative compact midsize four-door sedan, slim rectangular headlamps, small central grille, steel wheels with simple hubcaps, small door dent. Seller: middle-aged woman in burgundy sweater.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-bmw",
+      "source": "car-bmw.png",
+      "sha256": "2ebcbce23070f9dcd703b52c63aec58320b5f8b90ba1b1a87a37ec3fa0761f18",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 2008 BMW 328i E90, dark slate blue paint, recognizable E90 sedan with twin kidney-shaped grille, paired round lamps behind angular housings, short rear deck and five-spoke wheels. No badges. Seller: young adult man in work jacket.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-crownvic",
+      "source": "car-crownvic.png",
+      "sha256": "7c3a96d02ee2fab631d1f731781faed53acfa80f293dc4ffc9a2097eb3e5a586",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 2004 Ford Crown Victoria LX, cream beige paint, long broad full-size sedan, rounded rectangular headlights, large horizontal chrome grille, chunky chrome hubcaps. Seller: middle-aged man in gray work shirt.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-focus",
+      "source": "car-focus.png",
+      "sha256": "827f4e6532af72089490a1152e0d7abf9aadf16ca774a08fbe14b7f8967ffd5a",
+      "prompt": "ONE finished 1536x1024 32-bit hand-pixelled scene illustration for a retro automotive game, rich crisp 2px pixel clusters and selective dithering, no photorealism or blur. A correct NORTH AMERICAN 2011 FORD FOCUS SE FOUR-DOOR SEDAN (2008-2011 square compact C170 facelift, NOT Focus hatchback or Ford Fusion). Muted blue paint, tall upright compact short body, short trunk, high roofline, flat hood, large sharply angular rectangular headlights with upper edge nearly straight, a SMALL chrome two-bar grille between them, upright front bumper with narrow lower slot, a chrome faux side vent just behind front wheel, and modest 8-spoke wheels. It is visibly a small compact sedan, not a broad midsize sedan. Low front three-quarter view, whole car fills central 65% width. Middle-aged woman in green jacket behind it in suburban driveway by open garage, sunset amber lighting and cool navy shadows. No text, badges, logos, UI or watermark.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-impala",
+      "source": "car-impala.png",
+      "sha256": "6846e6f67f4e1cceeef6a57a4274d216aae8ce06ed87455fd49db10fcc7dd388",
+      "prompt": "ONE finished 1536x1024 32-bit hand-pixelled scene illustration for a retro automotive game, rich crisp 2px pixel clusters and selective dithering, no photorealism or blur. A correct 2003 CHEVROLET IMPALA LS (2000-2005 W-body generation), taupe brown paint. Wide rounded body, unmistakable paired ROUND headlight reflectors inside rounded capsule housings, dark broad rounded rectangular grille between headlamps with a single horizontal black bar, curving hood, black side rubbing strip, FIVE-spoke alloy wheels and round fog lights. Not a Lincoln or Crown Victoria; no upright chrome grille. Low front three-quarter view, whole car fills central 65% width. Adult man in dark work shirt behind it, suburban driveway and garage, sunset amber light and deep blue shadows. No text, badges, logos, words, UI or watermark.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-accord",
+      "source": "car-accord.png",
+      "sha256": "c1f975abf4bfa32486716b6493e1daa50b71762aaaff944d33b98df37658e1d5",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 2006 Honda Accord LX, silver gray paint, midsize conservative four-door sedan with narrow angular headlights, trapezoid center grille, factory hubcaps. Seller: adult Black woman in denim jacket.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-pontiac",
+      "source": "car-pontiac.png",
+      "sha256": "7e947322dc1c7ff2942f426b12eb4731123a7101018a150ee60e9fc4bd074ace",
+      "prompt": "Use case: stylized-concept. One final car-selling illustration asset for a commercial 16/32-bit automotive pixel-art road game. 1536x1024 landscape. Camera low at front three-quarter angle, complete vehicle prominently centered at 65% frame width; all wheels/body visible, seller stands behind beside suburban home's open garage, used tools, flowerpots, driveway cracks, rich late afternoon amber illumination with cool navy shadows. Deliberate crisp square pixel clusters and dithering with realistic automotive proportions, rich surfaces and reflections. Use attached only as the art style/palette reference, not the car identity or scenery: render the EXACT different model specified. No mountains or lake. NO words, badges, readable plates, logos, watermark, UI, blur, cartoon car blobs, vector shapes. 2002 Pontiac Grand Prix GT, dark burgundy red paint, wide sporty sedan, recognizable twin split pointed grille, broad twin headlights and muscular rounded front bumper, five-spoke wheels. Seller: adult man in gray hoodie.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "icon",
+      "source": "icon.png",
+      "sha256": "00e6eea068d7127d1312ba5a968233264c5a3e72ef92a8c2bed8b5f40c4c4ba7",
+      "prompt": "A production square 1024x1024 app icon for THE LONG WAY HOME, richly detailed classic 16/32-bit automotive pixel art. A silver old American sedan in front three-quarter view dominates foreground, headlights catching warm amber light, winding highway disappearing through pine forest toward layered blue mountains and a copper sunset. Very strong clean silhouette readable at 48px, deliberate crisp stepped pixels, no soft gradients, no fake vector shapes, no text, lettering, logos, watermark or border. Full-bleed square composition, rich navy, amber, silver, sage green palette. Finely illustrated chrome grille and wheels. No UI mockup.",
+      "method": "Built-in image generation; original source retained"
+    }
+  ]
+}

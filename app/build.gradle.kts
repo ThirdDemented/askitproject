@@ -16,17 +16,18 @@ android {
 
     signingConfigs {
         create("upload") {
-            storeFile = rootProject.file("beta.keystore")
-            storePassword = "longwayhomebeta"
-            keyAlias = "beta"
-            keyPassword = "longwayhomebeta"
+            val signingPath = System.getenv("LWH_KEYSTORE")
+            if (signingPath != null) storeFile = file(signingPath)
+            storePassword = System.getenv("LWH_KEY_PASSWORD")
+            keyAlias = "upload"
+            keyPassword = System.getenv("LWH_KEY_PASSWORD")
+            storeType = "PKCS12"
         }
     }
 
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
-            signingConfig = signingConfigs.getByName("upload")
         }
         release {
             isMinifyEnabled = false
@@ -34,6 +35,8 @@ android {
             signingConfig = signingConfigs.getByName("upload")
         }
     }
+
+    buildFeatures { buildConfig = true }
 
     bundle {
         language {

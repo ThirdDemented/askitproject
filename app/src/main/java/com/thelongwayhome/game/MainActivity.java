@@ -51,10 +51,8 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.BLACK);
-        // Software compositing avoids blank/black WebView frames on some devices
-        // during rapid portrait/landscape changes while keeping this mostly-static
-        // pixel-art game smooth enough for play.
-        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        // Keep compositing accelerated for illustrated scenes and weather layers.
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -82,7 +80,7 @@ public class MainActivity extends Activity {
 
                     view.postDelayed(() -> view.evaluateJavascript(
                         "(()=>{const b=document.getElementById('newGameBtn');if(!b)return 'missing-button';b.click();" +
-                        "document.querySelector('#careerGrid button')?.click();" +
+                        "document.querySelector('#careerGrid button:nth-child(3)')?.click();" +
                         "document.querySelector('#reasonGrid button')?.click();" +
                         "const s=document.getElementById('setupScreen');return s&&s.classList.contains('active')?'true':'false';})()",
                         value -> Log.i("LWH_SMOKE", clean(value))
@@ -132,6 +130,26 @@ public class MainActivity extends Activity {
                         ), 5200);
                     }
                 }
+                if (getIntent().getBooleanExtra("resumeTest", false)) {
+                    view.postDelayed(() -> view.evaluateJavascript(
+                        "document.getElementById('resumeBtn').click();document.getElementById('roadScreen').classList.contains('active')",
+                        value -> Log.i("LWH_RESUME", clean(value))
+                    ), 1000);
+                }
+                if (getIntent().getBooleanExtra("rotationTest", false)) {
+                    view.postDelayed(() -> view.evaluateJavascript(
+                        "window.rotationSave=localStorage.getItem('lwh-rc1-save');AndroidOrientation.toggle();'rotating'", null
+                    ), 6500);
+                    view.postDelayed(() -> view.evaluateJavascript(
+                        "document.getElementById('roadScreen').classList.contains('active')&&window.rotationSave===localStorage.getItem('lwh-rc1-save')&&innerHeight>innerWidth",
+                        value -> Log.i("LWH_ROTATION_PORTRAIT", clean(value))
+                    ), 8500);
+                    view.postDelayed(() -> view.evaluateJavascript("AndroidOrientation.toggle()", null), 9500);
+                    view.postDelayed(() -> view.evaluateJavascript(
+                        "document.getElementById('roadScreen').classList.contains('active')&&window.rotationSave===localStorage.getItem('lwh-rc1-save')&&innerWidth>innerHeight",
+                        value -> Log.i("LWH_ROTATION_LANDSCAPE", clean(value))
+                    ), 11500);
+                }
             }
         });
 
@@ -150,6 +168,24 @@ public class MainActivity extends Activity {
 
     private String clean(String value) {
         return value == null ? "null" : value.replace("\"", "");
+    }
+
+    @Override
+    protected void onPause() {
+        if (webView != null) {
+            webView.evaluateJavascript("window.LWHLifecycle?.pause()", null);
+            webView.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (webView != null) {
+            webView.onResume();
+            webView.evaluateJavascript("window.LWHLifecycle?.resume()", null);
+        }
     }
 
     @Override

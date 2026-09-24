@@ -1,180 +1,135 @@
-name: Build The Long Way Home 1.0
+name: Validate, build and review The Long Way Home
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, codex/commercial-quality]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish only the version whose complete evidence gate has passed
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: long-way-home-production
+  group: long-way-home-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate embedded game JavaScript
-        shell: bash
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript and artwork manifest
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          html=Path("app/src/main/assets/www/index.html").read_text()
-          m=re.search(r"<script>([\s\S]*)</script>",html)
-          if not m: raise SystemExit("No game script found")
-          Path("/tmp/lwh-game.js").write_text(m.group(1))
-          PY
-          node --check /tmp/lwh-game.js
-
-      - name: Reconstruct high-detail cockpit artwork
-        shell: bash
-        run: bash scripts/rebuild_art.sh
-
-      - name: Set up Java 17
-        uses: actions/setup-java@v5
+          node --check app/src/main/assets/www/game.js
+          python scripts/check_release.py --source-only
+      - name: Reconstruct verified illustrated assets
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/rebuild_art.py
+          python scripts/launcher.py
+      - name: Install browser QA dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Full gameplay and screen regression
+        run: npm test
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-
-      - name: Install Android SDK packages
-        shell: bash
+      - name: Install API 36
         run: |
           SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/16.0/bin/sdkmanager"
-          fi
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
-
-      - name: Build signed release APK and AAB
-        run: gradle :app:assembleRelease :app:bundleRelease --stacktrace
-
-      - name: Verify signatures
-        shell: bash
+      - name: Restore private release signing key
+        env:
+          LWH_SIGNING_KEY: ${{ secrets.LWH_SIGNING_KEY }}
         run: |
-          "${ANDROID_HOME}/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/release/app-release.apk
+          test -n "$LWH_SIGNING_KEY"
+          umask 077
+          printf '%s' "$LWH_SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/lwh-release.p12"
+      - name: Build signed APK and App Bundle
+        env:
+          LWH_KEYSTORE: ${{ runner.temp }}/lwh-release.p12
+          LWH_KEY_PASSWORD: ${{ secrets.LWH_KEY_PASSWORD }}
+        run: gradle :app:assembleRelease :app:bundleRelease --stacktrace
+      - name: Verify signatures and permanent package ID
+        run: |
+          "${ANDROID_HOME}/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk | tee signing-verification.txt
+          EXPECTED="$(tr '[:upper:]' '[:lower:]' < signing-certificate.sha256 | tr -d '\r\n')"
+          grep -qi "$EXPECTED" signing-verification.txt
           jarsigner -verify app/build/outputs/bundle/release/app-release.aab
-
-      - name: Enable KVM
-        shell: bash
+          "${ANDROID_HOME}/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/release/app-release.apk | tee package-verification.txt
+          grep -q "com.thirdemented.longwayhome.release2026" package-verification.txt
+          grep -q "targetSdkVersion:'36'" package-verification.txt
+      - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-
-      - name: Install and capture production QA
+      - name: Signed release Android verification
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
-          target: default
+          api-level: 36
+          target: google_apis
           arch: x86_64
           profile: pixel_6
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
-          disable-animations: true
+          disable-animations: false
           script: bash qa/android_qa.sh
-
-      - name: Generate Play Store asset pack
-        shell: bash
-        run: |
-          python -m pip install --quiet pillow
-          python <<'PY'
-          from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageEnhance
-          from pathlib import Path
-          import shutil, zipfile
-
-          out=Path("store/generated")
-          out.mkdir(parents=True,exist_ok=True)
-
-          def fit(src,size):
-              return ImageOps.fit(Image.open(src).convert("RGB"),size,method=Image.Resampling.LANCZOS)
-
-          # Store screenshots: actual captured game UI
-          fit("road-landscape.png",(1920,1080)).save(out/"01-road-landscape.png")
-          fit("seller-landscape.png",(1920,1080)).save(out/"02-car-buying-landscape.png")
-          fit("road-portrait.png",(1080,1920)).save(out/"03-road-portrait.png")
-          fit("title-portrait.png",(1080,1920)).save(out/"04-title-portrait.png")
-
-          # Feature graphic built from actual in-game landscape capture.
-          fg=fit("road-landscape.png",(1024,500))
-          overlay=Image.new("RGBA",fg.size,(0,0,0,0))
-          od=ImageDraw.Draw(overlay)
-          od.rectangle((0,0,1024,500),fill=(0,0,0,45))
-          od.rectangle((0,330,1024,500),fill=(0,0,0,155))
-          fg=Image.alpha_composite(fg.convert("RGBA"),overlay)
-          d=ImageDraw.Draw(fg)
-          font_paths=["/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
-          font=ImageFont.truetype(next(p for p in font_paths if Path(p).exists()),64)
-          small=ImageFont.truetype(next(p for p in font_paths if Path(p).exists()),22)
-          d.text((38,350),"THE LONG WAY HOME",font=font,fill=(248,244,226,255),stroke_width=2,stroke_fill=(0,0,0,255))
-          d.text((42,430),"SAME ROADS. DIFFERENT YOU.",font=small,fill=(241,181,76,255))
-          fg.convert("RGB").save(out/"feature-graphic-1024x500.png")
-
-          # 512x512 store icon, clean and readable at small size.
-          icon=Image.new("RGBA",(512,512),(4,5,6,255))
-          d=ImageDraw.Draw(icon)
-          # sunset
-          d.rectangle((0,0,512,250),fill=(32,45,73,255))
-          d.ellipse((344,54,434,144),fill=(241,181,76,255))
-          # mountains
-          d.polygon([(0,260),(100,112),(195,260)],fill=(61,70,126,255))
-          d.polygon([(112,260),(257,78),(402,260)],fill=(80,91,157,255))
-          d.polygon([(310,260),(420,145),(512,260)],fill=(50,60,112,255))
-          # forest
-          d.rectangle((0,245,512,300),fill=(17,45,25,255))
-          # road
-          d.polygon([(196,270),(316,270),(480,512),(32,512)],fill=(48,48,50,255))
-          d.polygon([(250,290),(262,290),(286,390),(226,390)],fill=(238,222,168,255))
-          # car silhouette
-          d.rounded_rectangle((100,322,402,414),radius=18,fill=(195,198,198,255),outline=(5,5,5,255),width=10)
-          d.polygon([(155,322),(205,274),(322,274),(372,322)],fill=(195,198,198,255))
-          d.polygon([(184,314),(218,286),(255,286),(255,314)],fill=(53,72,82,255))
-          d.polygon([(264,286),(316,286),(345,314),(264,314)],fill=(53,72,82,255))
-          for x in (160,340):
-              d.ellipse((x-35,388,x+35,458),fill=(5,5,5,255))
-              d.ellipse((x-18,405,x+18,441),fill=(110,110,110,255))
-          icon.save(out/"icon-512.png")
-
-          # Package store kit.
-          kit=Path("The-Long-Way-Home-Play-Store-Kit")
-          if kit.exists(): shutil.rmtree(kit)
-          kit.mkdir()
-          for p in out.iterdir(): shutil.copy2(p,kit/p.name)
-          for name in ["STORE_LISTING.md","DATA_SAFETY.md","CONTENT_RATING.md","APP_ACCESS.md","RELEASE_NOTES_1.0.md","PLAY_CONSOLE_CHECKLIST.md"]:
-              shutil.copy2(Path("store")/name,kit/name)
-          shutil.copy2("PRIVACY.md",kit/"PRIVACY.md")
-          with zipfile.ZipFile("The-Long-Way-Home-Play-Store-Kit.zip","w",zipfile.ZIP_DEFLATED) as z:
-              for p in kit.rglob("*"):
-                  if p.is_file(): z.write(p,p.relative_to(kit.parent))
-          PY
-
-      - name: Upload production artifacts
+      - name: Generate store package from reviewed game assets
+        run: python scripts/store_assets.py
+      - name: Collect review evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: The-Long-Way-Home-1.0-production
+          name: long-way-home-review-${{ github.sha }}
           path: |
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/bundle/release/app-release.aab
+            qa/captures/
+            qa/results/
+            *-portrait.png
+            *-landscape.png
+            *-smoke.log
+            *-verification.txt
+            store/generated/
             The-Long-Way-Home-Play-Store-Kit.zip
-            store/generated/*.png
           if-no-files-found: error
+      - name: Remove temporary signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/lwh-release.p12"
 
-      - name: Publish v1.0.5 release
+  publish:
+    needs: quality
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce every reviewed release gate
+        run: python scripts/check_release.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: long-way-home-review-${{ github.sha }}
+          path: release-files
+      - name: Publish immutable release
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: bash
         run: |
-          cp app/build/outputs/apk/release/app-release.apk The-Long-Way-Home-1.0.5.apk
-          cp app/build/outputs/bundle/release/app-release.aab The-Long-Way-Home-1.0.5.aab
-          gh release view v1.0.5 >/dev/null 2>&1 ||             gh release create v1.0.5               --title "The Long Way Home — 1.0.5"               --notes-file store/RELEASE_NOTES_1.0.md
-          gh release upload v1.0.5             The-Long-Way-Home-1.0.5.apk             The-Long-Way-Home-1.0.5.aab             The-Long-Way-Home-Play-Store-Kit.zip             --clobber
+          VERSION="$(python -c "import json;print(json.load(open('qa/release-gates.json'))['version'])")"
+          cp release-files/app/build/outputs/apk/release/app-release.apk "The-Long-Way-Home-${VERSION}.apk"
+          cp release-files/app/build/outputs/bundle/release/app-release.aab "The-Long-Way-Home-${VERSION}.aab"
+          gh release create "v${VERSION}" "The-Long-Way-Home-${VERSION}.apk" "The-Long-Way-Home-${VERSION}.aab" release-files/The-Long-Way-Home-Play-Store-Kit.zip --title "The Long Way Home ${VERSION}" --notes-file store/RELEASE_NOTES.md

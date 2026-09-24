@@ -1,0 +1,15 @@
+.gradle/
+**/build/
+node_modules/
+local.properties
+qa/captures/
+qa/results/
+store/generated/
+*.jks
+*.p12
+*.keystore
+*.apk
+*.aab
+signing/
+secrets/
+*.local.json

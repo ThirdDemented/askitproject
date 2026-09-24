@@ -64,3 +64,23 @@ adb shell am force-stop com.thirdemented.longwayhome.release2026
 adb shell am start -W -n com.thirdemented.longwayhome.release2026/com.thelongwayhome.game.MainActivity --ez forcePortrait true
 sleep 5
 capture title-portrait.png
+
+# The actual release APK survives a process stop and resumes its saved road run.
+adb shell am force-stop com.thirdemented.longwayhome.release2026
+adb logcat -c
+adb shell am start -W -n com.thirdemented.longwayhome.release2026/com.thelongwayhome.game.MainActivity --ez resumeTest true --ez forcePortrait true
+sleep 4
+adb logcat -d -s LWH_RESUME:I '*:S' | tee resume-smoke.log
+grep -q 'LWH_RESUME: true' resume-smoke.log
+capture resume-portrait.png
+
+# Exercise the real native rotation bridge in both directions.
+adb shell am force-stop com.thirdemented.longwayhome.release2026
+adb logcat -c
+adb shell am start -W -n com.thirdemented.longwayhome.release2026/com.thelongwayhome.game.MainActivity --ez smokeTest true --ez rotationTest true --ez forceLandscape true || \
+  adb shell am start -W -n com.thirdemented.longwayhome.release2026/com.thelongwayhome.game.MainActivity --ez smokeTest true --ez rotationTest true --ez forceLandscape true
+sleep 14
+adb logcat -d -s LWH_ROTATION_PORTRAIT:I LWH_ROTATION_LANDSCAPE:I '*:S' | tee rotation-smoke.log
+grep -q 'LWH_ROTATION_PORTRAIT: true' rotation-smoke.log
+grep -q 'LWH_ROTATION_LANDSCAPE: true' rotation-smoke.log
+capture rotation-landscape.png
