@@ -9,7 +9,7 @@ The permanent application ID is `com.thirdemented.longwayhome.release2026`. Mini
 1. Install Python dependencies with `python -m pip install -r requirements-art.txt`.
 2. Run `python scripts/rebuild_art.py` and `python scripts/launcher.py` to reconstruct artwork from retained, hashed originals.
 3. Run `npm ci`, `npx playwright install chromium`, `npm run validate`, and `npm test`.
-4. For a signed release, provide `LWH_KEYSTORE` (absolute path to the private PKCS12 file) and `LWH_KEY_PASSWORD` through the environment. The alias is `upload`. Run `gradle :app:assembleRelease :app:bundleRelease`. Never place credentials in source or command arguments.
+4. For a signed release, provide `LWH_KEYSTORE` (absolute path to the private PKCS12 file) and `LWH_KEY_PASSWORD` through the environment. The alias is `upload`. Run `gradle :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest`. Never place credentials in source or command arguments.
 5. On an API 36 emulator, run `bash qa/android_qa.sh`. Inspect all portrait and landscape captures, then complete the evidence in `qa/release-gates.json`.
 
 The workflow produces review artifacts on branch pushes. Publishing requires a manual dispatch with `publish=true`, a successful build, and every recorded release gate matching the reviewed source. An ordinary push cannot publish a release. APK and AAB signatures are verified against `signing-certificate.sha256`.

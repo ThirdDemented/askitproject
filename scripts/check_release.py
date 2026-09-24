@@ -2,7 +2,7 @@
 from pathlib import Path
 import json,hashlib,sys,re
 root=Path(__file__).resolve().parents[1]
-required=['title','setup','prep','supplies','drive','gas','diner','rest','motel','mechanic','trade','underground','breakdown','failure','arrival','records','icon']+['car-'+x for x in ['buick','lincoln','altima','camry','bmw','crownvic','focus','impala','accord','pontiac']]
+required=['title','setup','prep','supplies','drive','gas','diner','rest','motel','mechanic','trade','underground','breakdown','failure','arrival','records','icon']+['car-'+x for x in ['comfort','executive','sport25','family','touring','fleet','compact','highway','commuter','sportgt']]
 manifest=json.loads((root/'art-source/manifest.json').read_text(encoding='utf-8'))
 assert set(required)<={x['id'] for x in manifest['assets']},'Missing scene or vehicle art'
 for item in manifest['assets']:
@@ -10,6 +10,8 @@ for item in manifest['assets']:
 html=(root/'app/src/main/assets/www/index.html').read_text(encoding='utf-8')
 js=(root/'app/src/main/assets/www/game.js').read_text(encoding='utf-8')
 assert '<canvas' not in html and 'drawCar(' not in js and 'car-sil' not in js,'Placeholder art remains'
+visible_source=html+'\n'+re.sub(r'const legacyCars=\[.*?\];','',js)
+assert not re.search(r'\b(Buick|Lincoln|Nissan|Toyota|BMW|Chevrolet|Honda|Pontiac|Autotrader)\b|Auto Trader',visible_source,re.I),'Branded vehicle or classifieds text remains outside save migration'
 config=(root/'app/build.gradle.kts').read_text(encoding='utf-8')
 assert 'targetSdk = 36' in config and 'com.thirdemented.longwayhome.release2026' in config
 assert 'beta.keystore' not in config,'Public test key must never sign a commercial release'

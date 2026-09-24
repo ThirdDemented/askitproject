@@ -13,3 +13,5 @@ store/generated/
 signing/
 secrets/
 *.local.json
+
+/The-Long-Way-Home-*.zip

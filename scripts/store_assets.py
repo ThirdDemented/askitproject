@@ -14,8 +14,10 @@ for name in ['road-landscape','seller-landscape','road-portrait','title-portrait
     source=root/(name+'.png')
     if source.exists():shutil.copy2(source,out/('android-'+name+'.png'))
 for p in (root/'qa/captures').glob('store-*.png'):shutil.copy2(p,out/p.name)
-for p in (root/'store').glob('*.md'):shutil.copy2(p,out/p.name)
+for p in (root/'store').glob('*.md'):
+    if p.name!='RELEASE_NOTES_1.0.md':shutil.copy2(p,out/p.name)
 shutil.copy2(root/'PRIVACY.md',out/'PRIVACY.md')
 with zipfile.ZipFile(root/'The-Long-Way-Home-Play-Store-Kit.zip','w',zipfile.ZIP_DEFLATED) as z:
-    for p in out.iterdir():z.write(p,p.name)
+    for p in out.iterdir():
+        if p.name!='RELEASE_NOTES_1.0.md':z.write(p,p.name)
 print('Store package assembled from original illustration sources and actual screenshots')
