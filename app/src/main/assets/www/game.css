@@ -18,3 +18,10 @@
 .scene[data-scene="diner"] .scene-fx i{left:27.5%;top:60%}
 .scene[data-scene="breakdown"] .scene-fx i{left:66.5%;top:59.5%}
 .scene[data-scene^="car-"]>img{object-fit:contain}
+
+/* Persistent journey overview stays outside the scrolling event panel. */
+.trip-timeline{flex:none;border:1px solid var(--line);background:#111e26;padding:7px 12px;margin:0 0 10px;min-width:0}
+.trip-endpoints,.trip-distances{display:flex;justify-content:space-between;gap:12px;font-size:10px;line-height:1.4}.trip-endpoints span{max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.trip-endpoints span:last-child{text-align:right}.trip-distances{color:var(--muted);font-size:10px}.trip-track{height:5px;position:relative;margin:8px 5px;background:#465456}.trip-track i{display:block;height:100%;width:0;background:var(--good);transition:width .6s}.trip-track b{position:absolute;left:0;top:50%;transform:translate(-50%,-50%);color:var(--amber);font-size:15px;line-height:1;transition:left .6s}
+.windshield-crack{position:absolute;left:var(--art-x,0px);top:var(--art-y,0px);width:var(--art-w,100%);height:var(--art-h,100%);pointer-events:none;filter:drop-shadow(1px 1px 0 #10212a);clip-path:polygon(5% 0,100% 0,100% 47.7%,89% 47%,60% 45%,34% 46%,11% 49%,7% 36%)}
+@media(max-height:480px) and (orientation:landscape){.trip-timeline{padding:4px 9px;margin-bottom:6px}.trip-track{margin:6px 5px}.trip-endpoints,.trip-distances{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.trip-track i,.trip-track b{transition:none}}

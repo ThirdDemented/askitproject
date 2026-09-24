@@ -70,10 +70,15 @@
 
 <section id="roadScreen" class="screen">
   <div class="topbar road-top"><b id="roadDay">DAY 1</b><span id="roadRoute"></span><div class="trip-actions"><button id="tripLogRoadBtn" class="trip-log-btn" type="button">▣ TRIP LOG</button><button id="rotateRoadBtn" class="orientation-btn orientation-icon" type="button" aria-label="Rotate screen">↻</button></div></div>
+  <section class="trip-timeline" aria-label="Journey overview">
+    <div class="trip-endpoints"><span id="tripStart"></span><span id="tripDestination"></span></div>
+    <div id="tripTrack" class="trip-track" role="progressbar" aria-label="Journey completed" aria-valuemin="0" aria-valuemax="100"><i id="tripProgress"></i><b id="tripMarker" aria-hidden="true">◆</b></div>
+    <div class="trip-distances"><span id="tripCovered"></span><span id="tripRemaining"></span></div>
+  </section>
   <div class="road-layout">
     <div class="road-visual-column">
       <div class="scene road-art-scene" data-scene="drive">
-        <img id="roadArt" src="art/drive.webp" alt="A detailed cockpit overlooking the American highway"><div class="road-motion" aria-hidden="true"><img src="art/drive.webp" alt=""><img src="art/drive.webp" alt=""></div><div class="weather-fx" aria-hidden="true"></div><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div>
+        <img id="roadArt" src="art/drive.webp" alt="A detailed cockpit overlooking the American highway"><div class="road-motion" aria-hidden="true"><img src="art/drive.webp" alt=""><img src="art/drive.webp" alt=""></div><div class="weather-fx" aria-hidden="true"></div><svg id="windshieldCrack" class="windshield-crack" viewBox="0 0 1536 1024" aria-hidden="true" hidden><g fill="none" stroke="#d9edeb" stroke-width="2" stroke-linejoin="miter"><path d="M1070 259l-15-8-7-19-9-6-4-27-15-18-6-35-18-17M1070 259l20-8 17 5 24-9 14 7 31-4 16 11 35-6 22 10M1070 259l-5 20 9 16-8 19 5 20-13 22 5 27-12 24 2 25M1070 259l-20 6-13-6-25 11-26-4-21 12-35-3-18 12M1070 259l10-18-2-13 18-20 4-28 19-15M1070 259l15 15 3 18 25 14 11 24 23 8 12 23M1037 259l-12-19-20-9M1107 256l5 18 21 11M1066 314l-17 5-9 21M1074 230l-18-5M1088 292l-16 7"/><path d="M1064 253l12-1 5 10-9 9-10-6z" stroke-width="3"/></g></svg><div class="scene-fx" aria-hidden="true"><i></i><i></i><i></i></div>
         
       </div>
       <div class="road-caption" id="sceneCaption">ON THE ROAD</div>
@@ -81,10 +86,11 @@
     <div class="road-control-column">
       <div id="routeInstruction" class="notice good">ROUTE: Continue toward destination.</div>
       <div class="drive-stats"><div class="fuel-gauge" aria-hidden="true"><i id="fuelNeedle"></i></div><div><span>FUEL</span><b id="fuelOut">100%</b></div><div><span>CONDITION</span><b id="conditionOut">100%</b></div><div><span>CASH</span><b id="cashOut">$0</b></div></div>
-      <div class="progress" aria-label="Journey progress"><i id="tripProgress"></i></div>
+
       <div class="panel compact-road-panel"><div class="meterrow"><span>FATIGUE</span><div class="meter"><i id="fatigueBar"></i></div><b id="fatigueOut"></b></div><div class="meterrow"><span>HUNGER</span><div class="meter"><i id="hungerBar"></i></div><b id="hungerOut"></b></div><div class="meterrow"><span>MORALE</span><div class="meter"><i id="moraleBar"></i></div><b id="moraleOut"></b></div><details><summary>SUPPLIES IN THE CAR</summary><div id="roadInventory" class="chips"></div></details></div>
       <div class="event road-event"><span id="eventTag" class="tag">ROAD</span><h2 id="eventTitle">YOU PULL ONTO THE HIGHWAY.</h2><p id="eventBody"></p></div>
       <div id="eventChoices" class="road-choice-stack"></div>
+      <button id="glassRepairBtn" class="btn2" type="button" hidden>STOP FOR GLASS REPAIR — $45</button>
       <div class="road-actions">
         <button id="driveLegBtn" class="btn primary" type="button">DRIVE NEXT LEG</button>
         <button id="marketStopBtn" class="btn" type="button">CHECK LOCAL MARKET</button>

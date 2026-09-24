@@ -54,6 +54,22 @@ async function doRun(page,fail=false){await startLife(page);await buyReliable(pa
  await page.evaluate(s=>{QA.fixture({...s,departed:true,ended:false,currentEvent:null,distance:0,totalMiles:1000,fuel:1,cash:0,pendingLegMiles:50,fuelStopDeclined:false,stats:QA.blankTripStats()});QA.showQuiet();QA.renderRoadHud();QA.show('roadScreen')},purchased);
  await page.click('#driveLegBtn');await page.locator('#eventChoices button').filter({hasText:'KEEP GOING'}).click();await page.click('#driveLegBtn');
  ok('running dry accounts for remaining gallons, distance and time',await page.evaluate(()=>{const s=QA.state();return s.ended&&s.fuel===0&&Math.abs(s.distance-s.car.tank*.01*s.car.mpg)<1e-8&&Math.abs(s.stats.gallonsUsed-s.car.tank*.01)<1e-8&&s.stats.driveHours>0}));
+ // Visible, persistent glass damage and an overview independent of event scrolling.
+ await page.evaluate(s=>{QA.fixture({...s,departed:true,ended:false,currentEvent:null,distance:250,totalMiles:1000,cash:100,windshieldDamaged:false,stats:QA.blankTripStats()});QA.show('roadScreen');QA.triggerEvent(QA.roadEvents.find(e=>e.id==='windshield'))},purchased);
+ ok('rock strike immediately displays windshield damage',await page.locator('#windshieldCrack').isVisible());
+ await page.locator('#eventChoices button').filter({hasText:'IGNORE IT'}).click();
+ await page.reload();await page.click('#resumeBtn');
+ ok('ignored crack persists through reopening',await page.evaluate(()=>QA.state().windshieldDamaged&&!document.getElementById('windshieldCrack').hasAttribute('hidden')));
+ for(const [orientation,size] of [['portrait',{width:390,height:844}],['landscape',{width:844,height:390}]]){
+  await page.setViewportSize(size);await capture(page,'windshield-'+orientation);
+  await page.locator('#glassRepairBtn').scrollIntoViewIfNeeded();
+  ok('trip timeline stays visible while choices scroll in '+orientation,await page.evaluate(()=>{const r=document.querySelector('.trip-timeline').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&document.getElementById('tripTrack').getAttribute('aria-valuenow')==='25'&&document.getElementById('tripRemaining').textContent==='750 MI TO GO'}));
+ }
+ await page.evaluate(()=>{QA.fixture({cash:44});QA.renderRoadHud()});ok('glass repair cannot spend unavailable money',await page.locator('#glassRepairBtn').isDisabled());
+ await page.evaluate(()=>{QA.fixture({cash:100});QA.renderRoadHud()});await page.click('#glassRepairBtn');
+ ok('glass repair clears damage and records cost',await page.evaluate(()=>!QA.state().windshieldDamaged&&QA.state().cash===55&&QA.state().stats.repairsSpent===45));
+ await page.reload();await page.click('#resumeBtn');await page.evaluate(()=>{QA.fixture({scene:'drive'});QA.renderRoadHud()});
+ ok('repaired glass stays clear after reopening',!await page.locator('#windshieldCrack').isVisible());
  // Three attempts are a hard cap even when a seller still has patience.
  await page.evaluate(s=>{QA.fixture({...s,car:{...QA.carPool.find(c=>c.id==='family')},carIndex:s.listings.findIndex(c=>c.id==='family'),cash:6000,ended:false,sellers:{}});QA.visitSeller();let seller=QA.sellerState(QA.state().car);seller.patience=4;window.savedRandom=Math.random;Math.random=()=>.999;},purchased);
  for(let n=0;n<3;n++){if(await page.locator('#negotiateBtn').isEnabled())await page.click('#negotiateBtn');await page.locator('#offerButtons button').nth(1).click();}
