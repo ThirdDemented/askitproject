@@ -78,7 +78,7 @@ async function doRun(page,fail=false){await startLife(page);await buyReliable(pa
  await page.setViewportSize({width:844,height:390});await page.evaluate(s=>{QA.fixture({...s,departed:true,ended:false,scene:'drive',weather:'CLEAR'});QA.showQuiet();QA.renderRoadHud();QA.show('roadScreen')},purchased);
  const movingFrames=[];for(let n=0;n<3;n++){await page.waitForTimeout(190);movingFrames.push(await page.locator('.road-art-scene').screenshot({path:path.join(out,`motion-drive-${n}.png`)}));}
  ok('rendered road motion changes between frames',!movingFrames[0].equals(movingFrames[1])&&!movingFrames[1].equals(movingFrames[2]));
- await page.evaluate(()=>{QA.fixture({weather:'HEAVY RAIN'});QA.renderRoadHud()});await capture(page,'rain-landscape');
+ await page.evaluate(()=>{QA.fixture({weather:'HEAVY RAIN'});QA.renderRoadHud()});await capture(page,'rain-landscape');ok('weather caption follows changing road weather',await page.locator('#sceneCaption').innerText()==='ON THE ROAD / HEAVY RAIN');
  await page.emulateMedia({reducedMotion:'reduce'});ok('reduced motion disables animated layers',await page.evaluate(()=>getComputedStyle(document.querySelector('.road-motion img')).animationName==='none'));await page.emulateMedia({reducedMotion:'no-preference'});
  await page.evaluate(()=>QA.show('titleScreen'));await page.click('#aboutBtn');ok('help and privacy dialog opens and closes',await page.locator('#aboutDialog').isVisible());await page.screenshot({path:path.join(out,'about-landscape.png')});await page.locator('#aboutDialog form button').click();
  // All screen families fit both compact phone orientations; inspect additional
