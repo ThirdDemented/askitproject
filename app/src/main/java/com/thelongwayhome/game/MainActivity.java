@@ -111,6 +111,27 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        // We retain the Activity and journey across rotation. Refresh the native
+        // surface as well as CSS layout so an old landscape tile cannot remain
+        // painted inside the newly portrait-sized WebView.
+        if (webView != null) {
+            webView.requestApplyInsets();
+            webView.requestLayout();
+            webView.postOnAnimation(() -> {
+                webView.invalidate();
+                webView.postVisualStateCallback(android.os.SystemClock.uptimeMillis(),
+                        new WebView.VisualStateCallback() {
+                            @Override public void onComplete(long requestId) {
+                                webView.postInvalidateOnAnimation();
+                            }
+                        });
+            });
+        }
+    }
+
+    @Override
     protected void onPause() {
         if (webView != null) {
             webView.evaluateJavascript("window.LWHLifecycle?.pause()", null);

@@ -65,10 +65,11 @@ public class GameReleaseTest {
         }));
         assertTrue("WebView frame presented",drawn.await(15,TimeUnit.SECONDS));
         instrumentation.waitForIdleSync();
+        assertEquals(name+" has no horizontal overflow","true",js("document.documentElement.scrollWidth<=innerWidth+1"));
         Bitmap bitmap=instrumentation.getUiAutomation().takeScreenshot();assertNotNull(bitmap);
         File directory=new File(instrumentation.getTargetContext().getExternalFilesDir(null),"qa");directory.mkdirs();
         try(FileOutputStream stream=new FileOutputStream(new File(directory,name+".png"))){assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,stream));}
-        try(FileOutputStream stream=new FileOutputStream(new File(directory,name+".json"))){stream.write(js("({screen:document.querySelector('.screen.active').id,width:innerWidth,height:innerHeight,images:[...document.querySelectorAll('.screen.active img')].map(i=>i.getAttribute('src'))})").getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+        try(FileOutputStream stream=new FileOutputStream(new File(directory,name+".json"))){stream.write(js("({screen:document.querySelector('.screen.active').id,width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,screenBounds:document.querySelector('.screen.active').getBoundingClientRect().toJSON(),images:[...document.querySelectorAll('.screen.active img')].map(i=>i.getAttribute('src'))})").getBytes(java.nio.charset.StandardCharsets.UTF_8));}
         bitmap.recycle();
     }
     @Test public void screensAndRotation() throws Exception {
