@@ -1,25 +1,16 @@
-# Google Play Data Safety Draft — Version 1.0
+# Google Play Data Safety preparation
 
-This is a preparation sheet for the Play Console Data safety form.
+This sheet describes the current source. The owner must complete the Console form for the actual published app and review any provider or account changes before submission. Do not reuse the old blanket “no collection” answer: optional city/routing requests leave the device and providers log requests.
 
-## Collection / sharing
-- Data collected by the app: **No**
-- Data shared with third parties: **No personal/user data**
-- Account creation: **No**
-- Advertising ID: **No**
-- Analytics SDK: **No**
-- Crash-reporting SDK: **No**
-- Payment SDK / in-app purchases: **No**
+| Flow | Data and recipient | Purpose and control |
+| --- | --- | --- |
+| Local save | Progress, records and settings remain in WebView storage | Gameplay; clear app storage to erase |
+| Custom city search | Entered city search text, IP address, HTTP metadata → Photon/komoot | App functionality; optional online routes switch |
+| Road calculation | Selected cities' coordinates, IP address, HTTP metadata → public OSRM service | App functionality; optional online routes switch |
+| Support | Only information the user chooses to submit outside the game | The selected support service's own policy |
 
-## Local storage
-The game stores save progress and settings locally on the device. Local-only app data is not transmitted to the developer.
+Data collection: **Yes, through optional online functionality.** Disclose the search terms as in-app search history and request/network identifiers according to the current form's definitions. Selected city coordinates are fictional route inputs, not detected device GPS. Review whether any provider uses IP addresses to infer approximate location; the app itself does not. Do not claim ephemeral-only handling, since provider operational logs exist. Treat transfers conservatively as third-party sharing unless the owner has verified an applicable user-initiated transfer exemption.
 
-## Routing request
-The app may send the latitude/longitude of the player's manually selected start and destination cities to a public OSRM routing endpoint to calculate road distance/directions. These are user-selected game locations, not device GPS or inferred precise location.
+Purpose: app functionality. Optional: yes, all players can disable online routes and play using built-in cities and estimated mileage. Encrypted in transit: HTTPS. No advertising, analytics, personalization or marketing. No account creation, account deletion requirement, Advertising ID, purchase SDK, device location permission, contacts, camera or microphone access. Local progress is not uploaded to the developer. Android system backup may operate under device settings.
 
-## Permissions
-- INTERNET — used only for optional routing requests. The game has an offline estimate fallback.
-- No location permission.
-- No camera, microphone, contacts, storage/media, phone, SMS, or advertising permissions.
-
-Re-check this declaration before every release if ads, analytics, account login, cloud save, purchases, or telemetry are added.
+This is a factual preparation record, not a submitted or approved Console declaration. Reference: [Google's Data safety definitions](https://support.google.com/googleplay/android-developer/answer/10787469?hl=en). Provider logging references are in PRIVACY.md.

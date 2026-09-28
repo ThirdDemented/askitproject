@@ -10,23 +10,25 @@ android {
         applicationId = "com.thirdemented.longwayhome.release2026"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.0.5"
+        versionCode = 5
+        versionName = "1.1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         create("upload") {
-            storeFile = rootProject.file("beta.keystore")
-            storePassword = "longwayhomebeta"
-            keyAlias = "beta"
-            keyPassword = "longwayhomebeta"
+            val signingPath = System.getenv("LWH_KEYSTORE")
+            if (signingPath != null) storeFile = file(signingPath)
+            storePassword = System.getenv("LWH_KEY_PASSWORD")
+            keyAlias = "upload"
+            keyPassword = System.getenv("LWH_KEY_PASSWORD")
+            storeType = "PKCS12"
         }
     }
 
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
-            signingConfig = signingConfigs.getByName("upload")
         }
         release {
             isMinifyEnabled = false
@@ -35,9 +37,17 @@ android {
         }
     }
 
+    buildFeatures { buildConfig = true }
+    testBuildType = "release"
+
     bundle {
         language {
             enableSplit = false
         }
     }
+}
+
+dependencies {
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("junit:junit:4.13.2")
 }

@@ -1,0 +1,25 @@
+{
+  "version": "1.1.0",
+  "reviewed_source_digest": "f041af422a6bfae438ce87d5409f1b2370b5e244f1d7c4cffb05d81fae950b6c",
+  "reviewed_commit": "f93b7d116abcce6e83fa8bcba146c58e1c57e66d",
+  "reviewed_workflow": 36375175732,
+  "gates": {
+    "visual_portrait": {"status":"passed","evidence":"REVIEW.md; all browser and native portrait captures manually inspected"},
+    "visual_landscape": {"status":"passed","evidence":"REVIEW.md; all browser and native landscape captures manually inspected"},
+    "animation": {"status":"passed","evidence":"Motion/traffic frames, regional views, pause/reduced-motion assertions and manual-review/driving-preview.webm"},
+    "success_run": {"status":"passed","evidence":"results/browser-qa.json: complete 1528-mile UI journey; LIVE_ROUTE_REVIEW.md: manual 134-mile live route"},
+    "failure_run": {"status":"passed","evidence":"results/browser-qa.json: complete 486-mile fuel failure"},
+    "rotation": {"status":"passed","evidence":"Native rotate controls preserve save; reviewed setup and road captures in both orientations"},
+    "persistence": {"status":"passed","evidence":"Native process-stop/reopen plus browser fuel, glass, radio, route, decision and report resume checks"},
+    "routing": {"status":"passed","evidence":"LIVE_ROUTE_REVIEW.md; city/address/foreign filtering, real road geometry, offline privacy assertions"},
+    "negotiation": {"status":"passed","evidence":"Inspection/test drive, successful manual negotiation, three-attempt limit and seller save checks"},
+    "trading": {"status":"passed","evidence":"Cash, stock and transaction assertions in browser-qa.json"},
+    "underground": {"status":"passed","evidence":"Discovery, purchases/sales, Heat and profit assertions; inspected captures"},
+    "audio": {"status":"passed","evidence":"Original music and seven unclipped effect signals, mute/lifecycle and radio/horn interactions; scope in REVIEW.md"},
+    "trip_computer": {"status":"passed","evidence":"Reconciled live final report and exactly-once lifetime assertions; native/browser captures"},
+    "android_signed_api36": {"status":"passed","evidence":"Workflow 36375175732; private certificate APK/AAB verification, permanent package and API 36 checks"},
+    "store_assets": {"status":"passed","evidence":"Inspected original icon/feature art and actual game screenshots; listing and Console preparation documents"}
+  },
+  "status": "passed",
+  "rule": "No publishing or version bump until every required gate has passed with reviewed evidence."
+}

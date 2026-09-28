@@ -1,21 +1,24 @@
 package com.thelongwayhome.game;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Build;
 import android.view.View;
+import android.view.WindowInsets;
+import android.widget.FrameLayout;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceRequest;
 
 public class MainActivity extends Activity {
     private WebView webView;
-    private boolean smokeTriggered = false;
 
     public class OrientationBridge {
         @JavascriptInterface
@@ -51,10 +54,7 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.BLACK);
-        // Software compositing avoids blank/black WebView frames on some devices
-        // during rapid portrait/landscape changes while keeping this mostly-static
-        // pixel-art game smooth enough for play.
-        webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        // The manifest enables hardware acceleration; let WebView manage its own layers.
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -68,88 +68,85 @@ public class MainActivity extends Activity {
         settings.setDisplayZoomControls(false);
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
+        settings.setUserAgentString(settings.getUserAgentString() + " TheLongWayHome/Android");
 
         webView.addJavascriptInterface(new OrientationBridge(), "AndroidOrientation");
         webView.setWebChromeClient(new WebChromeClient());
         webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                if (!smokeTriggered && getIntent().getBooleanExtra("smokeTest", false)) {
-                    smokeTriggered = true;
-                    String mode = getIntent().getStringExtra("smokeMode");
-                    if (mode == null) mode = "road";
-
-                    view.postDelayed(() -> view.evaluateJavascript(
-                        "(()=>{const b=document.getElementById('newGameBtn');if(!b)return 'missing-button';b.click();" +
-                        "document.querySelector('#careerGrid button')?.click();" +
-                        "document.querySelector('#reasonGrid button')?.click();" +
-                        "const s=document.getElementById('setupScreen');return s&&s.classList.contains('active')?'true':'false';})()",
-                        value -> Log.i("LWH_SMOKE", clean(value))
-                    ), 700);
-
-                    view.postDelayed(() -> view.evaluateJavascript(
-                        "(()=>{try{document.getElementById('beginLifeBtn')?.click();return 'started'}catch(e){return 'error:'+e.message}})()",
-                        value -> Log.i("LWH_BEGIN_SMOKE", clean(value))
-                    ), 1400);
-
-                    final String smokeMode = mode;
-                    view.postDelayed(() -> view.evaluateJavascript(
-                        "(()=>{try{" +
-                        "const p=document.getElementById('prepScreen');if(!p?.classList.contains('active'))return 'prep-not-active';" +
-                        "document.getElementById('openMarketBtn')?.click();" +
-                        "document.getElementById('visitSellerBtn')?.click();" +
-                        "const s=document.getElementById('sellerScreen');return s?.classList.contains('active')?'true':'false';" +
-                        "}catch(e){return 'error:'+e.message}})()",
-                        value -> {
-                            Log.i("LWH_SELLER_SMOKE", clean(value));
-                            if ("seller".equals(smokeMode)) return;
-                        }
-                    ), 2600);
-
-                    if (!"seller".equals(mode)) {
-                        view.postDelayed(() -> view.evaluateJavascript(
-                            "(()=>{try{" +
-                            "document.getElementById('buyCarBtn')?.click();" +
-                            "document.getElementById('departBtn')?.click();" +
-                            "const r=document.getElementById('roadScreen');" +
-                            "return r?.classList.contains('active')?'true':'false';" +
-                            "}catch(e){return 'error:'+e.message}})()",
-                            value -> Log.i("LWH_ROAD_SMOKE", clean(value))
-                        ), 3800);
-
-                        view.postDelayed(() -> view.evaluateJavascript(
-                            "(()=>{try{" +
-                            "document.getElementById('driveLegBtn')?.click();" +
-                            "document.getElementById('tripLogRoadBtn')?.click();" +
-                            "const t=document.getElementById('tripLogScreen');" +
-                            "const odo=document.querySelector('.trip-odometer')?.textContent||'';" +
-                            "const ok=t?.classList.contains('active')&&odo.includes('MI');" +
-                            "document.getElementById('tripBackBtn')?.click();" +
-                            "return ok?'true':'false';" +
-                            "}catch(e){return 'error:'+e.message}})()",
-                            value -> Log.i("LWH_TRIPLOG_SMOKE", clean(value))
-                        ), 5200);
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                // Keep web pages outside the game and its native orientation bridge.
+                if (!"file".equals(request.getUrl().getScheme())) {
+                    if ("https".equals(request.getUrl().getScheme())) {
+                        try { startActivity(new Intent(Intent.ACTION_VIEW, request.getUrl())); }
+                        catch (android.content.ActivityNotFoundException ignored) { }
                     }
+                    return true;
                 }
+                return false;
             }
+
         });
 
-        setContentView(webView);
+        FrameLayout container = new FrameLayout(this);
+        container.setBackgroundColor(Color.rgb(9, 14, 19));
+        container.addView(webView, new FrameLayout.LayoutParams(-1, -1));
+        container.setOnApplyWindowInsetsListener((view, insets) -> {
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets safe = insets.getInsets(
+                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                view.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            } else {
+                view.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(),
+                    insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+            }
+            return insets;
+        });
+        setContentView(container);
+        container.requestApplyInsets();
 
-        if (getIntent().getBooleanExtra("forceLandscape", false)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else if (getIntent().getBooleanExtra("forcePortrait", false)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-        }
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 
         webView.loadUrl("file:///android_asset/www/index.html");
     }
 
-    private String clean(String value) {
-        return value == null ? "null" : value.replace("\"", "");
+    @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        // We retain the Activity and journey across rotation. Refresh the native
+        // surface as well as CSS layout so an old landscape tile cannot remain
+        // painted inside the newly portrait-sized WebView.
+        if (webView != null) {
+            webView.requestApplyInsets();
+            webView.requestLayout();
+            webView.postOnAnimation(() -> {
+                webView.invalidate();
+                webView.postVisualStateCallback(android.os.SystemClock.uptimeMillis(),
+                        new WebView.VisualStateCallback() {
+                            @Override public void onComplete(long requestId) {
+                                webView.postInvalidateOnAnimation();
+                            }
+                        });
+            });
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (webView != null) {
+            webView.evaluateJavascript("window.LWHLifecycle?.pause()", null);
+            webView.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (webView != null) {
+            webView.onResume();
+            webView.evaluateJavascript("window.LWHLifecycle?.resume()", null);
+        }
     }
 
     @Override

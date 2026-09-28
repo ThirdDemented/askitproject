@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "assets": [
+    {
+      "id": "setup",
+      "source": "setup.png",
+      "sha256": "4b2bcff2a67632cab3ed14629549017b8b41959aadce1ed6446215e89ec12b93",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A normal late morning with soft cool daylight through the windows, pale blue sky and neutral shadows. No orange sky or visible sun disk. Keep the small desk lamp warm but subtle. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "prep",
+      "source": "prep.png",
+      "sha256": "b9dbe61db4b9a09d4fb2c16547b4cd44b5d4124a80632a9c75756e65e467af50",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: Bright neutral midday light in a working garage. The outdoors is ordinary blue daylight with fresh green grass and neutral concrete. No orange rays, orange horizon, or wet golden reflections. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "supplies",
+      "source": "supplies.png",
+      "sha256": "1c8c4aef70ec4efd07769a7e557740c335a9b7d5a62de40643c44f57f6d61fd1",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: An ordinary roadside supply shop at midday with soft white fluorescent shop lighting and blue daylight outside. Natural muted packaging colors. No sunset or orange landscape. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "gas",
+      "source": "gas.png",
+      "sha256": "2b410e69dcdfe2c98741e8d5074031c2ebd0bb2be1dc5749e6dd9e09f59a6432",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: An overcast daytime gas station after a rain shower: silver-gray cloud cover, cool damp pavement, sage-green pines, soft white canopy lamps. No sunset, orange sky, or visible sun. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "motel",
+      "source": "motel.png",
+      "sha256": "b64877e87325b2ca60b1e4a07d78aa4dd5e8324f27a393d24ddaea30af70b86a",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: True late night at a roadside motel: deep navy-black sky, no orange horizon and no sunset; cool cyan and warm red neon signs, modest warm yellow room windows, dark wet pavement with localized neon reflections. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "mechanic",
+      "source": "mechanic.png",
+      "sha256": "46bd4d795909b5111e8eab0f62d4b58f7f3f7c67214c0e9c0a805f2e96cfdcb5",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A practical repair shop at midday: neutral white work lights, cool daylight at the open garage door, dry gray concrete and muted realistic tools. No sunset, warm orange horizon or golden wet floor. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "diner",
+      "source": "diner.png",
+      "sha256": "34050f3530e2cf932a8b949f3b4218095733ddedc4607a7ae72aed68730cc0dd",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A diner late at night during rain: dark deep-blue exterior with streetlights and gray-blue rain, no orange sunset at all. Inside, ordinary warm-white pendant lights, red vinyl booths and clean silver chrome. Food stays appetizing. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "rest",
+      "source": "rest.png",
+      "sha256": "be5d8eb24a00100f14d453bba4f001a08ebcbd1accb3204a27b226b47c87f769",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A bright, ordinary midday rest area: pale blue sky with white cumulus clouds, neutral green trees, gray asphalt and natural daylight. No sunset or orange palette. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "trade",
+      "source": "trade.png",
+      "sha256": "6af5d474d37da0f44bc0178b0140b53295e342ddd7cf000072aa993d9fbf2f69",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A small-town flea market on an overcast Saturday afternoon: soft silver sky, natural colors in goods and awnings, neutral gray damp pavement. No orange sunset, no dramatic golden reflections. String bulbs stay subtle. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "underground",
+      "source": "underground.png",
+      "sha256": "989b4f25a39dea66d39b9403bbbf609346fa3254c74a1856921438e55af7cfa8",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A quiet back-alley meeting well after dark: deep cool blue and black sky with no orange horizon. One localized muted amber wall lamp and subdued teal light at the doorway. Preserve mysterious, legible details without making all surfaces orange. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "records",
+      "source": "records.png",
+      "sha256": "84f91fe251ab5ae6e362d19bdc64b38b1ed2287ceea35b4d04aed3e19096c1eb",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A glove compartment and trip papers in soft overcast daytime light. Neutral gray-blue daylight through the passenger window and natural green scenery outside. A small warm glovebox bulb is the only amber source. No sunset, no orange sky. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "arrival",
+      "source": "arrival.png",
+      "sha256": "7d21efc761df2b3f9b73c6763cf190806d86ccd9969952440f1d2da996452e31",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A welcoming new home in clear late morning: soft blue sky, light neutral siding, green gardens, daylight on dry steps and moving boxes. Interior doorway softly warm. No sunset or golden-hour wash. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "failure",
+      "source": "failure.png",
+      "sha256": "c12f99cae46c4557c017f8efa34c049d2606b3b2702e965e3b9018a489b9576c",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A stranded roadside well after dark under low gray-blue clouds. No sunset, orange horizon or visible sun. Cool moonlit mountains, reflective warning triangle, subdued distant hazard lights and wet dark pavement. Keep details readable. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "breakdown",
+      "source": "breakdown.png",
+      "sha256": "f09022e605100f3c7a2e7efd78ab14aa9a7507167f3c1b7c27ba2e9e7b3861dc",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A roadside engine breakdown under flat bright overcast midday light: blue-gray mountains and sky, gray asphalt, neutral green trees and clearly visible mechanical parts. White radiator steam. No sunset or orange reflections. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "drive",
+      "source": "drive.png",
+      "sha256": "c91e0699ff9bf5767c82360d88f263cee59b5ab294b53c0fbf45f6158a958a6e",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Change the lighting decisively: A normal highway drive at midday: pale blue sky with scattered white clouds, natural green roadside vegetation, neutral brown fields and gray pavement. NO sunset, orange horizon, orange reflections, or visible sun disk. Light the interior with neutral daylight. Preserve the EXACT camera geometry: vanishing point at 50% width and 31.6% height, the road edges and dashboard boundaries unmoved. All dashboard components, road markings and scenery remain in the same positions so animation layers still align. Any incidental vehicle must be a generic unbranded fictional car with no logo or identifiable branded grille. Preserve composition. This lighting should look natural, not a color filter over an orange sunset.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-comfort",
+      "source": "car-comfort.png",
+      "sha256": "90316c1bf46f1b5df95d1129ed9fc688a71a7e6a0998b3b41d03630c08ec6b0a",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 1998 Comfort V6: a sage-green roomy, gently rounded four-door sedan with a short broad sloping nose, a slim single horizontal charcoal grille, paired small square headlamps inside rounded housings, a tall airy cabin, unusual three-slot wheel covers and a broad plain rear pillar. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Neutral bright overcast daylight, dry driveway, natural muted greens, no sunset. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-executive",
+      "source": "car-executive.png",
+      "sha256": "0b74bf9f51e8bee1e8440ae2677ddf49ae7a033ab529334af1c2564cf54f75e4",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2005 Executive V8: a long silver-gray four-door luxury sedan with slab sides, an angular wedge hood, one wide shallow charcoal grille containing two horizontal brushed-metal bars, rectangular split headlamps with a slim amber marker below, black B-pillars, a gently angled C-pillar and five-slot solid wheel covers. No hood ornament. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Soft late morning daylight with pale blue sky, dry gray pavement. No sunset. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-sport25",
+      "source": "car-sport25.png",
+      "sha256": "e81d6159d8ebee6fb30ece7e2b3aca53fef7c272ffb5574189dc62c92b40dd89",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2007 Sport 2.5: a silver midsize four-door with a forward-leaning cabin, a low nose with two narrow rectangular lamps per side, a slim upper intake and an offset lower intake, plain black window trim, angular slab tail and six broad-spoke wheels. Completely original composite body. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Cool cloudy afternoon after rain, neutral gray reflections, no orange sky. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-family",
+      "source": "car-family.png",
+      "sha256": "25633b35a40c3a0c002e3646eff4f16b99fde1bb9adfe5b653ccb610c69ed8ad",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 1999 Family LX: a champagne midsize four-door sedan with a tall practical cabin, a short blunt slightly wedged hood, wide rectangular headlamps with amber outer markers, a narrow horizontal grille with three slim slats, a visible flat front bumper, plain rounded wheel covers and a chunky sloped C-pillar. Original composite design. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Ordinary midday sunshine and a few white clouds, natural greens and neutral concrete, no golden hour. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-touring",
+      "source": "car-touring.png",
+      "sha256": "26a99d38658b62e81e484d3ece0ec51f124619753c339ec11fe9360daa2ae930",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2008 Touring Six: a charcoal-blue premium four-door sedan with a smooth continuous wide horizontal grille (never a split/kidney grille), single slim rectangular headlamps, squared wheel arches, clean slab sides, a long sloping roof with a short notchback and broad five-spoke wheels. No round badges. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Neutral white garage lighting and cool blue-hour outdoor light after sunset, with no orange horizon. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-fleet",
+      "source": "car-fleet.png",
+      "sha256": "880e90c2386487859e0aca61ea61c0cb81d9cf4e50a3c5d4dfa2cd22f8813c18",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2004 Fleet V8: a tan full-size utilitarian four-door sedan, boxier than the other cars, with thick black bumpers, a single rectangular dark honeycomb grille, square dual lamps, a near-vertical rear pillar, steel wheels and simple small hubcaps. No hood ornament or familiar manufacturer cues. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Bright overcast daytime, pale silver sky, dry gray driveway. No sunset. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-compact",
+      "source": "car-compact.png",
+      "sha256": "b55edbc29422a1b72bdb998812e7694b42ca770738817acddadc14120295de53",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2011 City Compact: a blue compact four-door sedan with a very short nose, tall rounded cabin, flat upright hatch-like tail with a separate small trunk, large trapezoid headlights, two offset slim intake openings and narrow five-slot wheels. Original composite design. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Clear morning blue sky, cool neutral daylight, dry driveway. No orange sunset. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-highway",
+      "source": "car-highway.png",
+      "sha256": "f54e54ad907a53b26a1b72c3bc45b0cc660749cacdf37985faeea2fb9b0a5c2a",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2003 Highway V6: a muted bronze medium-large four-door sedan with a squared body, short clipped rear deck, four small square lamps in single rectangular housings, a horizontal dark grille below the lamps, broad black bumper strip and simple disc-style wheels. No bowtie badge or paired round lamps. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Cool rainy midday, gray cloud ceiling and restrained wet reflections. No sunset. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-commuter",
+      "source": "car-commuter.png",
+      "sha256": "fb4cd31befa99d35cc705f903d72ae4fe647ebaaea749a9842bfd90dee4028c8",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2006 Commuter EX: a silver practical four-door sedan, low and straight-sided, with a short vertical grille, simple square-ish headlamps with diagonal inside corners, black window pillars, angular rear quarters and asymmetrical-looking four-slot wheel covers. Original composite body. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Soft neutral afternoon daylight beneath broken white clouds. No orange sky or sunset. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "car-sportgt",
+      "source": "car-sportgt.png",
+      "sha256": "971992aa989be5439130cea1da7264bb7d602698345461b44b1181084e39f586",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the current real-world car with a DISTINCT ORIGINAL FICTIONAL AUTOMOBILE: 2002 Sport GT: a deep red four-door sport sedan with a broad low front, a single wide rectangular black grille, wide trapezoid headlamps, flat hood without scoops, a curved roof over straight lower sides and three-paired-spoke wheels. No split grille or arrowhead badge. Redesign the actual vehicle body, grille, headlights, wheels and signature details, not merely its badges. It must not be a direct replica of any real make or model. Keep believable automotive construction, four doors, grounded tires and correct perspective. Keep the friendly seller and driveway composition. Late afternoon with diffuse neutral daylight; no visible sun disk, orange sky or golden-hour wash. No manufacturer emblems, names, distinctive brand grille patterns or text anywhere.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "title",
+      "source": "title.png",
+      "sha256": "09a008b2761bfca5e6e6322bc344209c8c97fd8d57fd852c3bdf0b55f6eeb269",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the real-world car with this distinct original fictional model: 2005 Executive V8: a long silver-gray four-door luxury sedan with slab sides, an angular wedge hood, one wide shallow charcoal grille containing two horizontal brushed-metal bars, rectangular split headlamps with a slim amber marker below, black B-pillars, a gently angled C-pillar and five-slot solid wheel covers. No hood ornament. Redesign the actual body and front face rather than just debadging the existing car. No identifiable manufacturer styling or logos. Keep the same landscape and framing. This is one of the few deliberately warm sunset hero images; retain that dramatic sunset here.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "icon",
+      "source": "icon.png",
+      "sha256": "7bfb49df533e9912beb38b1590ec7cb22504e77a91c320b08228bb5972519e96",
+      "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the real-world car with this distinct original fictional model: 2005 Executive V8: a long silver-gray four-door luxury sedan with slab sides, an angular wedge hood, one wide shallow charcoal grille containing two horizontal brushed-metal bars, rectangular split headlamps with a slim amber marker below, black B-pillars, a gently angled C-pillar and five-slot solid wheel covers. No hood ornament. Redesign the actual body and front face rather than just debadging the existing car. No identifiable manufacturer styling or logos. Keep the same landscape and framing. This is one of the few deliberately warm sunset hero images; retain that dramatic sunset here.",
+      "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "drive-desert",
+      "source": "drive-desert.png",
+      "sha256": "af6499def43c1e9b4649dd30ae48ec1e6295791ff7c576bd134d43f7019f79f5",
+      "prompt": "Edit the supplied detailed chunky 16/32-bit pixel art cockpit scene. Preserve EXACT framing, camera perspective, all cockpit geometry and colors, steering wheel, mirror position, dashboard, road shape and vanishing point. Only change the scenery outside windshield and reflected mirror: a dry American Southwest high desert with sage scrub, sandy soil, distant layered mesas and sparse wooden power poles, blue midday sky with a few white clouds. No sunset or golden hour. Keep road a straight two-lane paved highway. Sharp square pixel clusters and dithering, not photorealism. No logos or text. Match original 1536x1024 composition.",
+      "method": "Built-in image generation; original source retained",
+      "reference": "drive.png"
+    },
+    {
+      "id": "drive-forest",
+      "source": "drive-forest.png",
+      "sha256": "ac75c5478f91264453eb52226da19db8d0bd839595ce7e5720774ddef16aa7ef",
+      "prompt": "Edit the supplied cockpit pixel art. Preserve exact cockpit, mirror, dashboard, road shape and vanishing point at x50% y31.6%, all framing unchanged. Replace ONLY outdoor scenery and mirror reflection with a northern American wooded highway: mixed pine and deciduous green forest, distant low blue wooded hills, roadside wild grass and a few wooden utility poles. Soft cool overcast daylight with silver blue broken clouds, no sunset or golden hour. Road remains straight two-lane pavement. Detailed visibly chunky 16/32-bit pixel clusters and dithering, crisp edges. No brands or text. Keep 1536x1024 composition.",
+      "method": "Built-in image generation; original source retained",
+      "reference": "drive.png"
+    },
+    {
+      "id": "traffic-front",
+      "source": "traffic-front.png",
+      "sha256": "07e9fe574798c6972a2f46acd00666a7bf04be2d7b54675cc787238ea002b00d",
+      "prompt": "Create one game sprite asset on a fully transparent background: a single fictional unbranded compact blue-gray sedan seen directly from the front, eye level very slightly above headlights, full vehicle including tires, no ground or shadow extending beyond car. Detailed chunky 16/32-bit automotive pixel art, sharp visibly square pixels, restrained navy/sage/cream palette, bright neutral midday light, original generic design no recognizable branded grille, no logos, no writing. Car centered occupying 85 percent canvas width. This will be a small oncoming highway traffic sprite. No scenery, no border.",
+      "method": "Built-in image generation; original source retained"
+    }
+  ]
+}
