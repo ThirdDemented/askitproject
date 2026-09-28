@@ -17,6 +17,6 @@ for entry in manifest['assets']:
     with Image.open(source) as im:
         target=out/(entry['id']+'.webp')
         temporary=target.with_suffix('.webp.tmp')
-        im.convert('RGB').save(temporary,format='WEBP',lossless=True,method=6,exact=True)
+        im.convert('RGBA' if 'A' in im.getbands() else 'RGB').save(temporary,format='WEBP',lossless=True,method=6,exact=True)
         temporary.replace(target)
 print(f'Reconstructed {len(manifest["assets"])} verified illustrations')

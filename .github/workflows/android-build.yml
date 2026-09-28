@@ -28,6 +28,8 @@ jobs:
       - name: Validate JavaScript and artwork manifest
         run: |
           node --check app/src/main/assets/www/game.js
+          node --check app/src/main/assets/www/driving-scene.js
+          node --check app/src/main/assets/www/journey-map.js
           python scripts/check_release.py --source-only
       - name: Reconstruct verified illustrated assets
         run: |

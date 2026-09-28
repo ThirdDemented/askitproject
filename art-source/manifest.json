@@ -189,6 +189,29 @@
       "sha256": "7bfb49df533e9912beb38b1590ec7cb22504e77a91c320b08228bb5972519e96",
       "prompt": " Edit this game illustration, retaining its detailed, visibly chunky 16/32-bit pixel clusters, dithering and sharp pixel edges. Keep the framing, viewpoint, people and environmental objects. Do not make it photorealistic or smooth. No text, logos or watermarks. Replace the real-world car with this distinct original fictional model: 2005 Executive V8: a long silver-gray four-door luxury sedan with slab sides, an angular wedge hood, one wide shallow charcoal grille containing two horizontal brushed-metal bars, rectangular split headlamps with a slim amber marker below, black B-pillars, a gently angled C-pillar and five-slot solid wheel covers. No hood ornament. Redesign the actual body and front face rather than just debadging the existing car. No identifiable manufacturer styling or logos. Keep the same landscape and framing. This is one of the few deliberately warm sunset hero images; retain that dramatic sunset here.",
       "method": "Built-in image generation; original source retained"
+    },
+    {
+      "id": "drive-desert",
+      "source": "drive-desert.png",
+      "sha256": "af6499def43c1e9b4649dd30ae48ec1e6295791ff7c576bd134d43f7019f79f5",
+      "prompt": "Edit the supplied detailed chunky 16/32-bit pixel art cockpit scene. Preserve EXACT framing, camera perspective, all cockpit geometry and colors, steering wheel, mirror position, dashboard, road shape and vanishing point. Only change the scenery outside windshield and reflected mirror: a dry American Southwest high desert with sage scrub, sandy soil, distant layered mesas and sparse wooden power poles, blue midday sky with a few white clouds. No sunset or golden hour. Keep road a straight two-lane paved highway. Sharp square pixel clusters and dithering, not photorealism. No logos or text. Match original 1536x1024 composition.",
+      "method": "Built-in image generation; original source retained",
+      "reference": "drive.png"
+    },
+    {
+      "id": "drive-forest",
+      "source": "drive-forest.png",
+      "sha256": "ac75c5478f91264453eb52226da19db8d0bd839595ce7e5720774ddef16aa7ef",
+      "prompt": "Edit the supplied cockpit pixel art. Preserve exact cockpit, mirror, dashboard, road shape and vanishing point at x50% y31.6%, all framing unchanged. Replace ONLY outdoor scenery and mirror reflection with a northern American wooded highway: mixed pine and deciduous green forest, distant low blue wooded hills, roadside wild grass and a few wooden utility poles. Soft cool overcast daylight with silver blue broken clouds, no sunset or golden hour. Road remains straight two-lane pavement. Detailed visibly chunky 16/32-bit pixel clusters and dithering, crisp edges. No brands or text. Keep 1536x1024 composition.",
+      "method": "Built-in image generation; original source retained",
+      "reference": "drive.png"
+    },
+    {
+      "id": "traffic-front",
+      "source": "traffic-front.png",
+      "sha256": "07e9fe574798c6972a2f46acd00666a7bf04be2d7b54675cc787238ea002b00d",
+      "prompt": "Create one game sprite asset on a fully transparent background: a single fictional unbranded compact blue-gray sedan seen directly from the front, eye level very slightly above headlights, full vehicle including tires, no ground or shadow extending beyond car. Detailed chunky 16/32-bit automotive pixel art, sharp visibly square pixels, restrained navy/sage/cream palette, bright neutral midday light, original generic design no recognizable branded grille, no logos, no writing. Car centered occupying 85 percent canvas width. This will be a small oncoming highway traffic sprite. No scenery, no border.",
+      "method": "Built-in image generation; original source retained"
     }
   ]
 }
