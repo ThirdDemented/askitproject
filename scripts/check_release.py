@@ -13,7 +13,7 @@ assert '<canvas' not in html and 'drawCar(' not in js and 'car-sil' not in js,'P
 visible_source=html+'\n'+re.sub(r'const legacyCars=\[.*?\];','',js)
 assert not re.search(r'\b(Buick|Lincoln|Nissan|Toyota|BMW|Chevrolet|Honda|Pontiac|Autotrader)\b|Auto Trader',visible_source,re.I),'Branded vehicle or classifieds text remains outside save migration'
 config=(root/'app/build.gradle.kts').read_text(encoding='utf-8')
-assert 'targetSdk = 36' in config and 'com.thirdemented.longwayhome.release2026' in config
+assert 'targetSdk = 36' in config and 'com.thirdemented.thelongwayhome' in config
 assert 'beta.keystore' not in config,'Public test key must never sign a commercial release'
 if '--source-only' in sys.argv:
     print('Source, art coverage and Android invariants passed');raise SystemExit()
