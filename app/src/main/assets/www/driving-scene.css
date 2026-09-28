@@ -17,6 +17,9 @@
 /* Traffic sits over the pavement, but remains behind weather and glass. */
 .driving-world{z-index:1}.road-motion{z-index:0}.weather-fx{z-index:2}.windshield-crack{z-index:3}.live-instruments{z-index:2}.dash-hotspot{z-index:3}
 .night .driving-world{filter:brightness(.57) saturate(.8)}
+.weather-rain>img,.weather-rain .road-motion,.weather-rain .driving-world{filter:brightness(.7) saturate(.55)}
+.weather-rain .weather-fx{background:linear-gradient(#61758066,#4b626c22),repeating-linear-gradient(110deg,transparent 0 26px,#c3e1ed77 27px,transparent 29px 50px)}
+.night.weather-rain>img,.night.weather-rain .road-motion,.night.weather-rain .driving-world{filter:brightness(.4) saturate(.5)}
 .live-instruments svg{width:100%;height:100%;overflow:visible}
 .live-dial circle{fill:#142029;stroke:#a8b9b4;stroke-width:3}
 .live-dial path{fill:none;stroke:#d0d6bc;stroke-width:3}

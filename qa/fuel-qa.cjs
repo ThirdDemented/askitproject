@@ -13,6 +13,8 @@ for(const car of cars){
  for(const level of [0,10,25,41,85,99.99,100]){
   const s={car,fuel:level,cash:1000,distance:200,totalMiles:1200,stats:{fuelStops:0}};
   const q=sandbox.quote(s);const oldCash=s.cash;sandbox.buy(s);
+  assert(!Object.is(q.fullCost,-0));
+  if(level===100)assert(sandbox.description(s).includes('already full'));
   assert(Math.abs(s.fuel-100)<1e-8);assert(Math.abs(oldCash-s.cash-q.cost)<1e-8);
   assert(q.gallons<=car.tank+1e-8);assert.equal(q.full,true);checks++;
  }

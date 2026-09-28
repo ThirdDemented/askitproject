@@ -86,7 +86,7 @@ function save(){
 function showStorageWarning(){let n=$('storageWarning');if(!n){n=document.createElement('div');n.id='storageWarning';n.className='notice bad';n.setAttribute('role','alert');document.body.appendChild(n)}n.textContent='Progress could not be saved. Free device storage before closing the game.'}
 
 function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch(e){} $('resumeBtn').hidden=true}
-function show(id){screens.forEach(s=>s.classList.remove('active'));$(id).classList.add('active');currentScreen=id;window.scrollTo(0,0);setTheme(id);updateScene();save()}
+function show(id){screens.forEach(s=>s.classList.remove('active'));$(id).classList.add('active');currentScreen=id;window.scrollTo(0,0);$(id).querySelectorAll('.content-scroll,.road-control-column').forEach(p=>p.scrollTop=0);setTheme(id);updateScene();save()}
 function addLog(t){state.log.unshift(t);state.log=state.log.slice(0,24)}
 function hav(a,b){const R=3958.8,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),q=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
 function routeMiles(){const d=haversineObj(cities[state.origin],cities[state.dest]);return Math.max(90,Math.round(d*(d<300?1.18:1.13)))}
@@ -207,7 +207,7 @@ const FUEL_PRICE_PER_GALLON=4;
 const fuelMoney=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 function fuelQuote(s,budget=Infinity){
  const missing=Math.max(0,s.car.tank*(100-clamp(s.fuel))/100);
- const fullCost=Math.ceil((missing*FUEL_PRICE_PER_GALLON-1e-9)*100)/100;
+ const fullCost=Math.max(0,Math.ceil((missing*FUEL_PRICE_PER_GALLON-1e-9)*100)/100);
  const cost=Math.max(0,Math.min(fullCost,Math.floor(s.cash*100+1e-6)/100,budget));
  const gallons=Math.min(missing,cost/FUEL_PRICE_PER_GALLON);
  const level=clamp(s.fuel+gallons/s.car.tank*100);
@@ -215,6 +215,7 @@ function fuelQuote(s,budget=Infinity){
 }
 function fuelStopDescription(s){
  const q=fuelQuote(s),leg=s.pendingLegMiles||Math.min(62,s.totalMiles-s.distance);
+ if(q.fullCost===0)return `Your ${s.car.tank}-gallon tank is already full. No fuel purchase is needed. About ${Math.floor(q.range)} miles of range. Cash available: ${fuelMoney(s.cash)}.`;
  return `Fuel: ${fuelMoney(FUEL_PRICE_PER_GALLON)} per gallon. Your ${s.car.tank}-gallon tank is ${Math.round(s.fuel)}% full. A full refill costs ${fuelMoney(q.fullCost)}. Cash available: ${fuelMoney(s.cash)}.\n\n${q.full?'You can fill the tank.':'PARTIAL REFILL ONLY — your cash will not fill the tank.'} ${fuelMoney(q.cost)} buys ${q.gallons.toFixed(2)} gallons, bringing you to ${Math.round(q.level)}% and about ${Math.floor(q.range)} miles of range.${q.range<leg?'\nWARNING: This will not cover the next '+leg+'-mile leg.':''}`;
 }
 function fuelChoiceLabel(s,label){
