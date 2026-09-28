@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-PACKAGE=com.thirdemented.longwayhome.release2026
+PACKAGE=com.thirdemented.thelongwayhome
 RUNNER="$PACKAGE.test/androidx.test.runner.AndroidJUnitRunner"
 adb wait-for-device
 adb shell getprop sys.boot_completed | grep -q 1
