@@ -82,6 +82,10 @@ async function doRun(page,fail=false){await startLife(page);await buyReliable(pa
   await page.locator('#dashDialog button').click();
  }
  await page.click('#radioBtn');await page.click('#radioBtn');ok('radio has an off position',await page.locator('#radioStationLabel').innerText()==='RADIO OFF');await page.click('#radioBtn');
+ // The map is available offline and keeps the overview separate from detailed geography.
+ await page.click('#tripTimeline');ok('timeline opens a detailed journey map',await page.locator('#routeDialog').isVisible());
+ for(const [orientation,size] of [['portrait',{width:390,height:844}],['landscape',{width:844,height:390}]]){await page.setViewportSize(size);await capture(page,'route-map-'+orientation)}
+ await page.locator('#routeDialog button').click();
  // Three attempts are a hard cap even when a seller still has patience.
  await page.evaluate(s=>{QA.fixture({...s,car:{...QA.carPool.find(c=>c.id==='family')},carIndex:s.listings.findIndex(c=>c.id==='family'),cash:6000,ended:false,sellers:{}});QA.visitSeller();let seller=QA.sellerState(QA.state().car);seller.patience=4;window.savedRandom=Math.random;Math.random=()=>.999;},purchased);
  for(let n=0;n<3;n++){if(await page.locator('#negotiateBtn').isEnabled())await page.click('#negotiateBtn');await page.locator('#offerButtons button').nth(1).click();}
@@ -108,7 +112,18 @@ async function doRun(page,fail=false){await startLife(page);await buyReliable(pa
  const custom=await page.evaluate(()=>QA.resolveCustomCity('Havana, IL'));ok('arbitrary U.S. city resolution',custom.n==='Havana, Illinois'&&custom.lat===40.3);
  await page.evaluate(c=>{QA.cities.push(c);QA.fixture({origin:QA.cities.length-1});QA.save()},custom);await page.reload();await page.click('#resumeBtn');ok('custom-city route survives browser restart',await page.evaluate(()=>QA.cities[QA.state().origin].n==='Havana, Illinois'));
  await page.unroute(/photon\.komoot\.io/);await page.route(/photon\.komoot\.io/,r=>r.fulfill({json:{features:[{properties:{name:'Paris',countrycode:'FR'},geometry:{coordinates:[2.3,48.8]}}]}}));ok('foreign geocoding result rejected',await page.evaluate(async()=>await QA.resolveCustomCity('Paris')===null));
- await page.evaluate(()=>QA.fixture({departed:false}));await page.unroute(/router\.project-osrm\.org/);await page.route(/router\.project-osrm\.org/,r=>r.fulfill({json:{routes:[{distance:160934.4,legs:[{steps:[{distance:160934.4,name:'US 24',maneuver:{type:'continue'}}]}]}]}}));await page.evaluate(()=>QA.refineRouteMiles());ok('road route mileage and instructions applied',await page.evaluate(()=>QA.state().totalMiles===100&&QA.state().routeSteps[0].name==='US 24'));
+ await page.evaluate(()=>QA.fixture({departed:false}));await page.unroute(/router\.project-osrm\.org/);await page.route(/router\.project-osrm\.org/,r=>r.fulfill({json:{routes:[{distance:160934.4,duration:7200,geometry:{type:'LineString',coordinates:[[-90.06,40.3],[-96,41],[-105,39],[-112.07,33.45]]},legs:[{steps:[{distance:160934.4,name:'US 24',maneuver:{type:'continue'}}]}]}]}}));await page.evaluate(()=>QA.refineRouteMiles());ok('road route mileage and instructions applied',await page.evaluate(()=>QA.state().totalMiles===100&&QA.state().routeSteps[0].name==='US 24'));
+ await page.evaluate(()=>QA.show('setupScreen'));await page.fill('#originCustom','');await page.fill('#destCustom','');await page.check('#onlineRoutes');await page.click('#previewRouteBtn');await page.waitForFunction(()=>!document.getElementById('previewRouteBtn').disabled);
+ ok('setup preview draws returned road route',await page.locator('#setupMap svg').getAttribute('aria-label').then(t=>t.includes('Road route'))&&await page.locator('#setupMapStatus').innerText().then(t=>t.includes('100 road miles')));
+ await capture(page,'setup-road-preview');
+ await page.uncheck('#onlineRoutes');await page.click('#previewRouteBtn');ok('offline preview explicitly labels its estimate',await page.locator('#setupMapStatus').innerText().then(t=>t.includes('does not follow roads')));await page.check('#onlineRoutes');
+ ok('road geometry and duration are retained for detailed map',await page.evaluate(()=>QA.state().routeGeometry.length===4&&QA.state().routeDuration===7200));
+ await page.evaluate(()=>{QA.fixture({distance:50});QA.renderRoadHud();QA.show('roadScreen')});await page.click('#tripTimeline');
+ ok('detailed map draws road geometry and journey position',await page.locator('#journeyMap svg').getAttribute('aria-label').then(t=>t.includes('Road route'))&&await page.locator('#journeyMap').innerText().then(t=>t.includes('YOU ARE HERE')));
+ await capture(page,'road-geometry-map');await page.locator('#routeDialog button').click();
+ await page.evaluate(()=>QA.save());await page.reload();await page.click('#resumeBtn');ok('road geometry survives reopen',await page.evaluate(()=>QA.state().routeGeometry.length===4));
+ ok('street-number input is rejected before city lookup',await page.evaluate(async()=>await QA.resolveCustomCity('123 Main Street')===null));
+
  await page.unroute(/router\.project-osrm\.org/);await page.route(/router\.project-osrm\.org/,r=>r.abort());
  // Audio signal, mute persistence and actual pause/resume lifecycle.
  await page.evaluate(()=>QA.show('titleScreen'));await page.click('#soundBtn');await page.click('#soundBtn');await page.waitForTimeout(500);

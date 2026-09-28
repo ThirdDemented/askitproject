@@ -90,9 +90,9 @@ function show(id){screens.forEach(s=>s.classList.remove('active'));$(id).classLi
 function addLog(t){state.log.unshift(t);state.log=state.log.slice(0,24)}
 function hav(a,b){const R=3958.8,rad=x=>x*Math.PI/180,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),q=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
 function routeMiles(){const d=haversineObj(cities[state.origin],cities[state.dest]);return Math.max(90,Math.round(d*(d<300?1.18:1.13)))}
-async function refineRouteMiles(){if(state.onlineRoutes===false)return;const run=state,a=cities[state.origin],b=cities[state.dest];try{const u=`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false&steps=true`;const r=await fetch(u,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(8000)});if(!r.ok)return;const j=await r.json(),route=j?.routes?.[0],m=route?.distance;if(state===run&&!state.departed&&Number.isFinite(m)&&m>1000){state.totalMiles=Math.round(m/1609.344);state.routeDistanceSource='live road route';let cum=0;state.routeSteps=[];for(const st of (route?.legs?.[0]?.steps||[])){cum+=Number(st.distance||0)/1609.344;const name=(st.name||'').trim(),type=st.maneuver?.type||'continue',modifier=st.maneuver?.modifier||'';if(name||type==='arrive')state.routeSteps.push({mile:cum,name:name||cities[state.dest].n,type,modifier})}addLog(`Live road routing updated the trip to ${state.totalMiles.toLocaleString()} miles.`);renderPrep();save()}}catch(e){/* offline fallback keeps approximate mileage */}}
+async function refineRouteMiles(){if(state.onlineRoutes===false)return;const run=state,a=cities[state.origin],b=cities[state.dest];try{const u=`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=simplified&geometries=geojson&steps=true`;const r=await fetch(u,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(8000)});if(!r.ok)return;const j=await r.json(),route=j?.routes?.[0],m=route?.distance;if(state===run&&!state.departed&&Number.isFinite(m)&&m>1000){state.totalMiles=Math.round(m/1609.344);state.routeDistanceSource='live road route';state.routeGeometry=JourneyMap.valid(route.geometry?.coordinates)?route.geometry.coordinates:null;state.routeDuration=Number(route.duration)||null;let cum=0;state.routeSteps=[];for(const st of (route?.legs?.[0]?.steps||[])){cum+=Number(st.distance||0)/1609.344;const name=(st.name||'').trim(),type=st.maneuver?.type||'continue',modifier=st.maneuver?.modifier||'';if(name||type==='arrive')state.routeSteps.push({mile:cum,name:name||cities[state.dest].n,type,modifier})}addLog(`Live road routing updated the trip to ${state.totalMiles.toLocaleString()} miles.`);renderPrep();save()}}catch(e){/* offline fallback keeps approximate mileage */}}
 function haversineObj(a,b){return hav(a,b)}
-function interpolatePoint(){const a=cities[state.origin],b=cities[state.dest],p=clamp(state.distance/state.totalMiles,0,1);return {lat:a.lat+(b.lat-a.lat)*p,lon:a.lon+(b.lon-a.lon)*p}}
+function interpolatePoint(){if(JourneyMap.valid(state.routeGeometry)){const p=JourneyMap.pointAlong(state.routeGeometry,state.distance/Math.max(1,state.totalMiles));return {lon:p[0],lat:p[1]}}const a=cities[state.origin],b=cities[state.dest],p=clamp(state.distance/state.totalMiles,0,1);return {lat:a.lat+(b.lat-a.lat)*p,lon:a.lon+(b.lon-a.lon)*p}}
 function nearestCity(){const p=interpolatePoint();let best=cities[0],bd=Infinity;for(const c of cities){const d=haversineObj(p,c);if(d<bd){bd=d;best=c}}return best}
 function spendTime(days){state.days=Math.max(-2,state.days-days);for(const l of state.listings){if(!l.sold&&chance(days*.07))l.sold=true}}
 function advance(hours){state.hour+=hours;state.days-=hours/24;while(state.hour>=24){state.hour-=24;state.day++}while(state.hour<0){state.hour+=24;state.day=Math.max(1,state.day-1)}}
@@ -134,7 +134,7 @@ function renderSetupCards(){$('careerGrid').innerHTML='';for(const c of careers)
 function rollAssets(){const count=rnd(4,7);state.assets=[...assetPool].sort(()=>Math.random()-.5).slice(0,count).map(([n,v])=>({n,v:round25(v*(.72+Math.random()*.56)),sold:false}))}
 function rollListings(){state.listings=[...carPool].sort(()=>Math.random()-.5).slice(0,rnd(7,10)).map(c=>({...c,sold:false}));state.carIndex=0}
 function startNewLife(){clearSave();initSelects();$('originCustom').value='';$('destCustom').value='';state=blankState();$('ageRange').value=31;$('ageOut').textContent='31';$('originSelect').value='0';$('destSelect').value='4';renderSetupCards();show('setupScreen')}
-async function resolveCustomCity(text){const q=(text||'').trim();if(!q)return null;try{const u='https://photon.komoot.io/api/?limit=8&q='+encodeURIComponent(q+', USA');const r=await fetch(u,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(8000)});if(!r.ok)throw new Error('geocoder unavailable');const j=await r.json();const feats=(j.features||[]);const hit=feats.find(x=>String(x.properties?.countrycode||'').toUpperCase()==='US');if(!hit?.geometry?.coordinates)return null;const [lon,lat]=hit.geometry.coordinates;const p=hit.properties||{};const label=[p.name||q,p.state].filter(Boolean).join(', ');return {n:label,lat:Number(lat),lon:Number(lon)}}catch(e){return null}}
+async function resolveCustomCity(text){const q=(text||'').trim();if(!q||/^\d/.test(q))return null;try{const u='https://photon.komoot.io/api/?limit=8&q='+encodeURIComponent(q+', USA');const r=await fetch(u,{headers:{'Accept':'application/json'},signal:AbortSignal.timeout(8000)});if(!r.ok)throw new Error('geocoder unavailable');const j=await r.json();const feats=(j.features||[]);const hit=feats.find(x=>String(x.properties?.countrycode||'').toUpperCase()==='US'&&!x.properties?.housenumber&&!x.properties?.street&&!['house','residential','road'].includes(x.properties?.osm_value));if(!hit?.geometry?.coordinates)return null;const [lon,lat]=hit.geometry.coordinates;const p=hit.properties||{};const label=[p.name||q,p.state].filter(Boolean).join(', ');return {n:label,lat:Number(lat),lon:Number(lon)}}catch(e){return null}}
 async function beginLife(){if(!state.career||!state.reason){alert('Choose a career and a reason for moving.');return}const btn=$('beginLifeBtn');btn.disabled=true;const oldText=btn.textContent;btn.textContent='FINDING ROUTE…';try{state.age=Number($('ageRange').value);state.onlineRoutes=$('onlineRoutes').checked;let oi=Number($('originSelect').value),di=Number($('destSelect').value);const [oc,dc]=state.onlineRoutes?await Promise.all([resolveCustomCity($('originCustom').value),resolveCustomCity($('destCustom').value)]):[null,null];if(state.onlineRoutes&&$('originCustom').value.trim()&&!oc){alert('I could not find that starting city. Try “City, State”.');return}if(state.onlineRoutes&&$('destCustom').value.trim()&&!dc){alert('I could not find that destination. Try “City, State”.');return}if(oc){cities.push(oc);oi=cities.length-1}if(dc){cities.push(dc);di=cities.length-1}state.origin=oi;state.dest=di;if(cities[state.origin].n===cities[state.dest].n){alert('Choose a different destination.');return}state.totalMiles=routeMiles();state.cash=Math.max(250,state.career.cash+state.reason.bonus);ensureTripStats();state.stats.startingCash=state.cash;state.days=state.reason.days;state.limits={shifts:state.career.shifts,ot:state.career.ot,parents:1,plasma:2,scratch:2,loan:1,stipend:1};rollAssets();rollListings();state.log=[`You are ${state.age}, working as ${state.career.n.toLowerCase()}.`,`You need to get from ${cities[state.origin].n} to ${cities[state.dest].n}: about ${state.totalMiles.toLocaleString()} road miles.`];renderPrep();show('prepScreen');refineRouteMiles()}finally{btn.disabled=false;btn.textContent=oldText}}
 
 /* prep economy */
@@ -432,7 +432,7 @@ function escapeHtml(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&
 /* bindings */
 $('ageRange').oninput=e=>{$('ageOut').textContent=e.target.value;state.age=Number(e.target.value)};
 $('newGameBtn').onclick=()=>{startNewLife();try{ensureAudio();startMusic('title')}catch(e){}};$('resumeBtn').onclick=()=>{resume();try{ensureAudio();startMusic(currentTheme)}catch(e){}};$('soundBtn').onclick=toggleSound;$('lifetimeBtn').onclick=()=>openTripLog('lifetime','titleScreen');$('tripLogRoadBtn').onclick=()=>openTripLog('current','roadScreen');$('endTripReportBtn').onclick=()=>openTripLog('current','endingScreen');$('tripBackBtn').onclick=closeTripLog;$('currentTripTab').onclick=()=>{tripView='current';renderTripLog()};$('lifetimeTab').onclick=()=>{tripView='lifetime';renderTripLog()};$('rotateTitleBtn').onclick=rotateAppView;$('rotateRoadBtn').onclick=rotateAppView;
-$('randomRouteBtn').onclick=()=>{let a=rnd(0,cities.length-1),b=rnd(0,cities.length-1);while(b===a)b=rnd(0,cities.length-1);$('originSelect').value=a;$('destSelect').value=b};$('beginLifeBtn').onclick=beginLife;
+$('randomRouteBtn').onclick=()=>{let a=rnd(0,cities.length-1),b=rnd(0,cities.length-1);while(b===a)b=rnd(0,cities.length-1);$('originSelect').value=a;$('destSelect').value=b;refreshSetupMap()};$('beginLifeBtn').onclick=beginLife;
 $('openMarketBtn').onclick=openCarMarket;$('prevCarBtn').onclick=()=>{state.carIndex=(state.carIndex+state.listings.length-1)%state.listings.length;renderCarAd()};$('nextCarBtn').onclick=()=>{state.carIndex=(state.carIndex+1)%state.listings.length;renderCarAd()};$('visitSellerBtn').onclick=visitSeller;$('backPrepBtn').onclick=()=>{renderPrep();show('prepScreen')};
 $('inspectBtn').onclick=inspectCar;$('testDriveBtn').onclick=testCar;$('mechanicCheckBtn').onclick=mechanicCheck;$('negotiateBtn').onclick=showOffers;$('buyCarBtn').onclick=buyCar;$('walkAwayBtn').onclick=()=>{renderCarAd();show('carMarketScreen')};
 $('departBtn').onclick=depart;$('prepAgainBtn').onclick=()=>{renderPrep();show('prepScreen')};$('driveLegBtn').onclick=driveLeg;$('marketStopBtn').onclick=()=>{ensureTripStats();state.stats.stops++;renderTrade();show('tradeScreen')};$('leaveMarketBtn').onclick=()=>{if(state.currentEvent==='fuel')triggerEvent(roadEvents.find(e=>e.id==='fuel'),true);renderRoadHud();show('roadScreen')};$('againBtn').onclick=startNewLife;
@@ -458,7 +458,7 @@ $('roadArt').addEventListener('load',alignRoadMotion);
 window.addEventListener('resize',()=>{placeRoadMeters();alignRoadMotion()});
 function updateScene(){
  placeRoadMeters();
- if(currentScreen==='sellerScreen'&&state.car)setArt('sellerScreenArt','car-'+state.car.id);
+ if(currentScreen==='setupScreen')refreshSetupMap();if(currentScreen==='sellerScreen'&&state.car)setArt('sellerScreenArt','car-'+state.car.id);
  if(currentScreen==='roadScreen')setRoadScene(state.scene||'drive');
  if(currentScreen==='roadScreen')requestAnimationFrame(alignRoadMotion);
  if(currentScreen==='tradeScreen')setArt('tradeScreenArt',state.undergroundUnlocked?'underground':'trade');
@@ -506,6 +506,37 @@ function resume(){
 function applyOnlinePreference(){const enabled=$('onlineRoutes').checked;for(const id of ['originCustom','destCustom'])$(id).disabled=!enabled;try{localStorage.setItem('lwh-online',String(enabled))}catch(e){}}
 $('onlineRoutes').onchange=applyOnlinePreference;
 $('aboutBtn').onclick=()=>{$('aboutDialog').showModal();$('aboutDialog').scrollTop=0;};
-function boot(){try{$('onlineRoutes').checked=localStorage.getItem('lwh-online')!=='false'}catch(e){}applyOnlinePreference();try{soundOn=localStorage.getItem('lwh-sound')!=='false'}catch(e){}$('soundBtn').textContent=soundOn?'♪ SOUND ON':'♪ SOUND OFF';initSelects();renderSetupCards();try{if(localStorage.getItem(SAVE_KEY))$('resumeBtn').hidden=false}catch(e){}}
+let previewSerial=0;
+function refreshSetupMap(){
+ previewSerial++;
+ const a=cities[Number($('originSelect').value)||0],b=cities[Number($('destSelect').value)||0];
+ JourneyMap.render($('setupMap'),a,b);$('setupMapStatus').textContent=a.n+' → '+b.n+'\nEstimated connection only. Preview to check actual roads.';
+ $('previewRouteBtn').textContent=$('onlineRoutes').checked?'PREVIEW ROAD ROUTE':'PREVIEW OFFLINE ESTIMATE';
+}
+for(const id of ['originSelect','destSelect','originCustom','destCustom'])$(id).addEventListener('change',refreshSetupMap);
+$('onlineRoutes').addEventListener('change',refreshSetupMap);
+$('previewRouteBtn').onclick=async()=>{
+ const serial=++previewSerial,button=$('previewRouteBtn');button.disabled=true;
+ try{
+  let a=cities[Number($('originSelect').value)],b=cities[Number($('destSelect').value)];
+  if($('onlineRoutes').checked){const [oc,dc]=await Promise.all([resolveCustomCity($('originCustom').value),resolveCustomCity($('destCustom').value)]);if(serial!==previewSerial)return;if($('originCustom').value.trim()&&!oc||$('destCustom').value.trim()&&!dc)throw new Error('City not found. Use a U.S. city and state, not a street address.');a=oc||a;b=dc||b;}
+  JourneyMap.render($('setupMap'),a,b);
+  if(!$('onlineRoutes').checked){$('setupMapStatus').textContent=a.n+' → '+b.n+'\nOffline estimate; dashed connection does not follow roads.';return;}
+  $('setupMapStatus').textContent='Checking road connections…';
+  const response=await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=simplified&geometries=geojson`,{signal:AbortSignal.timeout(8000)});
+  const data=await response.json(),route=data.routes?.[0];if(serial!==previewSerial)return;
+  if(!response.ok||!JourneyMap.valid(route?.geometry?.coordinates))throw new Error('Road route unavailable. The dashed line is an estimate, not a drivable route.');
+  JourneyMap.render($('setupMap'),a,b,route.geometry.coordinates);$('setupMapStatus').textContent=a.n+' → '+b.n+'\n'+Math.round(route.distance/1609.344).toLocaleString()+' road miles · about '+(route.duration/3600).toFixed(1)+' driving hours before stops. No live traffic.';
+ }catch(error){if(serial===previewSerial)$('setupMapStatus').textContent=error.message||'Route unavailable; showing an estimated connection.'}finally{button.disabled=false;}
+};
+function openJourneyMap(){
+ const real=JourneyMap.render($('journeyMap'),cities[state.origin],cities[state.dest],state.routeGeometry,state.distance/Math.max(1,state.totalMiles));
+ const left=Math.max(0,state.totalMiles-state.distance),hours=state.routeDuration?state.routeDuration/3600*left/Math.max(1,state.totalMiles):left/60;
+ $('routeMapTitle').textContent=cities[state.origin].n+' → '+cities[state.dest].n;
+ $('journeyMapStatus').textContent=Math.round(state.distance).toLocaleString()+' miles traveled · '+Math.ceil(left).toLocaleString()+' miles remaining\nAbout '+hours.toFixed(1)+' driving hours before stops. '+(real?'Road route; marker estimates game progress.':'Offline/legacy estimate: dashed line does not follow roads.');
+ $('routeDialog').showModal();$('routeDialog').scrollTop=0;
+}
+$('tripTimeline').onclick=openJourneyMap;$('tripTimeline').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openJourneyMap()}};
+function boot(){try{$('onlineRoutes').checked=localStorage.getItem('lwh-online')!=='false'}catch(e){}applyOnlinePreference();try{soundOn=localStorage.getItem('lwh-sound')!=='false'}catch(e){}$('soundBtn').textContent=soundOn?'♪ SOUND ON':'♪ SOUND OFF';initSelects();renderSetupCards();refreshSetupMap();try{if(localStorage.getItem(SAVE_KEY))$('resumeBtn').hidden=false}catch(e){}}
 boot();
 })();

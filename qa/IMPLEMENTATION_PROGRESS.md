@@ -22,7 +22,7 @@ Release remains blocked. No version change or final build publication is authori
 
 ## Still required
 
-Implement the actual-road map with agreed privacy safeguards and timeline interaction, layered driving environment, cockpit controls and animations, regional scenery/warnings and traffic events. Then repeat full browser and signed Android visual review, update evidence and only then advance the version and publish. The previous REVIEW.md is historical and explicitly superseded.
+Finish layered driving environment, richer cockpit animation, regional scenery/warnings and traffic events. Then repeat full browser and signed Android visual review, update evidence and only then advance the version and publish. The previous REVIEW.md is historical and explicitly superseded.
 
 ## Cockpit interaction pass
 
@@ -32,3 +32,12 @@ Implement the actual-road map with agreed privacy safeguards and timeline intera
 - Controls remain accessible in portrait and landscape. The underlying dashboard art remains the existing shared cockpit; richer animated instruments and vehicle-specific interior families are not claimed complete.
 - Prior fuel and glass/overview commits both passed the signed Android workflow. The latest cockpit revision still needs its Android run and final native visual review.
 - Validation: 100 controlled fuel checks and 53 browser checks pass with 108 captures, both full journeys and no JavaScript exceptions. All seven effects, including the horn, produce unclipped signals. New dashboard captures were manually inspected in both orientations; the initial landscape layout hid lower readings, so it was replaced with a compact side-by-side layout and recaptured. Compact portrait road controls remain readable and scrollable.
+
+## Geographic route map pass
+
+- Added bundled public-domain Natural Earth geography. City setup now puts the U.S. map prominently beside the city controls in landscape and above them in portrait, with the life-planning illustration retained below the map. Map provenance is recorded in map-data.md.
+- Optional preview draws the actual geometry returned by OSRM, with road mileage and driving duration. Offline/unavailable routes remain explicitly dashed endpoint estimates, never represented as road geometry. No map tiles, GPS or additional tracking providers are used.
+- The always-visible trip overview opens a detailed map with a journey-position marker, remaining miles and estimated driving time. Stored road geometry survives reopening; road geography also informs nearby-market location. The marker estimates game progress rather than live position.
+- City geocoding rejects street-number input and street/house results. The preview discloses the existing optional city/IP transmission to Photon and OSRM, and online mode can be disabled.
+- Setup map and detailed map layout are included in the browser capture suite. Final Android visual review and live-service end-to-end confirmation remain part of the release gate.
+- Validation: 100 controlled fuel checks and 60 browser checks pass with 112 captures and both complete journeys. New setup and detailed-map captures were manually inspected in both orientations; the short landscape setup map was reduced in height so the preview control stays visible. Controlled routing tests cover returned geometry, duration, position marker, persistence, online preview, offline labeling and rejection of street-number input. Synthetic route fixtures are test evidence, not claims of a real-world trip.
