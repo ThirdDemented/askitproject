@@ -25,10 +25,15 @@ adb install -r app/build/outputs/apk/androidTest/release/app-release-androidTest
 adb shell input keyevent 82 || true
 adb shell pm list instrumentation | grep -F "$RUNNER"
 
-timeout 180s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#screensAndRotation "$RUNNER" | tee android-smoke.log
+# This test intentionally traverses multiple screens and performs native
+# orientation changes. API 36 hosted emulators can take several minutes to
+# settle during rotations, so give this comprehensive test a bounded 6-minute
+# window while retaining the workflow's 10-minute absolute Android QA ceiling.
+timeout 360s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#screensAndRotation "$RUNNER" | tee android-smoke.log
 grep -q 'OK (1 test)' android-smoke.log
 
 adb shell am force-stop "$PACKAGE"
+# The restart/persistence smoke test is narrower and should remain fast.
 timeout 180s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#resumeAfterProcessStop "$RUNNER" | tee resume-smoke.log
 grep -q 'OK (1 test)' resume-smoke.log
 
