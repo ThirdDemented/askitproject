@@ -1,4 +1,34 @@
-# Commercial completion review
+# Completion review including demo feedback — September 28, 2026 UTC
+
+Candidate: `f93b7d116abcce6e83fa8bcba146c58e1c57e66d`. Canonical source digest: `f041af422a6bfae438ce87d5409f1b2370b5e244f1d7c4cffb05d81fae950b6c`. Version-only metadata is excluded from that digest. The authoritative publication decision remains `release-gates.json`.
+
+**Review passed.** Final candidate workflow 36375175732 succeeded. All native portrait/landscape captures were opened and inspected, the repaired setup rotation remains correct, signatures and API 36 match, and its packaged source digest exactly matches the value above. The earlier repair was independently verified in workflow 36374543428. Version 1.1.0 may now be built and published through the gated workflow; no game-content change is permitted without renewed review.
+
+## Current visual and gameplay evidence
+
+- Opened all 123 browser captures, including full-size images and contact sheets. All core families, ten vehicle listings, long-form/choice details and reports were inspected in portrait and landscape. Additional compact/wide layouts and store-size captures were reviewed. No remaining overlap, missing art, blank frame or unreadable control was observed. Long choices scroll; the driving timeline stays fixed.
+- Thirty original retained sources reconstruct lossless runtime art with exact prompts/hashes. New desert/forest cockpits and a transparent unbranded oncoming car preserve the approved visibly retro style. Three regional views were inspected in both orientations, with successive motion frames and two traffic positions. Sky, roadsides, pavement, gauges, radio and condition lights animate independently; pause and reduced-motion behavior are tested.
+- `manual-review/driving-preview.webm` records the actual UI at 1280x720 after an ordinary purchase/departure/resume, without injected test state. It includes roughly 15 seconds of driving motion and passing traffic. This silent video demonstrates animation, not audio quality.
+- Latest local results: 100 controlled fuel cases across ten cars, 75 browser assertions, 123 captures, zero runtime exceptions, a complete 1,528-mile successful run and a 486-mile fuel failure. Full runs use UI choices without state injection during the run; explicit fixtures separately cover rare events.
+- Checks cover finite possessions, money preparation, inspection/test drive/three-attempt negotiation, supplies, survival/events, service affordability, trading/stock, underground/Heat, legacy saves, unresolved decisions, rotation, restart and exactly-once final/lifetime records. Fuel tests cover actual gallons/cents, partial/zero-cash/full purchases, warning range, no overfill, stop cooldown and precise running-dry distance/time. Glass damage persists until an affordable repair. Radio selection persists, horn is non-destructive, dashboard values use real state, and traffic detours do not charge fuel twice.
+- Completed a manual live Champaign-to-Chicago journey: 134 road miles, negotiated purchase, supplies, cockpit controls, reload/resume, coolant/rain decisions, arrival and reports. Final totals: 4.5 gallons used, $2,320 spent, $5,730 remaining, $75 negotiated off. See LIVE_ROUTE_REVIEW.md and the retained report screenshot. Live city lookup exposed and fixed the provider-query suffix problem; fixtures additionally test business/foreign/address rejection, geometry/duration persistence and offline mode with no provider requests.
+- Audio tests sample unclipped original music and all seven effects, including horn, plus mute persistence and lifecycle pause/resume. Manual UI play exercised radio/horn. This is signal/interaction testing, not a claimed hardware-speaker listening session; the Android emulator has audio output disabled.
+
+## Findings corrected during this review
+
+Moved survival meters out of the cockpit; separated close map labels and position legend; reset inner scroll positions when entering screens after the short-landscape title returned partially scrolled; applied overcast rain lighting to every moving layer; and replaced negative-zero/full-tank refill wording with an explicit no-purchase-needed message. Recaptured and inspected the repaired screens.
+
+Direct native inspection caught a rotated setup screen retaining a stale landscape tile despite passing automation. Native configuration refresh fixed it: the replacement portrait capture fills the viewport with the correct map/form layout, and width metadata agrees. Workflows 36374543428 and 36375175732 verified signatures, API 36, native rotation and process-stop/reopen; both sets of native captures were inspected.
+
+The inspected store kit includes actual game captures, icon/feature graphic and current listing/privacy/rating/app-access guidance. APK/AAB use the private certificate and permanent package `com.thirdemented.longwayhome.release2026`; no secrets are packaged. Play enrollment, real publisher fields and account-specific testing/submission remain owner steps, not claimed completed.
+
+## Deliberate scope
+
+Regional scenery is stylized, not exact roadside photography. The cockpit is shared across cars with accurate vehicle-specific values. Distinct interior families and progressively spreading cracks were discussed as possibilities and are not claimed implemented. Fictional detours change future distance/time while the map discloses that it retains the original road geometry. No GPS, live traffic feed or live-navigation accuracy is claimed.
+
+---
+
+# Historical pre-feedback commercial review
 
 **Superseded by demo feedback. This is historical evidence for the pre-feedback candidate, not approval of the current game. See DEMO_FEEDBACK.md and the still-blocked release gates.**
 
