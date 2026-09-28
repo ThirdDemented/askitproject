@@ -73,7 +73,7 @@ jobs:
           grep -qi "$EXPECTED" signing-verification.txt
           jarsigner -verify app/build/outputs/bundle/release/app-release.aab
           "${ANDROID_HOME}/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/release/app-release.apk | tee package-verification.txt
-          grep -q "com.thirdemented.longwayhome.release2026" package-verification.txt
+          grep -q "com.thirdemented.thelongwayhome" package-verification.txt
           grep -q "targetSdkVersion:'36'" package-verification.txt
       - name: Enable emulator acceleration
         run: |
