@@ -7,7 +7,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.thirdemented.longwayhome.release2026"
+        applicationId = "com.thirdemented.thelongwayhome"
         minSdk = 26
         targetSdk = 36
         versionCode = 5
