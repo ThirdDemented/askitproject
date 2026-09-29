@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Rule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -43,7 +44,9 @@ public class GameReleaseTest {
     /** Expected test data is not a second, asynchronously written app save.
      * The actual journey still must survive force-stop unchanged. */
     private void checkpointJourney(String name) throws Exception {
-        String snapshot=js("JSON.parse(localStorage.getItem('lwh-rc1-save'))");
+        Object decoded=new JSONTokener(js("localStorage.getItem('lwh-rc1-save')")).nextValue();
+        assertTrue("Checkpoint is the original saved text",decoded instanceof String);
+        String snapshot=(String)decoded;
         JSONObject check=new JSONObject(snapshot);
         assertTrue("Checkpoint has an active story",check.getJSONObject("story").getJSONObject("trip").has("active"));
         durableEvidence(name,snapshot);
@@ -74,7 +77,7 @@ public class GameReleaseTest {
         activity=(MainActivity)instrumentation.startActivitySync(intent);
         instrumentation.runOnMainSync(()->web=findWeb(activity.findViewById(android.R.id.content)));
         assertNotNull(web);
-        waitFor("!!document.getElementById('newGameBtn')", "game loaded");
+        waitFor("document.readyState==='complete'&&typeof document.getElementById('newGameBtn')?.onclick==='function'&&typeof window.LWHLifecycle?.pause==='function'", "game and handlers loaded");
     }
     private String js(String expression) throws Exception {
         CountDownLatch done=new CountDownLatch(1);AtomicReference<String> result=new AtomicReference<>();
@@ -172,6 +175,7 @@ public class GameReleaseTest {
     }
     @Test public void storyResumeAfterProcessStop() throws Exception {
         launch();click("resumeBtn");
+        waitFor("document.getElementById('roadScreen').classList.contains('active')", "unfinished encounter visibly resumed");
         String expected=new String(Files.readAllBytes(evidenceFile("restart-expected-portrait.json").toPath()),StandardCharsets.UTF_8);
         new JSONObject(expected); // Fail clearly if the test checkpoint itself is corrupt.
         js("window.expectedRestartJourney="+expected);
