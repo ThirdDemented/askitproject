@@ -18,6 +18,23 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Snapshot tracked source for reproducible review
+        run: |
+          python - <<'PY'
+          import pathlib, subprocess, zipfile
+          suffixes = {'.js', '.cjs', '.html', '.css', '.json', '.py', '.sh', '.java', '.xml', '.kts', '.properties', '.yml', '.md', '.txt', '.sha256'}
+          with zipfile.ZipFile('story-source.zip', 'w', zipfile.ZIP_DEFLATED) as z:
+              for name in subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0'):
+                  p = pathlib.Path(name)
+                  if name and p.suffix in suffixes and not name.startswith(('art-source/', 'art_b64/')):
+                      z.write(p, name)
+              z.writestr('SOURCE_COMMIT.txt', subprocess.check_output(['git', 'rev-parse', 'HEAD']))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: story-source-${{ github.sha }}
+          path: story-source.zip
+          if-no-files-found: error
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
