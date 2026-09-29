@@ -1,0 +1,32 @@
+name: Independent alpha1 acceptance review (no release)
+on:
+  push:
+    branches: [codex/alpha1-acceptance-review]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebuild the unchanged game artwork
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/rebuild_art.py
+      - name: Install the existing pinned browser dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Independent choices, complete journey, and acceptance evidence
+        run: node qa/alpha1-acceptance.cjs
+      - name: Retain acceptance evidence whether or not requirements pass
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alpha1-independent-review-${{ github.run_id }}
+          path: qa/results/alpha1-independent/
+          if-no-files-found: error
