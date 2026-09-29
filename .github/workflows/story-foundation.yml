@@ -34,7 +34,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -u -- app qa scripts/story-depth.pending
-            git commit -m 'Materialize alpha2 diner depth, earned callbacks and discovery variation'
+            git commit -m 'Materialize alpha3 correctness fixes and independent regressions'
             git push origin HEAD:refs/heads/codex/chaos-phase1
           fi
       - name: Record exact source revision
@@ -136,7 +136,7 @@ jobs:
           grep -qi "$EXPECTED" signing-verification.txt
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/release/app-release.apk | tee package-verification.txt
           grep -Fq "package: name='com.thirdemented.thelongwayhome'" package-verification.txt
-          grep -Fq "versionName='1.2.0-alpha.2'" package-verification.txt
+          grep -Fq "versionName='1.2.0-alpha.3'" package-verification.txt
           grep -Fq "targetSdkVersion:'36'" package-verification.txt
           jarsigner -verify app/build/outputs/bundle/release/app-release.aab
       - name: Enable emulator acceleration
@@ -161,8 +161,8 @@ jobs:
           REVIEWED_SOURCE_SHA: ${{ needs.foundation.outputs.source_sha }}
         run: |
           mkdir -p candidate
-          cp app/build/outputs/apk/release/app-release.apk candidate/The-Long-Way-Home-1.2.0-alpha.2.apk
-          cp app/build/outputs/bundle/release/app-release.aab candidate/The-Long-Way-Home-1.2.0-alpha.2.aab
+          cp app/build/outputs/apk/release/app-release.apk candidate/The-Long-Way-Home-1.2.0-alpha.3.apk
+          cp app/build/outputs/bundle/release/app-release.aab candidate/The-Long-Way-Home-1.2.0-alpha.3.aab
           printf 'Owner playtest only. Not approved for Google Play.\nSource commit: %s\nWorkflow run: %s\n' "$REVIEWED_SOURCE_SHA" "$GITHUB_RUN_ID" > candidate/BUILD-INFO.txt
           (cd candidate && sha256sum *.apk *.aab > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4

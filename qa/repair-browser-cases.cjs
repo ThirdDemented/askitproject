@@ -1,0 +1,61 @@
+'use strict';
+// Edge-case fixtures exercise actual index/game UI, not frequency in normal play.
+module.exports=async function repairCases({page,fixture,s,click,kitchen,ok,capture}){
+ const road=async(id,prefix)=>{await page.evaluate(id=>QA.triggerEvent(QA.roadEvents.find(e=>e.id===id)),id);await page.locator('#eventChoices button').filter({hasText:prefix}).first().click();};
+ const lifetime=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('lwh-lifetime-v1')||'{"runs":0}').runs);
+ const fixed=()=>page.evaluate(()=>{Math.random=()=>.25;});
+ await fixture({fatigue:93,condition:80,hunger:60,inventory:['toolkit']});await road('tire','STOP NOW');
+ for(const id of ['inspect','tools','attempt'])await click(id);
+ ok('parked repair exhaustion does not invent a driving crash',!(await s()).ended&&(await s()).distance===200&&(await s()).fatigue===98);
+ await capture('repair-parked-portrait');await page.reload();await page.click('#resumeBtn');
+ ok('exhausted parked repair resumes without a fabricated crash',!(await s()).ended&&(await s()).distance===200);
+ if((await s()).story.trip.active.node==='complication')await click('assistance');await click('exit');
+ await page.click('#driveLegBtn');ok('exhausted driver receives a rest choice before moving',(await s()).currentEvent==='restDecision'&&(await s()).distance===200);
+ await page.setViewportSize({width:844,height:390});await capture('rest-before-driving-landscape');
+ const beforeRest=await s();await page.locator('#eventChoices button').filter({hasText:'SLEEP IN CAR'}).click();
+ ok('free sleep reduces fatigue and spends six real game hours',(await s()).fatigue===28&&(await s()).cash===beforeRest.cash&&Math.abs((beforeRest.days-(await s()).days)*24-6)<1e-8);
+ await page.click('#driveLegBtn');ok('rested driver can return to actual driving',(await s()).distance>200);
+ await fixture({fatigue:40});await page.click('#restStopBtn');ok('voluntary rest is available before dangerous fatigue',(await s()).currentEvent==='restDecision'&&(await s()).distance===200);
+ await fixture({fatigue:98});await fixed();await page.click('#driveLegBtn');await page.locator('#eventChoices button').filter({hasText:'ACCEPT THE RISK'}).click();
+ ok('declining sleep is a real choice, not an immediate parked ending',!(await s()).ended&&(await s()).distance===200);
+ await page.click('#driveLegBtn');ok('driving after explicit exhaustion warning can still fail',(await s()).ending.kicker==='YOU NODDED OFF'&&(await s()).distance>200);
+ for(const minutes of [1,12.7,60]){
+  await fixture({distance:1590,totalMiles:1600,days:minutes/1440,reason:{hard:true,id:'career'}});await fixed();await page.click('#driveLegBtn');
+  ok('arrival deadline boundary '+minutes+' minutes',(await s()).ending.kicker===(minutes<12.7?'YOU MISSED THE DEADLINE':'YOU MADE IT'));
+ }
+ await fixture({distance:1590,totalMiles:1600});await fixed();const old=await s(),count=await lifetime();
+ await page.evaluate(()=>{const base=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='lwh-rc1-save')throw new DOMException('Test quota','QuotaExceededError');return base.call(this,k,v);};});
+ await page.click('#driveLegBtn');
+ ok('failed ending save does not advance lifetime totals',(await s()).ended===old.ended&&(await lifetime())===count);
+ // Keep failure active through pagehide; the fresh page has normal storage.
+ await page.reload();await page.click('#resumeBtn');await fixed();await page.click('#driveLegBtn');
+ ok('replaying an unsaved final leg records exactly one completion',(await lifetime())===count+1);
+ await page.reload();await page.click('#resumeBtn');ok('reopening the completed journey does not count twice',(await lifetime())===count+1);
+ await fixture({distance:1590,totalMiles:1600});await fixed();const count2=await lifetime();
+ await page.evaluate(()=>{const base=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='lwh-lifetime-v1')throw new DOMException('Test lifetime quota','QuotaExceededError');return base.call(this,k,v);};});
+ await page.click('#driveLegBtn');ok('lifetime write failure retains an ended retryable journey',(await s()).ended&&!(await s()).stats.committed&&(await lifetime())===count2);
+ await page.reload();await page.click('#resumeBtn');ok('reopening retries the missing lifetime receipt once',(await lifetime())===count2+1&&(await s()).stats.committed);
+ await page.reload();await page.click('#resumeBtn');ok('receipt recovery stays idempotent',(await lifetime())===count2+1);
+ await fixture({condition:70,inventory:[]});await page.evaluate(()=>QA.triggerEvent(QA.roadEvents.find(e=>e.id==='heat')));
+ ok('coolant is visibly unavailable without the required item',await page.locator('#eventChoices button').filter({hasText:'ADD COOLANT'}).isDisabled());
+ await fixture({cash:3});await page.evaluate(()=>QA.triggerEvent(QA.roadEvents.find(e=>e.id==='roadsideAttraction')));
+ const attraction=page.locator('#eventChoices button').filter({hasText:'GO SEE IT'});ok('attraction displays its eight-dollar fee and blocks unaffordable entry',await attraction.innerText().then(t=>t.includes('$8'))&&await attraction.isDisabled());
+ await fixture({distance:400,totalMiles:1000,inventory:['atlas']});await fixed();const routeBefore=await s();await road('shortcut','TAKE IT');
+ ok('shortcut reduces remaining route without creating fuel-free mileage',(await s()).distance===400&&(await s()).totalMiles===982&&(await s()).fuel===routeBefore.fuel&&(await s()).days===routeBefore.days);
+ await fixture({cash:900,cargo:{tools:1}});await page.evaluate(()=>{QA.state().stats.tradeSpent=100;QA.state().stats.totalSpent=100;});await fixed();await road('cargoScam','TAKE THE LOWER PRICE');
+ ok('roadside sale reaches the correct trading-profit ledger',(await s()).cash===984&&(await s()).stats.tradeEarned===84&&(await s()).stats.totalEarned===84);
+ await fixture({hunger:60,condition:80,fatigue:10});await page.evaluate(()=>{const j=QA.state();j.story=LWHStoryEngine.create({seed:3780978406});j.storyIntegrationVersion=1;localStorage.setItem('lwh-rc1-save',JSON.stringify(j));});
+ await page.click('#dinerStopBtn');for(const id of ['enter','counter','coffee','chat','ask_hal','talk_car','offer_help','finish_talking'])await click(id);await kitchen();
+ for(const id of ['eat','pay','outside','inspect_hal','help_repair'])await click(id);
+ ok('failed careful repair offers honest departure',(await s()).story.world.flags.partsJob.status==='attempted');
+ await click('honest_exit');await click('exit');const cash=(await s()).cash;
+ await page.evaluate(()=>{Math.random=()=>.95;});
+ for(let i=0;i<4&&(await s()).currentEvent!=='story_callback';i++)await page.click('#driveLegBtn');
+ ok('later conversation remembers honest departure rather than an invented referral',(await s()).currentEvent==='story_callback'&&await page.locator('#eventBody').innerText().then(t=>t.includes('I called a shop after you left')));
+ ok('honest departure has no unearned referral payment',await page.locator('[data-story-choice="accept_thanks"]').count()===0);
+ await click('wave');await click('exit');ok('honest callback closes without adding money',(await s()).cash===cash&&(await s()).story.world.flags.partsJob.callbackDone);
+ await fixture({hunger:60});await page.evaluate(()=>{const j=QA.state();j.story=LWHStoryEngine.create({seed:1139853271});j.storyIntegrationVersion=1;localStorage.setItem('lwh-rc1-save',JSON.stringify(j));});
+ await page.click('#dinerStopBtn');for(const id of ['enter','counter','coffee','wait','accept_plate','eat','pay','exit'])await click(id);
+ ok('replacement breakfast matches its hunger relief while keeping the agreed coffee price',(await s()).hunger===5&&(await s()).cash===995);
+ await page.setViewportSize({width:390,height:844});
+};
