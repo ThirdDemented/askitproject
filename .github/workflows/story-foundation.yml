@@ -1,0 +1,188 @@
+name: Integrated story candidate (no publication)
+on:
+  push:
+    branches: [codex/chaos-phase1]
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'qa/**'
+      - 'scripts/**'
+      - '.github/workflows/story-foundation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: story-foundation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Materialize the hash-checked depth update
+        run: python scripts/apply_story_depth.py
+      - name: Commit ordinary source only on the expansion branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/codex/chaos-phase1'
+        run: |
+          if ! git diff --quiet; then
+            REMOTE="$(git ls-remote origin refs/heads/codex/chaos-phase1 | cut -f1)"
+            test "$REMOTE" = "$GITHUB_SHA"
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -u -- app qa scripts/story-depth.pending
+            git commit -m 'Materialize alpha3 correctness fixes and independent regressions'
+            git push origin HEAD:refs/heads/codex/chaos-phase1
+          fi
+      - name: Record exact source revision
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Save a reproducible tracked-source snapshot
+        run: |
+          python - <<'PY'
+          import pathlib, subprocess, zipfile
+          suffixes={'.js','.cjs','.html','.css','.json','.py','.sh','.java','.xml','.kts','.properties','.yml','.md','.txt','.sha256'}
+          with zipfile.ZipFile('story-source.zip','w',zipfile.ZIP_DEFLATED) as z:
+              for name in subprocess.check_output(['git','ls-files','-z']).decode().split('\0'):
+                  p=pathlib.Path(name)
+                  if name and p.is_file() and p.suffix in suffixes and not name.startswith(('art-source/','art_b64/')):
+                      z.write(p,name)
+              z.writestr('SOURCE_COMMIT.txt',subprocess.check_output(['git','rev-parse','HEAD']))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: story-source-${{ github.run_id }}
+          path: story-source.zip
+          if-no-files-found: error
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: State, adapter, depth and fuel regression
+        run: |
+          for FILE in app/src/main/assets/www/*.js; do node --check "$FILE"; done
+          node --test qa/story-engine.test.cjs qa/story-bridge.test.cjs qa/story-depth.test.cjs
+          node qa/fuel-qa.cjs
+      - name: Reconstruct verified artwork
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/rebuild_art.py
+          python scripts/check_release.py --source-only
+      - name: Install browser test dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Full-game and legacy prototype browser checks
+        run: |
+          node qa/game-qa.cjs
+          node qa/story-browser.cjs
+      - name: Integrated journey and release-experience browser checks
+        run: |
+          node qa/story-journey.cjs
+          node qa/story-depth-browser.cjs
+      - name: Save review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-integration-evidence-${{ github.run_id }}
+          path: |
+            qa/results/
+            qa/captures/
+          if-no-files-found: warn
+
+  android_candidate:
+    needs: foundation
+    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/chaos-phase1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.foundation.outputs.source_sha }}
+      - name: Reconstruct release artwork
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/rebuild_art.py
+          python scripts/launcher.py
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android API 36
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Restore existing private signing key
+        env:
+          LWH_SIGNING_KEY: ${{ secrets.LWH_SIGNING_KEY }}
+        run: |
+          test -n "$LWH_SIGNING_KEY"
+          umask 077
+          printf '%s' "$LWH_SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/lwh-release.p12"
+      - name: Compile signed candidate and test APK
+        env:
+          LWH_KEYSTORE: ${{ runner.temp }}/lwh-release.p12
+          LWH_KEY_PASSWORD: ${{ secrets.LWH_KEY_PASSWORD }}
+        run: gradle :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest --stacktrace
+      - name: Verify unchanged identity and release certificate
+        run: |
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk | tee signing-verification.txt
+          EXPECTED="$(tr '[:upper:]' '[:lower:]' < signing-certificate.sha256 | tr -d '\r\n')"
+          grep -qi "$EXPECTED" signing-verification.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/release/app-release.apk | tee package-verification.txt
+          grep -Fq "package: name='com.thirdemented.thelongwayhome'" package-verification.txt
+          grep -Fq "versionName='1.2.0-alpha.3'" package-verification.txt
+          grep -Fq "targetSdkVersion:'36'" package-verification.txt
+          jarsigner -verify app/build/outputs/bundle/release/app-release.aab
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Baseline, integrated encounters and depth Android checks
+        timeout-minutes: 18
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-boot-timeout: 180
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          disable-animations: false
+          script: bash qa/android_qa.sh
+      - name: Assemble owner-playtest candidate only after passing checks
+        env:
+          REVIEWED_SOURCE_SHA: ${{ needs.foundation.outputs.source_sha }}
+        run: |
+          mkdir -p candidate
+          cp app/build/outputs/apk/release/app-release.apk candidate/The-Long-Way-Home-1.2.0-alpha.3.apk
+          cp app/build/outputs/bundle/release/app-release.aab candidate/The-Long-Way-Home-1.2.0-alpha.3.aab
+          printf 'Owner playtest only. Not approved for Google Play.\nSource commit: %s\nWorkflow run: %s\n' "$REVIEWED_SOURCE_SHA" "$GITHUB_RUN_ID" > candidate/BUILD-INFO.txt
+          (cd candidate && sha256sum *.apk *.aab > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: long-way-home-phone-test-${{ github.run_id }}
+          path: candidate/
+          if-no-files-found: error
+      - name: Retain native QA evidence, even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-android-evidence-${{ github.run_id }}
+          path: |
+            *-portrait.png
+            *-landscape.png
+            *-portrait.json
+            *-landscape.json
+            *-smoke.log
+            *-verification.txt
+          if-no-files-found: warn
+      - name: Remove temporary signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/lwh-release.p12"

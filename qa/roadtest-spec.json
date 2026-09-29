@@ -1,0 +1,38 @@
+{
+  "version": "1.0.0",
+  "baseline": {"gameSource": "178b647030c911ea1a8f8e31736e31e2191e506c", "candidate": "1.2.0-alpha.2", "ownerReleaseApproval": false},
+  "requirements": [
+    {"id":"JOURNEY-01","title":"A normal UI journey can finish and a failed journey records its outcome","proof":[["game","successful complete UI run"],["game","failure complete UI run"]]},
+    {"id":"STATE-01","title":"Actual money, items, mileage and time remain consistent","proof":[["journey","meal affects actual road resources and ledger once"],["journey","storage failure leaves in-memory and saved journey untouched"],["state","bridge leaves the original snapshot and every unrelated field intact"]]},
+    {"id":"SAVE-01","title":"Restore pending choices without rerolls, duplicate payment or loss of old saves","proof":[["depth","answer and kitchen state survive reopening"],["depth","alpha1 pending meal upgrades without moving its node or charging"],["depth","pre-upgrade alpha1 bytes are retained"],["journey","future encounter saves are rejected and retained"]]},
+    {"id":"DIALOGUE-01","title":"A question produces an actual answer and optional follow-up","proof":[["depth","Hal answers the actual car question"],["depth","question is not silently replaced by a meal"],["state","listen to the rest displays authored continuation for every nonquiet topic"]]},
+    {"id":"AGENCY-01","title":"Declining conversation is a valid lunch; helping is optional","proof":[["state","declining a conversation remains a complete ordinary lunch"],["state","lunch payment leads to optional parking-lot followthrough, not a hidden forced job"]]},
+    {"id":"KITCHEN-01","title":"The kitchen continues independently of what the player attends to","proof":[["state","placemat and ordinary waiting share the same kitchen event at matched seeds"],["state","a kitchen bell can arrive during dialogue without erasing the reply"]]},
+    {"id":"WORLD-01","title":"Equipment-based help creates a specific earned road callback and once-only reward","proof":[["depth","toolkit unlocks an attempt on Hal’s car"],["depth","real driven miles trigger the earned callback"],["depth","callback remembers the specific referral"],["depth","later reward is credited once to real cash and ledger"],["depth","settled callback stays settled on reload"]]},
+    {"id":"REPAIR-01","title":"Low-condition stopping preserves a chance to act; tires do not heal engines","proof":[["state","the low-condition STOP NOW regression is fixed at 1, 2 and 3 percent"],["depth","help resolves the tire without pretending to repair the engine"],["journey","no toolkit means no work option"]]},
+    {"id":"VARIETY-01","title":"Seat context and relationships produce observable, situated differences","proof":[["state","counter and booth offer different situated conversations"],["state","repeat same-place greeting acknowledges a prior tip; other towns do not"],["state","new greetings can mention the completed favor in its original place"]]},
+    {"id":"DISCOVERY-01","title":"Under-seat discoveries vary and cannot be farmed or rerolled","proof":[["state","loot includes empty, ordinary, useful, cash and rare findings; never repeated cash"],["state","leaving a discovery unsearched does not reroll the hidden item"],["depth","a searched vehicle is no longer eligible for repeated loot"],["depth","discovery payout and search marker survive reload"]]},
+    {"id":"PRESENTATION-01","title":"Meals match their phase; indoor choices remain legible and appropriate","proof":[["depth","waiting shows an empty setting, not breakfast"],["depth","the ordered breakfast is shown only when served"],["depth","eaten meal becomes an empty plate"],["depth","horn and dashboard are not available inside the diner"],["depth","dialogue fits 360x800"],["depth","dialogue fits 844x390"]]},
+    {"id":"AUDIO-01","title":"Text preserves meaning and audio respects mute, background and exit","proof":[["journey","readable transcript is present"],["journey","mixed audio produces a nonclipping signal"],["journey","background pauses all story audio"],["journey","foreground restores ambience"],["journey","mute stops ambience while preserving text"],["journey","leaving the diner cleans up audio sources"]]},
+    {"id":"PERSONAS-01","title":"Six scene-playing styles retain affordable choices and reproducible saves","proof":[["personas","prepared-mechanic: budgets, exits, preserved miles and deterministic resume"],["personas","cash-poor-unprepared: budgets, exits, preserved miles and deterministic resume"],["personas","quiet-diner: budgets, exits, preserved miles and deterministic resume"],["personas","curious-helper: budgets, exits, preserved miles and deterministic resume"],["personas","reckless-experimenter: budgets, exits, preserved miles and deterministic resume"],["personas","reload-checker: budgets, exits, preserved miles and deterministic resume"]]}
+  ],
+  "releaseGaps": [
+    {"id":"META-01","title":"Progressively revealed absurd meta-presence, voluntary Accept What You Did, and cross-run conversations"},
+    {"id":"CAREERS-01","title":"Discoverable careers with explicit badges, meaningful progression and pinnacle outcomes"},
+    {"id":"CASCADE-01","title":"Broader contextual vehicle/activity cascades with setbacks, derailments and fair rare disasters"},
+    {"id":"PLACES-01","title":"Comparably rich motel, mechanic and general-store/market interactions"},
+    {"id":"RABBIT-01","title":"Selected deep, intersecting discoveries with real payoffs, including the river-fording homage"},
+    {"id":"TONE-01","title":"Original deadpan adult humor and explicit fictional underground-goods names without real-world how-to content"}
+  ],
+  "humanGates": [
+    {"id":"FEEL-01","title":"Enjoyment, pacing, comedy, repetition and the coherence of the intended experience"},
+    {"id":"ART-01","title":"Inspect actual screenshots for contradictions and final visual quality; automated layout checks alone do not approve art"},
+    {"id":"LISTEN-01","title":"Human listening and volume/mix comfort on an actual phone"},
+    {"id":"OWNER-01","title":"Owner approves the exact signed, hash-identified APK after personal play; no store publication without approval"}
+  ],
+  "nextImprovements": [
+    {"id":"EXPLORE-01","title":"Inspect a fresh, diverse full-journey sample for repetition, misleading choices and unfair consequences; convert each confirmed defect into regression coverage"},
+    {"id":"META-SLICE","title":"After alpha2 evidence is accepted, implement one bounded, voluntary local-history meta callback with a readable payoff and explicit tests; not the entire meta system"}
+  ],
+  "rules": ["A planned requirement is never silently counted as passed.", "Source changes invalidate old evidence; verify commit or identical game digest before reuse.", "Keep fixed seeds and add deterministic source-specific exploratory seeds.", "Never erase, skip or weaken a valid test just to obtain green.", "No claim of infinite uniqueness, human phone play, or subjective listening from scripts."]
+}

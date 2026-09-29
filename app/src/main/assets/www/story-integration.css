@@ -1,0 +1,45 @@
+/* Integrated encounters reuse the existing responsive road layout. */
+.story-choice-cost{display:block;font-size:12px;line-height:1.5;margin-top:5px;font-weight:normal;opacity:.9}
+.story-status{font-size:12px;line-height:1.5;padding:9px;border:1px solid #807964;margin:10px 0}
+#storyTranscript{border:1px solid #807964;padding:0 10px;margin:10px 0}
+#storyTranscript summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:12px;line-height:1.5}
+.story-transcript-lines{max-height:240px;overflow:auto;font-size:13px;line-height:1.6;white-space:pre-line}
+.story-transcript-lines p{margin:9px 0}
+#eventBody{white-space:pre-line}
+#dinerStopBtn,#storySoundBtn{min-height:44px}
+/* The diner is a place, not a dashboard. Keep trip log/rotate and cash accessible. */
+#roadScreen.story-indoor .cockpit-controls,#roadScreen.story-indoor #dashHotspot,
+#roadScreen.story-indoor #cockpitNotice,#roadScreen.story-indoor #routeInstruction,
+#roadScreen.story-indoor #drivingWarning,#roadScreen.story-indoor .live-instruments,
+#roadScreen.story-indoor .driving-world,#roadScreen.story-indoor .weather-fx,
+#roadScreen.story-indoor .road-motion,#roadScreen.story-indoor .scene-fx,
+#roadScreen.story-indoor #windshieldCrack{display:none!important}
+#roadScreen.story-indoor .drive-stats>div:not(:last-child){display:none}
+#roadScreen.story-indoor #roadArt{visibility:hidden}
+#storyPlaceView{position:absolute;inset:0;overflow:hidden;background:#312c27;isolation:isolate}
+.story-interior{position:absolute;inset:0;background:url('art/diner.webp') right top / 380% 165% no-repeat;filter:brightness(.85)}
+.story-place-sign{position:absolute;top:6%;left:7%;padding:8px 12px;color:#ffe5a4;background:#29281fe8;border:2px solid #ba8c50;font:700 clamp(9px,1.4vw,15px)/1.2 monospace;letter-spacing:.08em}
+.story-seat-back{position:absolute;left:0;right:0;top:51%;bottom:0;background:repeating-linear-gradient(90deg,#762b24 0 19%,#492620 19% 20%);border-top:8px solid #b26346;box-shadow:0 -4px 0 #391c1c}
+[data-seat='counter'] .story-seat-back{top:56%;background:linear-gradient(#68635b,#403c38);border-top-color:#c3b9a1}
+.story-table{position:absolute;left:-4%;right:-4%;bottom:-8%;height:39%;background:repeating-linear-gradient(105deg,#a69d83 0 7px,#aca28b 7px 11px);border-top:6px solid #d5c9ad;box-shadow:0 -3px 0 #5f5143;transform:perspective(900px) rotateX(12deg)}
+.story-setting{position:absolute;left:37%;top:12%;width:34%;height:48%;background:#e1d8bd;border:5px solid #eee7d2;border-radius:50%;box-shadow:0 4px 0 #5a5346}
+[data-table='empty'] .story-setting{background:#ece0bc;border-radius:0;border:0;box-shadow:none;opacity:.85;transform:rotate(-5deg);height:34%;top:17%}
+.story-food{position:absolute;inset:12% 11%;image-rendering:pixelated}
+[data-table='soup'] .story-food{background:#b67636;border:7px solid #ecdfb7;border-radius:50%;box-shadow:3px 4px 0 #77684c}
+[data-table='breakfast'] .story-food,[data-table='wrong'] .story-food{background:radial-gradient(ellipse at 30% 45%,#eab038 0 13%,#efeadb 14% 33%,transparent 34%),repeating-linear-gradient(25deg,transparent 0 8px,#854129 8px 15px,#ca8650 15px 18px,transparent 18px 30px)}
+[data-table='coffee'] .story-food{background:#b58045;border:5px solid #785736;inset:15% 28%;transform:rotate(-9deg)}
+.story-cup{position:absolute;left:20%;top:5%;width:10%;height:37%;background:#d7ceaa;border-top:5px solid #624228;border-right:6px solid #a79b7e;box-shadow:2px 3px 0 #625947;border-radius:0 0 6px 6px}
+.story-cup:after{content:'';position:absolute;left:90%;top:10%;width:35%;height:50%;border:4px solid #c8bfa1;border-radius:0 7px 7px 0}
+[data-table='empty'] .story-cup{opacity:0}
+.story-table-card{position:absolute;left:69%;top:25%;padding:5px 8px;background:#ece0bc;color:#483a2c;transform:rotate(4deg);font:700 clamp(8px,1.3vw,14px)/1.3 monospace}
+.story-line{margin:0 0 13px;font-size:clamp(14px,1.6vw,17px);line-height:1.7}
+.story-speaker{display:block;color:#e4c985;font-size:11px;letter-spacing:.07em;margin-bottom:3px}
+.story-line[data-speaker='SOUND']{font-style:italic;color:#c8c1ac}
+.story-voice-replay{font:inherit;font-size:11px;min-height:44px;min-width:44px;margin-left:8px;padding:4px 8px;border:1px solid #887954;background:#34352c;color:#efe3c5}
+.story-choice-hint{color:#d8c697;font-size:12px;line-height:1.5}
+#storyPlaceView[hidden]{display:none!important}
+#roadScreen.story-indoor .drive-stats,#roadScreen.story-indoor .compact-road-panel{display:none!important}
+#storyStatus{border:0;padding:0;margin:8px 0 14px;color:#d8c697;font-size:12px;line-height:1.5}
+#storySoundBtn{margin:8px 0 12px}
+
+#restStopBtn{min-height:44px}.story-indoor #restStopBtn{display:none!important}
