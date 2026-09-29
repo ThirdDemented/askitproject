@@ -82,7 +82,7 @@ function save(){
  state.cityData={origin:cities[state.origin],dest:cities[state.dest]};
  state.screen=currentScreen==='tripLogScreen'?tripReturnScreen:currentScreen;
  if(state.departed && $('eventTitle').textContent)state.roadNarrative={tag:$('eventTag').textContent,title:$('eventTitle').textContent,body:$('eventBody').textContent};
- try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));$('resumeBtn').hidden=false}catch(e){showStorageWarning()}
+ try{LWHStoryBridge.assertAutosaveSafe(state,localStorage.getItem(SAVE_KEY));localStorage.setItem(SAVE_KEY,JSON.stringify(state));$('resumeBtn').hidden=false}catch(e){showStoryWarning(e.message)}
 }
 function showStoryWarning(message){showStorageWarning();$('storageWarning').textContent=message+' Your previous saved state has been kept.';}
 function showStorageWarning(){let n=$('storageWarning');if(!n){n=document.createElement('div');n.id='storageWarning';n.className='notice bad';n.setAttribute('role','alert');document.body.appendChild(n)}n.textContent='Progress could not be saved. Free device storage before closing the game.'}
