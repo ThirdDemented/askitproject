@@ -116,9 +116,10 @@ public class GameReleaseTest {
         assertEquals("true",js("window.stopBeforeRotation===localStorage.getItem('lwh-rc1-save')"));capture("diner-waiting-landscape");
         storyChoice("placemat");storyChoice("eat");storyChoice("pay");storyChoice("exit");
         assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===978&&s.hunger===15&&!s.currentEvent&&!s.story.trip.active})()"));
-        // Save an unresolved tire encounter for the separate process-restart test.
-        js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.currentEvent='tire';s.roadNarrative={tag:'MECHANICAL',title:'THUMP. THUMP. THUMP.',body:'A tire needs attention.'};localStorage.setItem('lwh-rc1-save',JSON.stringify(s));})()");
-        launch();click("resumeBtn");
+        // Stage the emulator-only fixture AFTER the old Activity has paused.
+        // Otherwise its legitimate onPause autosave would replace the fixture.
+        String tireFixture=js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.currentEvent='tire';s.roadNarrative={tag:'MECHANICAL',title:'THUMP. THUMP. THUMP.',body:'A tire needs attention.'};return JSON.stringify(s);})()");
+        launch();js("localStorage.setItem('lwh-rc1-save',"+tireFixture+")");click("resumeBtn");
         js("[...document.querySelectorAll('#eventChoices button')].find(b=>b.textContent==='STOP NOW').click()");
         storyChoice("inspect");
         assertEquals("true",js("!!document.querySelector('[data-story-choice=\"tools\"]')"));
