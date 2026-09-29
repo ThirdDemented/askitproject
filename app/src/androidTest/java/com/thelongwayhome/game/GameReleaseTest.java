@@ -11,6 +11,12 @@ import android.webkit.WebView;
 import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import org.json.JSONObject;
+import org.junit.Rule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,6 +28,40 @@ public class GameReleaseTest {
     private final Instrumentation instrumentation=InstrumentationRegistry.getInstrumentation();
     private MainActivity activity;
     private WebView web;
+
+    private File evidenceFile(String name) {
+        File dir=new File(instrumentation.getTargetContext().getExternalFilesDir(null),"qa");
+        if(!dir.isDirectory()&&!dir.mkdirs())throw new IllegalStateException("Cannot create native QA evidence directory");
+        return new File(dir,name);
+    }
+    private void durableEvidence(String name,String text) throws Exception {
+        try(FileOutputStream stream=new FileOutputStream(evidenceFile(name))){
+            stream.write(text.getBytes(StandardCharsets.UTF_8));
+            stream.flush();stream.getFD().sync();
+        }
+    }
+    /** Expected test data is not a second, asynchronously written app save.
+     * The actual journey still must survive force-stop unchanged. */
+    private void checkpointJourney(String name) throws Exception {
+        String snapshot=js("JSON.parse(localStorage.getItem('lwh-rc1-save'))");
+        JSONObject check=new JSONObject(snapshot);
+        assertTrue("Checkpoint has an active story",check.getJSONObject("story").getJSONObject("trip").has("active"));
+        durableEvidence(name,snapshot);
+    }
+    @Rule public final TestWatcher retainFailure=new TestWatcher(){
+        @Override protected void failed(Throwable failure,Description description){
+            try{
+                JSONObject receipt=new JSONObject();
+                receipt.put("test",description.getMethodName());
+                receipt.put("error",failure.toString());
+                receipt.put("actual",js("({screen:document.querySelector('.screen.active')?.id,save:localStorage.getItem('lwh-rc1-save'),legacyCheckpoint:localStorage.getItem('lwh-qa-story-before-restart'),title:document.getElementById('eventTitle')?.textContent})"));
+                durableEvidence("native-failure-portrait.json",receipt.toString(2));
+                Bitmap screenshot=instrumentation.getUiAutomation().takeScreenshot();
+                if(screenshot!=null){try(FileOutputStream stream=new FileOutputStream(evidenceFile("native-failure-portrait.png"))){screenshot.compress(Bitmap.CompressFormat.PNG,100,stream);}screenshot.recycle();}
+                System.err.println("NATIVE_QA_FAILURE "+receipt);
+            }catch(Exception diagnosticFailure){System.err.println("NATIVE_QA_DIAGNOSTICS_FAILED "+diagnosticFailure);}
+        }
+    };
 
     private WebView findWeb(View view) {
         if(view instanceof WebView)return (WebView)view;
@@ -128,11 +168,15 @@ public class GameReleaseTest {
         storyChoice("inspect");
         assertEquals("true",js("!!document.querySelector('[data-story-choice=\"tools\"]')"));
         orient(true);capture("tire-choice-portrait");
-        js("localStorage.setItem('lwh-qa-story-before-restart',localStorage.getItem('lwh-rc1-save'))");
+        checkpointJourney("restart-expected-portrait.json");
     }
     @Test public void storyResumeAfterProcessStop() throws Exception {
         launch();click("resumeBtn");
-        assertEquals("true",js("(()=>{const a=JSON.parse(localStorage.getItem('lwh-qa-story-before-restart'));const b=JSON.parse(localStorage.getItem('lwh-rc1-save'));return JSON.stringify(a.story)===JSON.stringify(b.story)&&a.cash===b.cash&&a.distance===b.distance})()"));
+        String expected=new String(Files.readAllBytes(evidenceFile("restart-expected-portrait.json").toPath()),StandardCharsets.UTF_8);
+        new JSONObject(expected); // Fail clearly if the test checkpoint itself is corrupt.
+        js("window.expectedRestartJourney="+expected);
+        assertEquals("Actual journey exists after force-stop","true",js("localStorage.getItem('lwh-rc1-save')!==null"));
+        assertEquals("Story, money and mileage survive actual process-stop unchanged","true",js("(()=>{const a=window.expectedRestartJourney;const b=JSON.parse(localStorage.getItem('lwh-rc1-save'));return JSON.stringify(a.story)===JSON.stringify(b.story)&&a.cash===b.cash&&a.distance===b.distance})()"));
         storyChoice("assistance");storyChoice("exit");
         assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===893&&!s.currentEvent&&!s.vehicleFaults.includes('tire')})()"));
         js("window.milesBeforeStoryDrive=JSON.parse(localStorage.getItem('lwh-rc1-save')).distance");click("driveLegBtn");
@@ -154,7 +198,7 @@ public class GameReleaseTest {
         assertEquals("true",js("JSON.parse(localStorage.getItem('lwh-rc1-save')).cash===978"));
         storyChoice("outside");storyChoice("inspect_hal");storyChoice("refer_shop");storyChoice("leave_job");storyChoice("exit");
         js("Math.random=()=>.95");
-        for(int i=0;i<6&&!"true".equals(js("JSON.parse(localStorage.getItem('lwh-rc1-save')).currentEvent==='story_callback'"));i++)click("driveLegBtn");
+        for(int i=0;i<6&& !"true".equals(js("JSON.parse(localStorage.getItem('lwh-rc1-save')).currentEvent==='story_callback'"));i++)click("driveLegBtn");
         assertEquals("true",js("document.getElementById('eventBody').textContent.includes('stayed until I had help')"));
         capture("depth-road-callback-landscape");storyChoice("accept_thanks");storyChoice("exit");
         assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===993&&s.story.world.flags.partsJob.callbackDone})()"));

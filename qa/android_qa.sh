@@ -5,13 +5,15 @@ RUNNER="$PACKAGE.test/androidx.test.runner.AndroidJUnitRunner"
 
 diagnostics() {
   echo '=== Android QA diagnostics ==='
-  adb devices -l || true
-  adb shell getprop sys.boot_completed || true
-  adb shell pm list instrumentation || true
-  adb shell dumpsys activity activities | tail -n 120 || true
-  adb logcat -d -t 500 || true
+  timeout 10s adb devices -l || true
+  timeout 10s adb shell getprop sys.boot_completed || true
+  timeout 10s adb shell pm list instrumentation || true
+  timeout 10s adb shell dumpsys activity activities | tail -n 120 || true
+  timeout 15s adb logcat -d -t 500 || true
+  # Retain screenshots and the expected/actual journey even when a test fails.
+  timeout 30s adb pull "/sdcard/Android/data/$PACKAGE/files/qa/." . || true
 }
-trap diagnostics ERR
+trap 'code=$?; trap - ERR; diagnostics; exit "$code"' ERR
 
 timeout 90s adb wait-for-device
 for _ in {1..45}; do
@@ -28,7 +30,7 @@ adb shell pm list instrumentation | grep -F "$RUNNER"
 # This test intentionally traverses multiple screens and performs native
 # orientation changes. API 36 hosted emulators can take several minutes to
 # settle during rotations, so give this comprehensive test a bounded 6-minute
-# window within the bounded integrated Android QA stage.
+# window while retaining the workflow's absolute Android QA ceiling.
 timeout 360s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#screensAndRotation "$RUNNER" | tee android-smoke.log
 grep -q 'OK (1 test)' android-smoke.log
 
@@ -56,4 +58,4 @@ test "$(stat -c%s road-landscape.png)" -gt 30000
 test "$(stat -c%s diner-waiting-portrait.png)" -gt 30000
 test "$(stat -c%s diner-waiting-landscape.png)" -gt 30000
 test "$(stat -c%s tire-choice-portrait.png)" -gt 30000
-echo 'Signed release UI, story interactions, native rotation and process restart checks passed' 
+echo 'Signed release UI, story interactions, native rotation and process restart checks passed'
