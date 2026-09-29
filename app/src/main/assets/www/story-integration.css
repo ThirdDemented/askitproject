@@ -41,3 +41,5 @@
 #roadScreen.story-indoor .drive-stats,#roadScreen.story-indoor .compact-road-panel{display:none!important}
 #storyStatus{border:0;padding:0;margin:8px 0 14px;color:#d8c697;font-size:12px;line-height:1.5}
 #storySoundBtn{margin:8px 0 12px}
+
+#restStopBtn{min-height:44px}.story-indoor #restStopBtn{display:none!important}

@@ -167,4 +167,30 @@ public class GameReleaseTest {
         assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.condition===2&&!s.vehicleFaults.includes('tire')&&!s.ended})()"));
     }
 
+    @Test public void correctnessRepairAndDeadline() throws Exception {
+        launch();orient(true);
+        String parked=js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.runId='qa-repair-'+Date.now();s.story=null;delete s.storyIntegrationVersion;s.storyTranscript=[];s.currentEvent='tire';s.ended=false;s.ending=null;s.stats.committed=false;s.cash=1000;s.days=7;s.distance=200;s.totalMiles=1600;s.fatigue=93;s.hunger=20;s.condition=80;s.fuel=95;s.inventory=['toolkit'];s.health=100;s.restRisk=null;s.pendingLegMiles=null;return JSON.stringify(s);})()");
+        launch();js("localStorage.setItem('lwh-rc1-save',"+parked+")");click("resumeBtn");
+        js("[...document.querySelectorAll('#eventChoices button')].find(b=>b.textContent==='STOP NOW').click()");
+        storyChoice("inspect");storyChoice("tools");storyChoice("attempt");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return !s.ended&&s.distance===200&&s.fatigue===98})()"));
+        capture("repair-parked-portrait");
+        launch();click("resumeBtn");
+        assertEquals("true",js("!JSON.parse(localStorage.getItem('lwh-rc1-save')).ended"));
+        if("true".equals(js("!!document.querySelector('[data-story-choice=assistance]')")))storyChoice("assistance");
+        storyChoice("exit");click("driveLegBtn");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.currentEvent==='restDecision'&&s.distance===200})()"));
+        capture("rest-before-driving-portrait");
+        js("[...document.querySelectorAll('#eventChoices button')].find(b=>b.textContent.startsWith('SLEEP IN CAR')).click()");
+        assertEquals("true",js("JSON.parse(localStorage.getItem('lwh-rc1-save')).fatigue===28"));
+        // Construct a valid one-minute deadline / ten-mile final-leg edge case.
+        String late=js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.runId='qa-deadline-'+Date.now();s.story=null;delete s.storyIntegrationVersion;s.storyTranscript=[];s.currentEvent=null;s.ended=false;s.ending=null;s.stats.committed=false;s.reason={id:'career',hard:true};s.days=1/1440;s.distance=1590;s.totalMiles=1600;s.fuel=95;s.fatigue=10;s.condition=80;s.restRisk=null;s.pendingLegMiles=null;return JSON.stringify(s);})()");
+        launch();js("localStorage.setItem('lwh-rc1-save',"+late+")");click("resumeBtn");js("Math.random=()=>.25");click("driveLegBtn");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.ending.kicker==='YOU MISSED THE DEADLINE'&&s.distance===1600&&s.days<0&&s.stats.committed})()"));
+        String record=js("localStorage.getItem('lwh-lifetime-v1')");
+        launch();click("resumeBtn");
+        assertEquals(record,js("localStorage.getItem('lwh-lifetime-v1')"));
+        capture("deadline-enforced-portrait");
+    }
+
 }

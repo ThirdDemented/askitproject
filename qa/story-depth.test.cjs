@@ -130,3 +130,6 @@ test('2000 fresh enhanced scene policies resolve with affordable exits and consi
  }
  assert.ok(seen.has('diner/conversation'));assert.ok(seen.has('diner/answer'));console.log('Enhanced nodes reached',seen.size);
 });
+
+// Retain independent alpha2 correctness regressions in every engine/ROADTEST run.
+require('./repair-regression.test.cjs');

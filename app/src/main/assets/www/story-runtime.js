@@ -27,6 +27,7 @@
       sound.hidden = !active; sound.textContent = api.audio().soundOn ? 'MUTE SOUND' : 'ENABLE SOUND';
       $('marketStopBtn').disabled = active;
       $('dinerStopBtn').disabled = Boolean(s.currentEvent) || active || s.ended;
+      $('restStopBtn').disabled = Boolean(s.currentEvent) || active || s.ended;
       $('glassRepairBtn').hidden = !s.windshieldDamaged || Boolean(s.currentEvent) || active;
       $('driveLegBtn').hidden = Boolean(s.currentEvent) || active;
       transcript.hidden = !s.storyTranscript?.length;

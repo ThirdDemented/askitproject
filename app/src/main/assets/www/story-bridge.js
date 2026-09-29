@@ -132,7 +132,7 @@
   }
   function callbackDue(j) {
     const q=j.story?.world.flags.partsJob;
-    return !j.currentEvent && !j.ended && !!q && !q.callbackDone && ['repaired','referred','botched'].includes(q.status) && j.distance >= q.dueAtMiles;
+    return !j.currentEvent && !j.ended && !!q && !q.callbackDone && ['repaired','referred','botched','honest'].includes(q.status) && j.distance >= q.dueAtMiles;
   }
   function discoveryEligible(j) {
     if (j.distance <= 60) return false;

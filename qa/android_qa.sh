@@ -47,6 +47,9 @@ grep -q 'OK (1 test)' story-resume-smoke.log
 timeout 240s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#storyDepth "$RUNNER" | tee depth-smoke.log
 grep -q 'OK (1 test)' depth-smoke.log
 
+timeout 180s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#correctnessRepairAndDeadline "$RUNNER" | tee correctness-smoke.log
+grep -q 'OK (1 test)' correctness-smoke.log
+
 timeout 60s adb pull "/sdcard/Android/data/$PACKAGE/files/qa/." .
 test "$(stat -c%s road-portrait.png)" -gt 30000
 test "$(stat -c%s road-landscape.png)" -gt 30000

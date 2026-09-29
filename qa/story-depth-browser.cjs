@@ -67,6 +67,7 @@ const server=http.createServer((req,res)=>{try{const p=decodeURIComponent(new UR
   await page.reload();await page.click('#resumeBtn');ok('alpha1 pending meal upgrades without moving its node or charging',(await s()).story.contentVersion==='phase1.2'&&(await s()).story.trip.active.node==='waiting'&&(await s()).cash===1000);
   ok('pre-upgrade alpha1 bytes are retained',await page.evaluate(()=>localStorage.getItem('lwh-before-depth-alpha1'))===legacyRaw);
   await click('placemat');await click('eat');await click('pay');await click('exit');ok('legacy pending meal can finish under its original rules',(await s()).cash===988);
+  await require('./repair-browser-cases.cjs')({page,fixture,s,click,kitchen,ok,capture});
   ok('no uncaught JavaScript errors',errors.length===0);
   const resultReport={suite:'story-depth-browser',passed:checks.length,checks,errors};fs.writeFileSync(path.join(out,'results.json'),JSON.stringify(resultReport,null,2));console.log(JSON.stringify(resultReport));
  }catch(e){fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({passed:checks.length,checks,errors,error:e.message},null,2));await page.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});throw e;}finally{await browser.close();server.close();}
