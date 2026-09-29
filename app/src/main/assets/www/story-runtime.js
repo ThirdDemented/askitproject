@@ -16,7 +16,9 @@
     const sound = document.createElement('button'); sound.id = 'storySoundBtn'; sound.type = 'button'; sound.className = 'btn2'; sound.hidden = true;
     sound.onclick = () => { api.toggleSound(); refreshControls(); }; $('eventChoices').before(sound);
     const status = document.createElement('p'); status.id = 'storyStatus'; status.className = 'story-status'; status.hidden = true;
-    $('eventChoices').before(status);
+    $('eventBody').before(status);
+    // The actual choices precede optional transcript/audio controls.
+    $('eventChoices').after(transcript,sound);
     function refreshControls() {
       const s = api.getState(), active = isActive();
       const v = active ? B.describe(s.story) : null;
@@ -54,7 +56,7 @@
       if (!isActive()) { refreshControls(); renderTranscript(); updateAudio(); return; }
       const v = B.describe(s.story);
       api.setScene(v.art);
-      $('eventTag').textContent = v.scene === 'diner' ? 'DINER / ' + v.node.toUpperCase() : 'ROADSIDE REPAIR';
+      $('eventTag').textContent = ({diner:'DINER',repair:'ROADSIDE REPAIR',callback:'A FAMILIAR FACE',discovery:'UNDER THE SEAT'})[v.scene] || 'ROAD';
       $('eventTitle').textContent = v.title; $('eventBody').replaceChildren();
       for (const entry of v.lines || [{speaker:'SCENE',text:v.body}]) {
         const row=document.createElement('p');row.className='story-line';row.dataset.speaker=entry.speaker;
@@ -70,7 +72,7 @@
       $('eventChoices').replaceChildren();
       const bill = s.story.trip.active.data.billCents || 0;
       status.hidden = false;
-      status.textContent = (bill ? money(bill) + ' set aside for your meal. ' : '') + 'Health ' + Math.round(s.health ?? 100) + '/100. Reading and rotating do not advance time.';
+      status.textContent = 'Cash ' + money(Math.round(s.cash*100)) + (bill ? ' · Meal reserved ' + money(bill) : '') + ' · Health ' + Math.round(s.health ?? 100) + '/100';
       for (const choice of v.choices) {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'choice'; b.dataset.storyChoice = choice.id;
         b.textContent = choice.label; b.disabled = !choice.enabled;

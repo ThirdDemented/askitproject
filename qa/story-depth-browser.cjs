@@ -27,6 +27,8 @@ const server=http.createServer((req,res)=>{try{const p=decodeURIComponent(new UR
   await click('chat');ok('chat has an authored answer',/Passing through|remember you/.test(await body()));
   await click('ask_hal');await click('talk_car');ok('Hal answers the actual car question',/One click/.test(await body()));
   ok('question is not silently replaced by a meal',await page.locator('[data-story-choice="offer_help"]').isVisible());
+  ok('choices precede auxiliary transcript controls',await page.evaluate(()=>!!(document.getElementById('eventChoices').compareDocumentPosition(document.getElementById('storyTranscript'))&Node.DOCUMENT_POSITION_FOLLOWING)));
+  ok('available cash and reserved meal money remain visible indoors',/Cash \$1,?000\.00.*Meal reserved \$22\.00/.test(await page.locator('#storyStatus').innerText()));
   await capture('hal-answer-portrait');
   const answer=await s();await page.reload();await page.click('#resumeBtn');ok('answer and kitchen state survive reopening',JSON.stringify((await s()).story)===JSON.stringify(answer.story));
   for(const [width,height]of[[360,800],[844,390],[412,915],[1280,720]]){await page.setViewportSize({width,height});ok('dialogue fits '+width+'x'+height,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}

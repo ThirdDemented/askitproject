@@ -38,3 +38,6 @@
 .story-voice-replay{font:inherit;font-size:11px;min-height:44px;min-width:44px;margin-left:8px;padding:4px 8px;border:1px solid #887954;background:#34352c;color:#efe3c5}
 .story-choice-hint{color:#d8c697;font-size:12px;line-height:1.5}
 #storyPlaceView[hidden]{display:none!important}
+#roadScreen.story-indoor .drive-stats,#roadScreen.story-indoor .compact-road-panel{display:none!important}
+#storyStatus{border:0;padding:0;margin:8px 0 14px;color:#d8c697;font-size:12px;line-height:1.5}
+#storySoundBtn{margin:8px 0 12px}
