@@ -1,0 +1,46 @@
+name: Story foundation checks (not an Android release)
+on:
+  push:
+    branches: [codex/chaos-phase1]
+  pull_request:
+    paths:
+      - 'app/src/main/assets/www/story-*'
+      - 'qa/story-*'
+      - '.github/workflows/story-foundation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: story-foundation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Deterministic state and scene tests
+        run: |
+          node --check app/src/main/assets/www/story-engine.js
+          node --check app/src/main/assets/www/story-scenes.js
+          node --check app/src/main/assets/www/story-lab.js
+          node --test qa/story-engine.test.cjs
+      - name: Restore the existing game artwork
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/rebuild_art.py
+      - name: Install the pinned browser test dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Browser interaction and viewport checks
+        run: node qa/story-browser.cjs
+      - name: Save browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: story-foundation-${{ github.sha }}
+          path: qa/results/story-foundation/
+          if-no-files-found: warn
