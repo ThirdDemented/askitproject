@@ -101,4 +101,37 @@ public class GameReleaseTest {
         waitFor("document.getElementById('roadScreen').classList.contains('active')","resume after process stop");capture("resume-portrait");
         click("tripLogRoadBtn");assertEquals("true",js("document.querySelector('.trip-odometer').textContent.includes('MI')"));
     }
+    private void storyChoice(String id) throws Exception {
+        waitFor("(()=>{const b=document.querySelector('[data-story-choice=\""+id+"\"]');return !!b&&!b.disabled})()", "story choice "+id);
+        js("document.querySelector('[data-story-choice=\""+id+"\"]').click()");
+    }
+    /** The fixture is a COPY in the emulator only, never a production test hook. */
+    @Test public void storyJourney() throws Exception {
+        launch();orient(true);
+        js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));if(!s||!s.car)throw Error('Base journey fixture missing');s.currentEvent=null;s.ended=false;s.ending=null;s.story=null;delete s.storyIntegrationVersion;s.storyTranscript=[];s.cash=1000;s.days=7;s.fatigue=20;s.hunger=70;s.condition=85;s.fuel=90;s.inventory=['toolkit','fixflat'];s.health=100;localStorage.setItem('lwh-rc1-save',JSON.stringify(s));})()");
+        click("resumeBtn");click("dinerStopBtn");storyChoice("enter");storyChoice("counter");storyChoice("breakfast");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===1000&&s.story.trip.active.data.billCents===2200})()"));
+        capture("diner-waiting-portrait");
+        js("window.stopBeforeRotation=localStorage.getItem('lwh-rc1-save')");click("rotateRoadBtn");waitFor("innerWidth>innerHeight","diner landscape");
+        assertEquals("true",js("window.stopBeforeRotation===localStorage.getItem('lwh-rc1-save')"));capture("diner-waiting-landscape");
+        storyChoice("placemat");storyChoice("eat");storyChoice("pay");storyChoice("exit");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===978&&s.hunger===15&&!s.currentEvent&&!s.story.trip.active})()"));
+        // Save an unresolved tire encounter for the separate process-restart test.
+        js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.currentEvent='tire';s.roadNarrative={tag:'MECHANICAL',title:'THUMP. THUMP. THUMP.',body:'A tire needs attention.'};localStorage.setItem('lwh-rc1-save',JSON.stringify(s));})()");
+        launch();click("resumeBtn");
+        js("[...document.querySelectorAll('#eventChoices button')].find(b=>b.textContent==='STOP NOW').click()");
+        storyChoice("inspect");
+        assertEquals("true",js("!!document.querySelector('[data-story-choice=\"tools\"]')"));
+        orient(true);capture("tire-choice-portrait");
+        js("localStorage.setItem('lwh-qa-story-before-restart',localStorage.getItem('lwh-rc1-save'))");
+    }
+    @Test public void storyResumeAfterProcessStop() throws Exception {
+        launch();click("resumeBtn");
+        assertEquals("true",js("(()=>{const a=JSON.parse(localStorage.getItem('lwh-qa-story-before-restart'));const b=JSON.parse(localStorage.getItem('lwh-rc1-save'));return JSON.stringify(a.story)===JSON.stringify(b.story)&&a.cash===b.cash&&a.distance===b.distance})()"));
+        storyChoice("assistance");storyChoice("exit");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===893&&!s.currentEvent&&!s.vehicleFaults.includes('tire')})()"));
+        js("window.milesBeforeStoryDrive=JSON.parse(localStorage.getItem('lwh-rc1-save')).distance");click("driveLegBtn");
+        assertEquals("true",js("JSON.parse(localStorage.getItem('lwh-rc1-save')).distance>window.milesBeforeStoryDrive"));
+        capture("story-return-portrait");
+    }
 }

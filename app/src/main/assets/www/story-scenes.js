@@ -18,7 +18,7 @@
     const entry = entries[s.trip.active.node];
     if (!entry) throw new Error('Unknown scene node: ' + s.trip.active.node);
     const [title, body] = typeof entry === 'function' ? entry(s) : entry;
-    return {title, body, art};
+    return {title, body, art, ...(art === 'diner' && s.trip.active.node === 'waiting' ? {lines: waitingLines(s)} : {})};
   }
   const mealOptions = [
     {id: 'soup', label: 'Soup and bread', price: 1200, relief: 30},
@@ -38,13 +38,26 @@
       s.trip.active.node = result;
     }});
   }
+  function waitingLines(s) {
+    const lines = [{speaker: 'SOUND', text: '[Dishes clatter. The griddle hisses. A chair scrapes.]'},
+      {speaker: 'MARNIE', text: '“Order is in. Make yourself comfortable.”'}];
+    if (data(s).overheard === 'parts') lines.push({speaker: 'NEXT BOOTH', text: '“I told him it was a parts car.”'}, {speaker: 'OTHER MAN', text: '“Then why did he drive it here?”'});
+    else if (data(s).overheard === 'boat') lines.push({speaker: 'MAN AT THE COUNTER', text: '“Technically, anything is a boat once.”'});
+    else lines.push({speaker: 'SCENE', text: 'The other conversations remain somebody else’s business.'});
+    lines.push({speaker: 'SCENE', text: 'You can engage or simply wait. Reading takes no game time.'});
+    return lines;
+  }
   const diner = {
-    start(s) { Object.assign(data(s), {billCents: 0, meal: null, interruption: null, eaten: false}); },
+    start(s, c) { Object.assign(data(s), {billCents: 0, meal: null, interruption: null, eaten: false,
+      overheard: c.weighted([{id: 'parts', weight: 35}, {id: 'boat', weight: 25}, {id: 'quiet', weight: 40}])}); },
     describe(s) { return describe(s, {
       arrival: ['THE DINER IS OPEN.', 'A neon sign promises hot food. The smaller sign says the first sign is not a promise. You can stop, or keep your money and leave.'],
       seat: ['WHERE ARE YOU SITTING?', 'Marnie waves you toward the counter. There is also a booth with a permanent impression of someone else’s ass.'],
       menu: ['ORDER SOMETHING.', 'Prices are shown before you commit. The meal money is set aside now; you pay after eating.'],
-      waiting: ['THE KITCHEN HAS YOUR ORDER.', 'The griddle hisses behind the counter. You have a few minutes to yourself. Choosing an activity advances game time; reading this screen does not.'],
+      waiting: s => ['THE KITCHEN HAS YOUR ORDER.', waitingLines(s).map(x => x.speaker + ': ' + x.text).join('\n\n')],
+      conversation: s => ['THE NEXT BOOTH NOTICES YOU.', data(s).overheard === 'parts'
+        ? 'MAN: “Sold him a parts car.”\n\nOTHER MAN: “He drove it here.”\n\nMAN: “Apparently he needed all the parts at once.”\n\nMARNIE: “Your food is almost ready. Do not buy a car before lunch.”'
+        : 'LEON: “It was advertised as a houseboat.”\n\nYOU: “Was it a boat?”\n\nLEON: “The seller preferred not to get caught up in labels.”\n\n[The griddle keeps sizzling.]'],
       ready: s => ['FOOD, AT LAST.', 'Your ' + data(s).meal.label.toLowerCase() + ' arrives. The plate is warm. For once, this seems intentional.'],
       wrong: ['THIS IS NOT YOUR BREAKFAST.', 'Marnie has delivered the neighboring booth’s order. It looks perfectly edible. The neighboring booth looks offended.'],
       outage: ['THE LIGHTS GO OUT.', 'The cook says the generator will take a while. Marnie offers your food cold for four dollars less, or a cancellation.'],
@@ -57,9 +70,14 @@
         case 'seat': return [go('counter', 'Take a seat at the counter', 'menu', {apply: (s, c) => { data(s).seat = 'counter'; c.npc('diner.marnie'); s.trip.active.node = 'menu'; }}), go('booth', 'Take the booth', 'menu', {apply: (s, c) => { data(s).seat = 'booth'; c.npc('diner.marnie'); s.trip.active.node = 'menu'; }})];
         case 'menu': return [...mealOptions.map(meal => go(meal.id, meal.label, 'waiting', {reserveCents: meal.price,
           apply: s => { data(s).meal = {...meal}; s.trip.active.node = 'waiting'; }})), end('leave', 'Leave without ordering', 'You decide not to eat here.')];
-        case 'waiting': return [waitChoice('wait', 'Wait for your food', false), waitChoice('chat', 'Chat with Marnie', true),
+        case 'waiting': return [waitChoice('wait', 'Mind your business and wait for food', false),
+          go('engage', 'Ask the next booth about what you overheard', 'conversation', {minutes: 3, when: s => ['parts','boat'].includes(data(s).overheard)}),
+          waitChoice('chat', 'Chat with Marnie', true),
           go('placemat', 'Read the local attractions placemat', 'ready', {minutes: 12, apply: s => { s.world.flags.sawGiantSpoonAd = true; data(s).interruption = 'placemat'; s.trip.active.node = 'ready'; }}),
           end('cancel', 'Cancel the order and leave', 'The order is cancelled before serving. No charge.', {effect: s => { data(s).billCents = 0; }})];
+        case 'conversation': return [go('talk_car', 'Ask what happened before the car stopped', 'ready', {minutes: 12, when: s => data(s).overheard === 'parts' && s.trip.skills.repair > 0, apply: (s, c) => { c.npc('diner.parts-owner', 2); s.world.flags.partsOwnerMet = true; s.trip.active.node = 'ready'; }}),
+          go('listen_story', 'Listen to the rest while your food cooks', 'ready', {minutes: 12, apply: (s, c) => { c.npc(data(s).overheard === 'boat' ? 'leon' : 'diner.parts-owner', 1); s.trip.active.node = 'ready'; }}),
+          go('excuse', 'Excuse yourself and return to your meal', 'ready', {minutes: 12})];
         case 'wrong': return [go('correct_order', 'Wait for your own order', 'ready', {minutes: 10}), go('accept_plate', 'Keep the plate; pay the original price', 'ready', {apply: s => { data(s).meal = {...data(s).meal, label: 'accidental breakfast'}; s.trip.active.node = 'ready'; }})];
         case 'outage': return [go('cold', 'Take it cold — $4 off', 'ready', {apply: s => { data(s).billCents = Math.max(0, data(s).billCents - 400); s.trip.active.node = 'ready'; }}), go('generator', 'Wait for the generator', 'ready', {minutes: 25}), end('cancel', 'Cancel and leave without paying', 'No food, no bill. You return to the car.', {effect: s => { data(s).billCents = 0; }})];
         case 'stranger': return [go('listen', 'Ask about Leon’s road stories', 'ready', {minutes: 5, apply: (s, c) => { c.npc('leon', 2); s.world.flags.metLeon = true; s.trip.active.node = 'ready'; }}), go('decline', 'Politely return to your coffee', 'ready')];

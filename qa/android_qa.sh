@@ -37,7 +37,17 @@ adb shell am force-stop "$PACKAGE"
 timeout 180s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#resumeAfterProcessStop "$RUNNER" | tee resume-smoke.log
 grep -q 'OK (1 test)' resume-smoke.log
 
+# Integrated encounters: real UI, native rotation, then process restart.
+timeout 300s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#storyJourney "$RUNNER" | tee story-smoke.log
+grep -q 'OK (1 test)' story-smoke.log
+adb shell am force-stop "$PACKAGE"
+timeout 180s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#storyResumeAfterProcessStop "$RUNNER" | tee story-resume-smoke.log
+grep -q 'OK (1 test)' story-resume-smoke.log
+
 timeout 60s adb pull "/sdcard/Android/data/$PACKAGE/files/qa/." .
 test "$(stat -c%s road-portrait.png)" -gt 30000
 test "$(stat -c%s road-landscape.png)" -gt 30000
-echo 'Signed release UI, native rotation and process restart checks passed'
+test "$(stat -c%s diner-waiting-portrait.png)" -gt 30000
+test "$(stat -c%s diner-waiting-landscape.png)" -gt 30000
+test "$(stat -c%s tire-choice-portrait.png)" -gt 30000
+echo 'Signed release UI, story interactions, native rotation and process restart checks passed' 
