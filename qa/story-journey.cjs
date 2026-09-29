@@ -22,6 +22,7 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
   const original=await page.evaluate(()=>localStorage.getItem('lwh-rc1-save'));
   await page.click('#dinerStopBtn');await choose('enter');await choose('counter');await choose('breakfast');
   let s=await state();ok('natural road-stop button enters the integrated diner',s.story.trip.active.node==='waiting');
+  ok('new scene heading is visible after a choice',await page.evaluate(()=>{const t=document.getElementById('eventTitle').getBoundingClientRect(),p=document.querySelector('.road-control-column').getBoundingClientRect();return t.top>=p.top&&t.bottom<=p.bottom;}));
   ok('original journey retained as an untouched local backup',await page.evaluate(()=>localStorage.getItem('lwh-before-story-v4'))===original);
   ok('ordering reserves money without spending it twice',s.cash===1000&&s.story.trip.active.data.billCents===2200&&s.stats.foodSpent===0);
   ok('market and driving cannot bypass an unfinished stop',await page.locator('#marketStopBtn').isDisabled()&&await page.locator('#driveLegBtn').isHidden());
@@ -79,7 +80,9 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
   const ended=await state();await page.reload();await page.click('#resumeBtn');ok('ending survives reopening without double-finalizing',await page.locator('#endingScreen').isVisible()&&(await state()).stats.committed&&ended.stats.committed);
   // Unsupported encounter schemas must not be overwritten by resume's show/save.
   await fixture();await page.click('#dinerStopBtn');await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.storyIntegrationVersion=99;localStorage.setItem('lwh-rc1-save',JSON.stringify(s));});
-  const invalid=await page.evaluate(()=>localStorage.getItem('lwh-rc1-save'));await page.reload();await page.click('#resumeBtn');
+  const invalid=await page.evaluate(()=>localStorage.getItem('lwh-rc1-save'));await choose('enter');
+  ok('choosing cannot overwrite an externally replaced future save',await page.evaluate(()=>localStorage.getItem('lwh-rc1-save'))===invalid);
+  await page.reload();await page.click('#resumeBtn');
   ok('future encounter saves are rejected and retained',await page.evaluate(()=>localStorage.getItem('lwh-rc1-save'))===invalid);
   ok('no uncaught integration JavaScript errors',errors.length===0);
   const result={suite:'story-journey',passed:checks.length,checks,errors,audioPeak:peak};fs.writeFileSync(path.join(out,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));

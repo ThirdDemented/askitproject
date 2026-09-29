@@ -70,9 +70,16 @@
       }
       renderTranscript(); refreshControls(); api.renderHud(); updateAudio();
     }
+    function revealNarrative() {
+      if (api.screen() !== 'roadScreen') return;
+      const event = $('eventTitle').closest('.road-event');
+      const column = event?.closest('.road-control-column');
+      if (column) column.scrollTop += event.getBoundingClientRect().top - column.getBoundingClientRect().top;
+    }
     function persist(next) {
       next.cityData = api.cityData(); next.screen = 'roadScreen';
       const old = localStorage.getItem(api.saveKey);
+      B.assertAutosaveSafe(api.getState(), old);
       // Retain an untouched original v4 journey before its first story write.
       if (old && !api.getState().story && !localStorage.getItem(B.BACKUP_KEY)) localStorage.setItem(B.BACKUP_KEY, old);
       if (!old && api.getState().story) throw new Error('The saved journey was removed. Reopen it before choosing.');
@@ -96,6 +103,9 @@
         $('eventBody').textContent = next.roadNarrative.body;
         $('eventChoices').replaceChildren(); api.renderHud(); renderTranscript(); refreshControls(); updateAudio();
       }
+      // A tap near the bottom of a long choice list must not hide the next
+      // result above the scroll position. Only presentation moves, never time.
+      revealNarrative();
     }
     function begin(kind) {
       try { commit(B.begin(api.getState(), kind)); }
