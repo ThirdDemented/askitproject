@@ -28,7 +28,7 @@ adb shell pm list instrumentation | grep -F "$RUNNER"
 # This test intentionally traverses multiple screens and performs native
 # orientation changes. API 36 hosted emulators can take several minutes to
 # settle during rotations, so give this comprehensive test a bounded 6-minute
-# window while retaining the workflow's 10-minute absolute Android QA ceiling.
+# window within the bounded integrated Android QA stage.
 timeout 360s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#screensAndRotation "$RUNNER" | tee android-smoke.log
 grep -q 'OK (1 test)' android-smoke.log
 
@@ -43,6 +43,9 @@ grep -q 'OK (1 test)' story-smoke.log
 adb shell am force-stop "$PACKAGE"
 timeout 180s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#storyResumeAfterProcessStop "$RUNNER" | tee story-resume-smoke.log
 grep -q 'OK (1 test)' story-resume-smoke.log
+
+timeout 240s adb shell am instrument -w -r -e class com.thelongwayhome.game.GameReleaseTest#storyDepth "$RUNNER" | tee depth-smoke.log
+grep -q 'OK (1 test)' depth-smoke.log
 
 timeout 60s adb pull "/sdcard/Android/data/$PACKAGE/files/qa/." .
 test "$(stat -c%s road-portrait.png)" -gt 30000

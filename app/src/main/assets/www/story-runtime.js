@@ -6,6 +6,7 @@
   root.LWHStoryRuntime = function (api) {
     const B = root.LWHStoryBridge, $ = id => document.getElementById(id);
     const audio = root.LWHStoryAudio();
+    const place = root.LWHStoryPlaceView($('roadArt').parentElement);
     const money = cents => '$' + (cents / 100).toFixed(2);
     function isActive() { return Boolean(api.getState().story?.trip.active); }
     const transcript = document.createElement('details'); transcript.id = 'storyTranscript'; transcript.hidden = true;
@@ -18,6 +19,9 @@
     $('eventChoices').before(status);
     function refreshControls() {
       const s = api.getState(), active = isActive();
+      const v = active ? B.describe(s.story) : null;
+      $('roadScreen').classList.toggle('story-indoor',v?.presentation==='diner');
+      place.render(v);
       sound.hidden = !active; sound.textContent = api.audio().soundOn ? 'MUTE SOUND' : 'ENABLE SOUND';
       $('marketStopBtn').disabled = active;
       $('dinerStopBtn').disabled = Boolean(s.currentEvent) || active || s.ended;
@@ -30,9 +34,10 @@
       const s = api.getState(), a = s.story?.trip.active;
       const paused = document.hidden || document.body.classList.contains('paused') || api.screen() !== 'roadScreen';
       const nodes = api.audio();
-      const inDiner = Boolean(a && a.scene === 'diner' && !['arrival', 'done'].includes(a.node));
+      const view = a ? B.describe(s.story) : null;
+      const inDiner = Boolean(a && a.scene === 'diner' && (view.presentation ? view.presentation==='diner' : !['arrival','done'].includes(a.node)));
       audio.update({active: inDiner, enabled: nodes.soundOn, paused, context: nodes.context, output: nodes.output,
-        id: a?.id || '', node: a?.node || ''});
+        id: a?.id || '', node: a?.node || '', revision:s.story?.revision, lines:view?.lines||[]});
       // Existing score is retained, simply quieter under the diner soundscape.
       if (nodes.music) nodes.music.gain.value = inDiner && !paused ? .08 : api.normalMusicGain;
     }
@@ -50,7 +55,18 @@
       const v = B.describe(s.story);
       api.setScene(v.art);
       $('eventTag').textContent = v.scene === 'diner' ? 'DINER / ' + v.node.toUpperCase() : 'ROADSIDE REPAIR';
-      $('eventTitle').textContent = v.title; $('eventBody').textContent = v.body;
+      $('eventTitle').textContent = v.title; $('eventBody').replaceChildren();
+      for (const entry of v.lines || [{speaker:'SCENE',text:v.body}]) {
+        const row=document.createElement('p');row.className='story-line';row.dataset.speaker=entry.speaker;
+        const label=document.createElement('b');label.className='story-speaker';label.textContent=entry.speaker;
+        row.append(label,document.createTextNode(entry.text));
+        if(!['SCENE','SOUND','YOU'].includes(entry.speaker)){
+          const replay=document.createElement('button');replay.type='button';replay.className='story-voice-replay';replay.textContent='♪';
+          replay.setAttribute('aria-label','Replay nonverbal voice for '+entry.speaker);
+          replay.onclick=()=>{if(api.audio().soundOn)audio.say(entry.speaker,entry.text);};row.append(replay);
+        }
+        $('eventBody').append(row);
+      }
       $('eventChoices').replaceChildren();
       const bill = s.story.trip.active.data.billCents || 0;
       status.hidden = false;
@@ -108,15 +124,17 @@
       revealNarrative();
     }
     function begin(kind) {
-      try { commit(B.begin(api.getState(), kind)); }
-      catch (e) { api.warn('Could not start this stop: ' + e.message); }
+      try { commit(B.begin(api.getState(), kind,{location:api.location()})); return true; }
+      catch (e) { api.warn('Could not start this stop: ' + e.message); return false; }
     }
+    function maybeCallback(){ if(!B.callbackDue(api.getState()))return false;begin('callback');return true; }
     function intercept(event, label) {
       if (event === 'food' && label === 'ENTER DINER') { begin('diner'); return true; }
+      if(event==='luck'&&label!=='LEAVE IT ALONE'){begin('discovery');return true;}
       if (event === 'tire' && label === 'STOP NOW') { begin('repair'); return true; }
       return false;
     }
     $('dinerStopBtn').onclick = () => { if (!api.getState().currentEvent && !isActive()) begin('diner'); };
-    return Object.freeze({isActive, begin, intercept, render, refreshControls, updateAudio, pause: audio.stop, audioStatus: audio.status});
+    return Object.freeze({isActive, begin, intercept, render, refreshControls, updateAudio, maybeCallback, pause: audio.stop, audioStatus: audio.status});
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -14,8 +14,9 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
  await page.route(/router\.project-osrm\.org|photon\.komoot\.io/,r=>r.abort());
  const ok=(name,value)=>{assert.ok(value,name);checks.push(name);console.log('PASS: '+name);};
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('lwh-rc1-save')));
- const choose=id=>page.locator('[data-story-choice="'+id+'"]').click();
- const fixture=async(p={})=>page.evaluate(p=>{localStorage.removeItem('lwh-rc1-save');QA.fixture({departed:true,career:QA.careers.find(c=>c.id==='mechanic'),reason:QA.reasons.find(r=>r.id==='fresh'),car:{...QA.carPool.find(c=>c.id==='family'),boughtPrice:2000},cash:1000,days:12,distance:200,totalMiles:1600,fuel:95,condition:85,fatigue:20,hunger:70,morale:70,inventory:['toolkit','fixflat'],stats:QA.blankTripStats(),...p});QA.renderRoadHud();QA.show('roadScreen');},p);
+ let extraKitchenMinutes=0;
+ const choose=async id=>{if(id==='eat'){for(const [choice,minutes] of [['correct_order',10],['generator',25]])if(await page.locator('[data-story-choice="'+choice+'"]').count()){await page.locator('[data-story-choice="'+choice+'"]').click();extraKitchenMinutes+=minutes;}}return page.locator('[data-story-choice="'+id+'"]').click();};
+ const fixture=async(p={})=>(extraKitchenMinutes=0,page.evaluate(p=>{localStorage.removeItem('lwh-rc1-save');QA.fixture({departed:true,career:QA.careers.find(c=>c.id==='mechanic'),reason:QA.reasons.find(r=>r.id==='fresh'),car:{...QA.carPool.find(c=>c.id==='family'),boughtPrice:2000},cash:1000,days:12,distance:200,totalMiles:1600,fuel:95,condition:85,fatigue:20,hunger:70,morale:70,inventory:['toolkit','fixflat'],stats:QA.blankTripStats(),...p});QA.renderRoadHud();QA.show('roadScreen');},p));
  async function capture(name){await page.waitForFunction(()=>[...document.querySelectorAll('#roadScreen img')].filter(i=>i.getClientRects().length).every(i=>i.complete&&i.naturalWidth>0));await page.screenshot({path:path.join(out,name+'.png')});}
  try{
   await page.goto('http://127.0.0.1:'+server.address().port);await fixture();
@@ -37,7 +38,7 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
   await page.click('#tripLogRoadBtn');await page.click('#tripBackBtn');
   ok('Trip Computer returns to the unfinished encounter',await page.locator('[data-story-choice="placemat"]').isVisible());
   await choose('placemat');await choose('eat');await choose('pay');await choose('exit');s=await state();
-  ok('meal affects actual road resources and ledger once',s.cash===978&&s.hunger===15&&s.stats.foodSpent===22&&s.stats.totalSpent===22&&s.stats.stopMinutes===26&&s.distance===200);
+  ok('meal affects actual road resources and ledger once',s.cash===978&&s.hunger===15&&s.stats.foodSpent===22&&s.stats.totalSpent===22&&s.stats.stopMinutes===(26+extraKitchenMinutes)&&s.distance===200);
   await page.reload();await page.click('#resumeBtn');ok('paid meal stays paid on reload',(await state()).cash===978&&(await state()).story.trip.active===null);
   await page.click('#driveLegBtn');ok('road trip continues after encounter',(await state()).distance>200);
   // Natural food event still offers the original skip/supplies paths.

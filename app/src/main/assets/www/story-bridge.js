@@ -8,7 +8,7 @@
   'use strict';
   const VERSION = 1, BACKUP_KEY = 'lwh-before-story-v4', clone = x => JSON.parse(JSON.stringify(x));
   const cents = x => Math.round(x * 100);
-  const events = {diner: 'food', repair: 'tire'};
+  const events = {diner: 'food', repair: 'tire', callback: 'story_callback', discovery: 'luck'};
   function validateJourney(j) {
     if (!j || j.version !== 4 || !j.car || !j.departed || j.ended) throw new Error('A current driving journey is required.');
     if (j.storyIntegrationVersion !== undefined && j.storyIntegrationVersion !== VERSION) throw new Error('Unsupported interaction save; your data has been kept.');
@@ -20,8 +20,8 @@
     t.cashCents = cents(j.cash); t.hunger = j.hunger; t.fatigue = j.fatigue; t.morale = j.morale;
     t.health = j.health ?? 100; t.career = j.career?.id || 'traveler';
     t.skills.repair = j.career?.skill === 'repair' || t.career === 'mechanic' ? 2 : 0;
-    t.inventory = [...j.inventory];
-    t.vehicle = {...t.vehicle, id: j.car.id, name: j.car.n, condition: j.condition,
+    t.inventory = [...j.inventory]; t.experience = 2; t.distance = j.distance; t.location = j.storyLocation || t.location;
+    t.vehicle = {...t.vehicle, id: j.car.id, name: j.car.n, condition: j.condition, purchaseKey: String(j.car.boughtPrice || 0),
       faults: [...(j.vehicleFaults || [])], temporaryRepairs: [...(j.temporaryRepairs || [])]};
     // The main journey owns the exact fractional deadline. Ceil prevents an
     // integer-minute scene snapshot from ending a trip early; outer checks agree.
@@ -30,10 +30,12 @@
   }
   function project(j, before, after, category) {
     const next = clone(j), a = after.trip, b = before.trip;
-    const spent = a.spentCents - b.spentCents, elapsed = a.minutes - b.minutes;
-    if (spent < 0 || elapsed < 0 || !Number.isSafeInteger(spent) || !Number.isSafeInteger(elapsed)) throw new Error('Invalid encounter transaction.');
+    const spent = a.spentCents - b.spentCents, earned = (a.earnedCents || 0) - (b.earnedCents || 0), elapsed = a.minutes - b.minutes;
+    if (spent < 0 || earned < 0 || elapsed < 0 || !Number.isSafeInteger(spent) || !Number.isSafeInteger(earned) || !Number.isSafeInteger(elapsed)) throw new Error('Invalid encounter transaction.');
     if (cents(j.cash) !== b.cashCents) throw new Error('Journey resources changed during this encounter. Reopen the saved journey.');
     next.cash = a.cashCents / 100;
+    next.stats.totalEarned = Math.round(((next.stats.totalEarned || 0) + earned / 100) * 100) / 100;
+    if (earned) next.stats.storyEarned = Math.round(((next.stats.storyEarned || 0) + earned / 100) * 100) / 100;
     next.stats.totalSpent = Math.round(((next.stats.totalSpent || 0) + spent / 100) * 100) / 100;
     if (spent) next.stats[category] = Math.round(((next.stats[category] || 0) + spent / 100) * 100) / 100;
     next.stats.stopMinutes = (next.stats.stopMinutes || 0) + elapsed;
@@ -68,8 +70,9 @@
     if (!events[kind]) throw new Error('Unknown interaction.');
     if (journey.story?.trip.active) throw new Error('Finish the current stop first.');
     if (journey.currentEvent && journey.currentEvent !== events[kind]) throw new Error('Resolve the current road event before stopping here.');
-    let before = journey.story ? clone(journey.story) : E.create({seed: options.seed ?? E.hash(JSON.stringify(journey))});
-    before = resources(journey, before);
+    let before = journey.story ? E.migrate(journey.story) : E.create({seed: options.seed ?? E.hash(JSON.stringify(journey))});
+    const source = options.location ? {...journey, storyLocation: options.location} : journey;
+    before = resources(source, before);
     // The integration currently remembers this character's choices only. The
     // separate cross-run Meta Director/profile has not shipped in this slice.
     before.player.rememberChoices = false; before.player.actions = {};
@@ -77,8 +80,9 @@
     let next = project(journey, before, after, kind === 'diner' ? 'foodSpent' : 'repairsSpent');
     if (!journey.currentEvent) {
       if (kind === 'diner') next.stats.stops = (next.stats.stops || 0) + 1;
-      else next.stats.breakdowns = (next.stats.breakdowns || 0) + 1;
+      else if (kind === 'repair') next.stats.breakdowns = (next.stats.breakdowns || 0) + 1;
     }
+    next.storyLocation = before.trip.location;
     next.currentEvent = events[kind]; next.storyTranscript = []; next.storyLastKind = kind;
     next.screen = 'roadScreen'; narrate(next);
     return next;
@@ -99,12 +103,13 @@
   function validateSaved(journey) {
     if (!journey?.story) return;
     if (journey.storyIntegrationVersion !== VERSION) throw new Error('Unsupported encounter save.');
-    E.validate(journey.story);
-    if (journey.story.trip.active) {
+    const story = E.migrate(journey.story);
+    E.validate(story);
+    if (story.trip.active) {
       const kind = journey.story.trip.active.scene;
       if (journey.currentEvent !== events[kind] || journey.ended) throw new Error('Encounter and road save disagree.');
       if (cents(journey.cash) !== journey.story.trip.cashCents) throw new Error('Encounter cash does not match the journey.');
-      describe(journey.story);
+      describe(story);
     }
   }
   function assertAutosaveSafe(current, raw) {
@@ -120,5 +125,19 @@
       }
     }
   }
-  return Object.freeze({VERSION, BACKUP_KEY, begin, choose, describe, validateSaved, assertAutosaveSafe});
+  function upgradeJourney(value) {
+    const next = clone(value);
+    if (next?.story) next.story = E.migrate(next.story);
+    validateSaved(next); return next;
+  }
+  function callbackDue(j) {
+    const q=j.story?.world.flags.partsJob;
+    return !j.currentEvent && !j.ended && !!q && !q.callbackDone && ['repaired','referred','botched'].includes(q.status) && j.distance >= q.dueAtMiles;
+  }
+  function discoveryEligible(j) {
+    if (j.distance <= 60) return false;
+    const key=String(j.car?.id)+':'+String(j.car?.boughtPrice||0);
+    return !j.story?.world.flags.carSearches?.[key]?.claimed;
+  }
+  return Object.freeze({VERSION, BACKUP_KEY, begin, choose, describe, validateSaved, assertAutosaveSafe, upgradeJourney, callbackDue, discoveryEligible});
 });

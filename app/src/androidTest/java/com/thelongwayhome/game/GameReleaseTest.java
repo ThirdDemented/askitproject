@@ -102,6 +102,10 @@ public class GameReleaseTest {
         click("tripLogRoadBtn");assertEquals("true",js("document.querySelector('.trip-odometer').textContent.includes('MI')"));
     }
     private void storyChoice(String id) throws Exception {
+        if("eat".equals(id)) {
+            if("true".equals(js("!!document.querySelector('[data-story-choice=correct_order]')")))storyChoice("correct_order");
+            if("true".equals(js("!!document.querySelector('[data-story-choice=generator]')")))storyChoice("generator");
+        }
         waitFor("(()=>{const b=document.querySelector('[data-story-choice=\""+id+"\"]');return !!b&&!b.disabled})()", "story choice "+id);
         js("document.querySelector('[data-story-choice=\""+id+"\"]').click()");
     }
@@ -135,4 +139,32 @@ public class GameReleaseTest {
         assertEquals("true",js("JSON.parse(localStorage.getItem('lwh-rc1-save')).distance>window.milesBeforeStoryDrive"));
         capture("story-return-portrait");
     }
+    @Test public void storyDepth() throws Exception {
+        launch();orient(true);
+        js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.story=null;delete s.storyIntegrationVersion;s.storyTranscript=[];s.currentEvent=null;s.ended=false;s.ending=null;s.cash=1000;s.days=7;s.distance=200;s.totalMiles=1600;s.fatigue=10;s.hunger=10;s.condition=85;s.fuel=95;s.inventory=['toolkit'];s.health=100;localStorage.setItem('lwh-rc1-save',JSON.stringify(s));})()");
+        click("resumeBtn");click("dinerStopBtn");storyChoice("enter");storyChoice("counter");storyChoice("breakfast");
+        assertEquals("true",js("document.getElementById('storyPlaceView').dataset.table==='empty'&&getComputedStyle(document.getElementById('hornBtn').parentElement).display==='none'"));
+        capture("depth-waiting-portrait");
+        storyChoice("chat");storyChoice("ask_hal");storyChoice("talk_car");
+        assertEquals("true",js("document.getElementById('eventBody').textContent.includes('One click')"));
+        capture("depth-answer-portrait");
+        js("window.depthSavedBeforeRotation=localStorage.getItem('lwh-rc1-save')");click("rotateRoadBtn");waitFor("innerWidth>innerHeight","depth landscape");
+        assertEquals("true",js("window.depthSavedBeforeRotation===localStorage.getItem('lwh-rc1-save')"));capture("depth-answer-landscape");
+        storyChoice("offer_help");storyChoice("finish_talking");storyChoice("eat");storyChoice("pay");
+        assertEquals("true",js("JSON.parse(localStorage.getItem('lwh-rc1-save')).cash===978"));
+        storyChoice("outside");storyChoice("inspect_hal");storyChoice("refer_shop");storyChoice("leave_job");storyChoice("exit");
+        js("Math.random=()=>.95");
+        for(int i=0;i<6&&!"true".equals(js("JSON.parse(localStorage.getItem('lwh-rc1-save')).currentEvent==='story_callback'"));i++)click("driveLegBtn");
+        assertEquals("true",js("document.getElementById('eventBody').textContent.includes('stayed until I had help')"));
+        capture("depth-road-callback-landscape");storyChoice("accept_thanks");storyChoice("exit");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.cash===993&&s.story.world.flags.partsJob.callbackDone})()"));
+        launch();click("resumeBtn");assertEquals("true",js("JSON.parse(localStorage.getItem('lwh-rc1-save')).cash===993"));
+        String lowFixture=js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));s.story=null;delete s.storyIntegrationVersion;s.storyTranscript=[];s.currentEvent='tire';s.condition=2;s.cash=0;s.inventory=[];s.roadNarrative={tag:'TIRE',title:'A FLAT TIRE',body:'Two-percent condition acceptance test.'};return JSON.stringify(s);})()");
+        launch();js("localStorage.setItem('lwh-rc1-save',"+lowFixture+")");click("resumeBtn");
+        js("[...document.querySelectorAll('#eventChoices button')].find(b=>b.textContent==='STOP NOW').click()");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return !s.ended&&s.condition===2&&!!document.querySelector('[data-story-choice=inspect]')})()"));
+        storyChoice("inspect");orient(true);capture("depth-low-condition-portrait");storyChoice("wait_help");storyChoice("exit");
+        assertEquals("true",js("(()=>{const s=JSON.parse(localStorage.getItem('lwh-rc1-save'));return s.condition===2&&!s.vehicleFaults.includes('tire')&&!s.ended})()"));
+    }
+
 }

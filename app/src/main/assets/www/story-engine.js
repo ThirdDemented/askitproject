@@ -7,7 +7,7 @@
   else root.LWHStoryEngine = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  const SCHEMA = 1, CONTENT = 'phase1.1', JOURNAL_LIMIT = 256;
+  const SCHEMA = 1, CONTENT = 'phase1.2', JOURNAL_LIMIT = 256;
   const STORAGE_KEY = 'lwh-story-lab-v1'; // Never overwrite lwh-rc1-save.
   const copy = value => JSON.parse(JSON.stringify(value));
   const clamp = (n, low = 0, high = 100) => Math.max(low, Math.min(high, n));
@@ -27,7 +27,7 @@
       rng: (seed >>> 0) || 1, sequence: 0, droppedJournalEntries: 0,
       trip: {
         id: String(options.runId || 'trip-' + (seed >>> 0)),
-        cashCents: options.cashCents ?? 15000, spentCents: 0, minutes: 0,
+        cashCents: options.cashCents ?? 15000, spentCents: 0, earnedCents: 0, minutes: 0,
         remainingMinutes: options.remainingMinutes ?? null,
         health: options.health ?? 100, hunger: options.hunger ?? 65,
         fatigue: options.fatigue ?? 20, morale: options.morale ?? 70,
@@ -55,7 +55,7 @@
     integer(s.sequence, 'sequence'); integer(s.droppedJournalEntries, 'journal count');
     const t = s.trip;
     if (!t || typeof t.id !== 'string' || !['active', 'ended'].includes(t.status)) throw new Error('Invalid trip');
-    integer(t.cashCents, 'cash'); integer(t.spentCents, 'spending'); integer(t.minutes, 'time');
+    integer(t.cashCents, 'cash'); integer(t.spentCents, 'spending'); integer(t.earnedCents ?? 0, 'earnings'); integer(t.minutes, 'time');
     if (t.remainingMinutes !== null && !Number.isSafeInteger(t.remainingMinutes)) throw new Error('Invalid deadline');
     for (const k of ['health', 'hunger', 'fatigue', 'morale']) {
       if (!Number.isFinite(t[k]) || t[k] < 0 || t[k] > 100) throw new Error('Invalid ' + k);
@@ -100,6 +100,7 @@
     return {
       random: () => random(s), weighted: pool => weighted(s, pool), clamp,
       has: item => s.trip.inventory.includes(item),
+      earn: amount => { integer(amount, 'reward'); s.trip.cashCents += amount; s.trip.earnedCents = (s.trip.earnedCents || 0) + amount; },
       consume: item => {
         const i = s.trip.inventory.indexOf(item);
         if (i < 0) throw new Error('Missing item: ' + item);
@@ -178,6 +179,7 @@
     s.trip.minutes += action.minutes || 0;
     if (s.trip.remainingMinutes !== null) s.trip.remainingMinutes -= action.minutes || 0;
     action.apply(s, context(s));
+    if (s.trip.active && d.afterAction) d.afterAction(s, {trip: before}, action, context(s));
     if (s.player.rememberChoices) {
       const key = before.active.scene + '.' + action.id;
       s.player.actions[key] = (s.player.actions[key] || 0) + 1;
@@ -210,8 +212,16 @@
     return s;
   }
   function serialize(s) { validate(s); return JSON.stringify(s); }
+  function migrate(value) {
+    const s = copy(value);
+    if (s?.schemaVersion === 1 && s.contentVersion === 'phase1.1') {
+      s.contentVersion = CONTENT; s.trip.earnedCents = s.trip.earnedCents || 0;
+      // Old active diners finish using their original nodes and saved RNG.
+    }
+    validate(s); return s;
+  }
   function deserialize(raw, scenes) {
-    const s = JSON.parse(raw); validate(s);
+    const s = migrate(JSON.parse(raw));
     if (s.trip.active) {
       if (!scenes) throw new Error('Scene definitions required to restore an interaction');
       view(s, scenes);
@@ -233,5 +243,5 @@
     return s;
   }
   return Object.freeze({SCHEMA, CONTENT, STORAGE_KEY, JOURNAL_LIMIT, create, validate,
-    begin, view, choose, newTrip, memory, serialize, deserialize, importLegacy, hash});
+    begin, view, choose, newTrip, memory, serialize, deserialize, importLegacy, hash, migrate});
 });

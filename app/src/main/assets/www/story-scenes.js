@@ -2,10 +2,10 @@
  * Describe/choices never draw randomness: reading or reloading cannot reroll.
  */
 (function (root, factory) {
-  const scenes = factory();
+  const scenes = factory(typeof module === 'object' && module.exports ? require('./story-depth.js') : root.LWHStoryDepth);
   if (typeof module === 'object' && module.exports) module.exports = scenes;
   else root.LWHStoryScenes = scenes;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (depth) {
   'use strict';
   const data = s => s.trip.active.data;
   const go = (id, label, node, extra = {}) => ({id, label, ...extra,
@@ -95,7 +95,7 @@
   }
   function repaired(s, c, temporary = false) {
     s.trip.vehicle.faults = s.trip.vehicle.faults.filter(x => x !== 'tire');
-    s.trip.vehicle.condition = c.clamp(s.trip.vehicle.condition + 3);
+    // Fixing a tire clears its fault; it does not magically repair the engine.
     if (temporary && !s.trip.vehicle.temporaryRepairs.includes('tire')) s.trip.vehicle.temporaryRepairs.push('tire');
     if (!temporary) s.trip.vehicle.temporaryRepairs = s.trip.vehicle.temporaryRepairs.filter(x => x !== 'tire');
   }
@@ -123,7 +123,7 @@
   const repair = {
     start(s, c) {
       Object.assign(data(s), {attempts: 0, complication: null, cause: c.weighted([{id: 'nail', weight: 50}, {id: 'glass', weight: 25}, {id: 'screw', weight: 20}, {id: 'carrot', weight: 5}])});
-      if (!s.trip.vehicle.faults.includes('tire')) { s.trip.vehicle.faults.push('tire'); s.trip.vehicle.condition = c.clamp(s.trip.vehicle.condition - 3); }
+      if (!s.trip.vehicle.faults.includes('tire')) s.trip.vehicle.faults.push('tire'); // Stopping does not damage the engine.
     },
     describe(s) { return describe(s, {
       arrival: ['THUMP. THUMP. THUMP.', s.trip.vehicle.name + ' has a flat tire. You are parked off the road. You decide what to do next.'],
@@ -131,7 +131,7 @@
       work: ['TOOLS OUT. CONFIDENCE VARIABLE.', 'Attempting the repair will use thirty minutes and add some fatigue. Your skill, this vehicle, and its condition affect the result. No outcome is rolled until you commit.'],
       complication: ['THE REPAIR HAS DEVELOPED A SUBPLOT.', complicationText[data(s).complication]],
       store: ['A GENERAL STORE WITH A GAS PUMP.', 'You leave the car parked and walk here. The clerk has supplies, a phone, and opinions about your vehicle. You do not have to buy anything.']
-    }, 'breakdown'); },
+    }, s.trip.active.node === 'store' ? 'supplies' : 'breakdown'); },
     choices(s) {
       const d = data(s);
       switch (s.trip.active.node) {
@@ -160,5 +160,5 @@
     },
     repairChance
   };
-  return Object.freeze({diner, repair});
+  return Object.freeze(depth.enhance({diner, repair}));
 });

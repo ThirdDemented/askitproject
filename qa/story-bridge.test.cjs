@@ -11,7 +11,7 @@ function fixture(p = {}) { return {version: 4, departed: true, ended: false, cas
   cityData:{origin:{n:'Custom, IL',lat:40,lon:-90},dest:{n:'Denver, CO',lat:39,lon:-105}},
   cargo:{electronics:2}, sellers:{family:{visits:1}}, limits:{stipend:0}, assets:[{n:'GUITAR',sold:true}],
   log:['before'], futureField:{must:'survive'}, ...p}; }
-function turn(j,id) { const v=B.describe(j.story); return B.choose(j,{choiceId:id,interactionId:v.interactionId,revision:v.revision}); }
+function turn(j,id) { if(id==='eat'&&j.story.trip.active.node==='wrong')j=turn(j,'correct_order');if(id==='eat'&&j.story.trip.active.node==='outage')j=turn(j,'generator'); const v=B.describe(j.story); return B.choose(j,{choiceId:id,interactionId:v.interactionId,revision:v.revision}); }
 function path(j,ids) { return ids.reduce(turn,j); }
 function diner(j=fixture()) { return path(B.begin(j,'diner',{seed:E.hash('diner')}), ['enter','counter']); }
 test('bridge leaves the original snapshot and every unrelated field intact',()=>{
@@ -49,7 +49,7 @@ test('unknown schemas and inconsistent encounter/cash are rejected, not discarde
   j.currentEvent='food';j.cash=0;assert.throws(()=>B.validateSaved(j));
 });
 test('repair carries real consumables and honest help costs back to the road',()=>{
-  let j=B.begin(fixture(),'repair',{seed:951});assert.ok(j.vehicleFaults.includes('tire'));assert.equal(j.condition,77);
+  let j=B.begin(fixture(),'repair',{seed:951});assert.ok(j.vehicleFaults.includes('tire'));assert.equal(j.condition,80);
   j=path(j,['inspect','sealant']);assert.ok(!j.inventory.includes('fixflat'));
   if(j.story.trip.active.node!=='done') j=turn(j,'assistance');
   j=turn(j,'exit');assert.ok(!j.vehicleFaults.includes('tire'));assert.equal(j.currentEvent,null);
@@ -61,10 +61,10 @@ test('paid repair charges repair ledger once',()=>{
   assert.equal(j.cash,915);assert.equal(j.stats.repairsSpent,115);assert.equal(j.stats.totalSpent,135);
 });
 test('a new stop re-syncs road resources without losing this character’s relationships',()=>{
-  let j=path(diner(),['soup','placemat','eat','tip','exit']);const npc=j.story.world.npcs['diner.marnie'];
+  let j=path(diner(),['soup','placemat','eat','tip','exit']);const npc=j.story.world.npcs['diner:Roadside.server'];
   j.cash-=100;j.hunger=85;j.distance+=50;j.days-=1;
   j=B.begin(j,'diner');assert.equal(j.story.trip.cashCents,88500);assert.equal(j.story.trip.hunger,85);
-  assert.deepEqual(j.story.world.npcs['diner.marnie'],npc);
+  assert.deepEqual(j.story.world.npcs['diner:Roadside.server'],npc);
 });
 test('hard deadlines are spent by choices, not by reading or rounding',()=>{
   let j=B.begin(fixture({days:.5/1440}),'diner');assert.equal(j.story.trip.status,'active');
@@ -75,7 +75,7 @@ test('conversation is readable, optional, remembered in this trip only',()=>{
   let j;
   for(let seed=1;seed<100;seed++){j=path(B.begin(fixture(),'diner',{seed:E.hash('voice'+seed)}),['enter','counter','coffee']);if(B.describe(j.story).choices.some(c=>c.id==='engage'))break;}
   assert.ok(j.storyTranscript.some(l=>l.speaker!=='SCENE'&&l.speaker!=='YOU'));
-  const listened=path(j,['engage','listen_story','eat','pay','exit']);
+  const listened=path(j,['engage','listen_story','finish_talking','eat','pay','exit']);
   const ignored=path(j,['placemat','eat','pay','exit']);
   assert.equal(listened.cash,ignored.cash);assert.equal(listened.hunger,ignored.hunger);
   assert.deepEqual(listened.story.player.actions,{});assert.ok(listened.storyTranscript.some(l=>l.speaker==='YOU'));
