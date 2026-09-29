@@ -1,0 +1,42 @@
+name: ROADTEST - iteration acceptance (no release)
+on:
+  push:
+    branches: ['codex/chaos-phase1', 'codex/roadtest/**']
+    paths: ['app/**', 'qa/**', 'scripts/**', 'agents/ROADTEST.md', '.github/workflows/**', 'package*.json', 'requirements-art.txt']
+  pull_request:
+    paths: ['app/**', 'qa/**', 'scripts/**', 'agents/ROADTEST.md', '.github/workflows/**', 'package*.json', 'requirements-art.txt']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: roadtest-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  playtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Restore the existing art and pinned browser dependencies
+        run: |
+          python -m pip install -r requirements-art.txt
+          python scripts/rebuild_art.py
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Play the iteration against the spec and record failures
+        run: node qa/roadtest-agent.cjs
+      - name: Preserve report, traces and screenshots even when acceptance fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: roadtest-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          path: |
+            qa/results/
+            qa/captures/
+          if-no-files-found: warn

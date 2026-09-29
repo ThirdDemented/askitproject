@@ -1,0 +1,11 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {grade,tapAssertions}=require('./roadtest-agent.cjs');
+const spec={requirements:[{id:'DIALOGUE',title:'Real answer',proof:[['depth','answer exists']]}]};
+test('ROADTEST missing proof is unverified, never a pass',()=>{assert.equal(grade(spec,[])[0].status,'unverified');});
+test('ROADTEST process success without assertion proof is insufficient',()=>{assert.equal(grade(spec,[{id:'depth',status:'pass',assertions:[]}])[0].status,'unverified');});
+test('ROADTEST a failed suite cannot approve an earlier passed assertion',()=>{assert.equal(grade(spec,[{id:'depth',status:'fail',assertions:['answer exists']}])[0].status,'fail');});
+test('ROADTEST valid exact assertion receipts approve only the named requirement',()=>{assert.equal(grade(spec,[{id:'depth',status:'pass',assertions:['answer exists']}])[0].status,'automated-pass');});
+test('ROADTEST skipped and TODO Node tests do not count as evidence',()=>{assert.deepEqual(tapAssertions('ok 1 - actual\nok 2 - fake # SKIP\nok 3 - future # TODO\n# fail 0\n'),['actual']);});
+test('ROADTEST incomplete or failed Node results fail closed',()=>{assert.throws(()=>tapAssertions('ok 1 - x'));assert.throws(()=>tapAssertions('ok 1 - x\n# fail 1'));});
+test('ROADTEST an empty proof list is not evidence',()=>{assert.equal(grade({requirements:[{id:'empty',title:'empty',proof:[]}]},[])[0].status,'unverified');});
