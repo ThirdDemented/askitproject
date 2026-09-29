@@ -1,0 +1,9 @@
+/* Integrated encounters reuse the existing responsive road layout. */
+.story-choice-cost{display:block;font-size:12px;line-height:1.5;margin-top:5px;font-weight:normal;opacity:.9}
+.story-status{font-size:12px;line-height:1.5;padding:9px;border:1px solid #807964;margin:10px 0}
+#storyTranscript{border:1px solid #807964;padding:0 10px;margin:10px 0}
+#storyTranscript summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:12px;line-height:1.5}
+.story-transcript-lines{max-height:240px;overflow:auto;font-size:13px;line-height:1.6;white-space:pre-line}
+.story-transcript-lines p{margin:9px 0}
+#eventBody{white-space:pre-line}
+#dinerStopBtn,#storySoundBtn{min-height:44px}

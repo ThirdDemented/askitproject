@@ -1,0 +1,112 @@
+/* Browser integration through an explicit adapter into game.js, not DOM state
+ * scraping. Only the journey owns money/time/inventory and the saved encounter.
+ */
+(function (root) {
+  'use strict';
+  root.LWHStoryRuntime = function (api) {
+    const B = root.LWHStoryBridge, $ = id => document.getElementById(id);
+    const audio = root.LWHStoryAudio();
+    const money = cents => '$' + (cents / 100).toFixed(2);
+    function isActive() { return Boolean(api.getState().story?.trip.active); }
+    const transcript = document.createElement('details'); transcript.id = 'storyTranscript'; transcript.hidden = true;
+    const summary = document.createElement('summary'); summary.textContent = 'Read this stop’s conversation and events';
+    const lines = document.createElement('div'); lines.className = 'story-transcript-lines';
+    transcript.append(summary, lines); $('eventChoices').before(transcript);
+    const sound = document.createElement('button'); sound.id = 'storySoundBtn'; sound.type = 'button'; sound.className = 'btn2'; sound.hidden = true;
+    sound.onclick = () => { api.toggleSound(); refreshControls(); }; $('eventChoices').before(sound);
+    const status = document.createElement('p'); status.id = 'storyStatus'; status.className = 'story-status'; status.hidden = true;
+    $('eventChoices').before(status);
+    function refreshControls() {
+      const s = api.getState(), active = isActive();
+      sound.hidden = !active; sound.textContent = api.audio().soundOn ? 'MUTE SOUND' : 'ENABLE SOUND';
+      $('marketStopBtn').disabled = active;
+      $('dinerStopBtn').disabled = Boolean(s.currentEvent) || active || s.ended;
+      $('glassRepairBtn').hidden = !s.windshieldDamaged || Boolean(s.currentEvent) || active;
+      $('driveLegBtn').hidden = Boolean(s.currentEvent) || active;
+      transcript.hidden = !s.storyTranscript?.length;
+      if (!active) status.hidden = true;
+    }
+    function updateAudio() {
+      const s = api.getState(), a = s.story?.trip.active;
+      const paused = document.hidden || document.body.classList.contains('paused') || api.screen() !== 'roadScreen';
+      const nodes = api.audio();
+      const inDiner = Boolean(a && a.scene === 'diner' && !['arrival', 'done'].includes(a.node));
+      audio.update({active: inDiner, enabled: nodes.soundOn, paused, context: nodes.context, output: nodes.output,
+        id: a?.id || '', node: a?.node || ''});
+      // Existing score is retained, simply quieter under the diner soundscape.
+      if (nodes.music) nodes.music.gain.value = inDiner && !paused ? .08 : api.normalMusicGain;
+    }
+    function renderTranscript() {
+      lines.replaceChildren();
+      for (const entry of api.getState().storyTranscript || []) {
+        const p = document.createElement('p'), speaker = document.createElement('b');
+        speaker.textContent = entry.speaker + ': '; p.append(speaker, document.createTextNode(entry.text)); lines.append(p);
+      }
+      transcript.hidden = !lines.childElementCount;
+    }
+    function render() {
+      const s = api.getState();
+      if (!isActive()) { refreshControls(); renderTranscript(); updateAudio(); return; }
+      const v = B.describe(s.story);
+      api.setScene(v.art);
+      $('eventTag').textContent = v.scene === 'diner' ? 'DINER / ' + v.node.toUpperCase() : 'ROADSIDE REPAIR';
+      $('eventTitle').textContent = v.title; $('eventBody').textContent = v.body;
+      $('eventChoices').replaceChildren();
+      const bill = s.story.trip.active.data.billCents || 0;
+      status.hidden = false;
+      status.textContent = (bill ? money(bill) + ' set aside for your meal. ' : '') + 'Health ' + Math.round(s.health ?? 100) + '/100. Reading and rotating do not advance time.';
+      for (const choice of v.choices) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'choice'; b.dataset.storyChoice = choice.id;
+        b.textContent = choice.label; b.disabled = !choice.enabled;
+        const extras = [];
+        if (choice.minutes) extras.push(choice.minutes + ' game minutes');
+        if (choice.costCents) extras.push(money(choice.costCents));
+        if (choice.reserveCents) extras.push(money(choice.reserveCents) + ' reserved; pay after eating');
+        if (!choice.enabled) extras.push(choice.reason);
+        if (extras.length) { const small = document.createElement('small'); small.className = 'story-choice-cost'; small.textContent = extras.join(' · '); b.append(small); }
+        const token = {choiceId: choice.id, revision: v.revision, interactionId: v.interactionId};
+        b.onclick = () => { try { commit(B.choose(api.getState(), token)); } catch (e) { api.warn(e.message); } };
+        $('eventChoices').append(b);
+      }
+      renderTranscript(); refreshControls(); api.renderHud(); updateAudio();
+    }
+    function persist(next) {
+      next.cityData = api.cityData(); next.screen = 'roadScreen';
+      const old = localStorage.getItem(api.saveKey);
+      // Retain an untouched original v4 journey before its first story write.
+      if (old && !api.getState().story && !localStorage.getItem(B.BACKUP_KEY)) localStorage.setItem(B.BACKUP_KEY, old);
+      if (!old && api.getState().story) throw new Error('The saved journey was removed. Reopen it before choosing.');
+      if (old) {
+        const stored = JSON.parse(old);
+        if (api.getState().story && (!stored.story || stored.story.revision !== api.getState().story.revision || stored.story.trip.id !== api.getState().story.trip.id || stored.cash !== api.getState().cash)) {
+          throw new Error('This journey changed in another window. Reopen the saved journey before choosing.');
+        }
+      }
+      localStorage.setItem(api.saveKey, JSON.stringify(next));
+    }
+    function commit(next) {
+      // Do not show or consume a random outcome until its complete transaction
+      // has been persisted. Quota errors leave the former screen and state intact.
+      persist(next); api.setState(next); api.clearWarning();
+      if (api.checkFailure()) { audio.stop(); return; }
+      if (isActive()) render();
+      else {
+        $('eventTag').textContent = next.roadNarrative.tag;
+        $('eventTitle').textContent = next.roadNarrative.title;
+        $('eventBody').textContent = next.roadNarrative.body;
+        $('eventChoices').replaceChildren(); api.renderHud(); renderTranscript(); refreshControls(); updateAudio();
+      }
+    }
+    function begin(kind) {
+      try { commit(B.begin(api.getState(), kind)); }
+      catch (e) { api.warn('Could not start this stop: ' + e.message); }
+    }
+    function intercept(event, label) {
+      if (event === 'food' && label === 'ENTER DINER') { begin('diner'); return true; }
+      if (event === 'tire' && label === 'STOP NOW') { begin('repair'); return true; }
+      return false;
+    }
+    $('dinerStopBtn').onclick = () => { if (!api.getState().currentEvent && !isActive()) begin('diner'); };
+    return Object.freeze({isActive, begin, intercept, render, refreshControls, updateAudio, pause: audio.stop, audioStatus: audio.status});
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
