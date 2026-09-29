@@ -107,5 +107,18 @@
       describe(journey.story);
     }
   }
-  return Object.freeze({VERSION, BACKUP_KEY, begin, choose, describe, validateSaved});
+  function assertAutosaveSafe(current, raw) {
+    if (raw === null) {
+      if (current.story) throw new Error('The saved journey was removed. Start a new life explicitly to replace it.');
+      return;
+    }
+    const stored = JSON.parse(raw);
+    validateSaved(stored);
+    if (stored?.story || current.story) {
+      if (!stored?.story || !current.story || stored.story.trip.id !== current.story.trip.id || stored.story.revision !== current.story.revision) {
+        throw new Error('Another window changed this encounter. Reopen the saved journey before continuing.');
+      }
+    }
+  }
+  return Object.freeze({VERSION, BACKUP_KEY, begin, choose, describe, validateSaved, assertAutosaveSafe});
 });

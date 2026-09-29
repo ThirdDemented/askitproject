@@ -89,3 +89,17 @@ test('1000 roundtrip scene journeys retain road mileage and nonnegative cash',()
     assert.ok(steps<100);assert.equal(j.pendingLegMiles,original.pendingLegMiles);
   }
 });
+
+test('autosave cannot overwrite future, corrupt, removed, or concurrently changed encounters',()=>{
+  const j=diner(), original=JSON.stringify(j);
+  assert.doesNotThrow(()=>B.assertAutosaveSafe(j,original));
+  const changed=JSON.parse(original);changed.storyIntegrationVersion=99;
+  assert.throws(()=>B.assertAutosaveSafe(j,JSON.stringify(changed)),/Unsupported/);
+  changed.storyIntegrationVersion=1;changed.story.revision++;
+  assert.throws(()=>B.assertAutosaveSafe(j,JSON.stringify(changed)),/Another window/);
+  assert.throws(()=>B.assertAutosaveSafe(j,'{broken'));
+  assert.throws(()=>B.assertAutosaveSafe(j,null),/removed/);
+  assert.throws(()=>B.assertAutosaveSafe(fixture(),original),/Another window/);
+  assert.doesNotThrow(()=>B.assertAutosaveSafe(fixture(),null));
+  assert.equal(JSON.stringify(j),original);
+});

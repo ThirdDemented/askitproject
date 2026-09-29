@@ -12,10 +12,10 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
  const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'}),checks=[],errors=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.dismiss());
  await page.route(/router\.project-osrm\.org|photon\.komoot\.io/,r=>r.abort());
- const ok=(name,value)=>{assert.ok(value,name);checks.push(name);};
+ const ok=(name,value)=>{assert.ok(value,name);checks.push(name);console.log('PASS: '+name);};
  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('lwh-rc1-save')));
  const choose=id=>page.locator('[data-story-choice="'+id+'"]').click();
- const fixture=async(p={})=>page.evaluate(p=>{QA.fixture({departed:true,career:QA.careers.find(c=>c.id==='mechanic'),reason:QA.reasons.find(r=>r.id==='fresh'),car:{...QA.carPool.find(c=>c.id==='family'),boughtPrice:2000},cash:1000,days:12,distance:200,totalMiles:1600,fuel:95,condition:85,fatigue:20,hunger:70,morale:70,inventory:['toolkit','fixflat'],stats:QA.blankTripStats(),...p});QA.renderRoadHud();QA.show('roadScreen');},p);
+ const fixture=async(p={})=>page.evaluate(p=>{localStorage.removeItem('lwh-rc1-save');QA.fixture({departed:true,career:QA.careers.find(c=>c.id==='mechanic'),reason:QA.reasons.find(r=>r.id==='fresh'),car:{...QA.carPool.find(c=>c.id==='family'),boughtPrice:2000},cash:1000,days:12,distance:200,totalMiles:1600,fuel:95,condition:85,fatigue:20,hunger:70,morale:70,inventory:['toolkit','fixflat'],stats:QA.blankTripStats(),...p});QA.renderRoadHud();QA.show('roadScreen');},p);
  async function capture(name){await page.waitForFunction(()=>[...document.querySelectorAll('#roadScreen img')].filter(i=>i.getClientRects().length).every(i=>i.complete&&i.naturalWidth>0));await page.screenshot({path:path.join(out,name+'.png')});}
  try{
   await page.goto('http://127.0.0.1:'+server.address().port);await fixture();
@@ -30,7 +30,7 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
   await page.click('#storyTranscript summary');ok('readable transcript is present',await page.locator('.story-transcript-lines').innerText().then(t=>t.includes('YOU:')&&t.includes('griddle')));
   await capture('diner-waiting-portrait');
   for(const [w,h]of[[360,800],[844,390],[412,915],[1280,720]]){await page.setViewportSize({width:w,height:h});ok('integrated stop fits '+w+'x'+h,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}
-  await capture('diner-waiting-landscape');
+  await page.setViewportSize({width:844,height:390});await capture('diner-waiting-landscape');
   await page.reload();await page.click('#resumeBtn');
   ok('pending meal resumes with the same choice and random state',await page.evaluate(s=>JSON.stringify(QA.state().story)===JSON.stringify(s.story),s));
   await page.click('#tripLogRoadBtn');await page.click('#tripBackBtn');
@@ -48,7 +48,7 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
   await page.locator('#eventChoices button').filter({hasText:'STOP NOW'}).click();await choose('inspect');
   ok('zero-budget driver can stop without an $85 entry charge',(await state()).cash===0);
   ok('no toolkit means no work option',await page.locator('[data-story-choice="tools"]').count()===0);
-  await capture('tire-choices-portrait');const cause=(await state()).story.trip.active.data.cause;
+  await page.setViewportSize({width:390,height:844});await capture('tire-choices-portrait');const cause=(await state()).story.trip.active.data.cause;
   await page.reload();await page.click('#resumeBtn');ok('tire cause and choices survive reopening',(await state()).story.trip.active.data.cause===cause);
   await choose('walk');await choose('clerk_help');await choose('exit');s=await state();
   ok('zero-budget repair costs time and records a favor, not cash',s.cash===0&&s.stats.stopMinutes===170&&!s.vehicleFaults.includes('tire')&&s.story.world.flags.oweRoadsideFavor);
@@ -83,5 +83,5 @@ const server=http.createServer((req,res)=>{try{const pathname=decodeURIComponent
   ok('future encounter saves are rejected and retained',await page.evaluate(()=>localStorage.getItem('lwh-rc1-save'))===invalid);
   ok('no uncaught integration JavaScript errors',errors.length===0);
   const result={suite:'story-journey',passed:checks.length,checks,errors,audioPeak:peak};fs.writeFileSync(path.join(out,'results.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
- }finally{await browser.close();server.close();}
+ }catch(e){fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({passed:checks.length,checks,errors,error:e.message},null,2));await page.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});throw e;}finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1;});
